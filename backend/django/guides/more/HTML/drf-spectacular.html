@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ultimate Guide: drf-spectacular</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface2: #edf1f8;
+    --border: #d0daea;
+    --border-strong: #9ab0cc;
+    --text: #0d1829;
+    --muted: #4a6480;
+    --muted2: #7a9ab8;
+    --accent: #0ea5e9;
+    --accent-light: #f0f9ff;
+    --accent-mid: #06b6d4;
+    --accent-dark: #0369a1;
+    --blue: #1d4ed8;
+    --blue-light: #eff6ff;
+    --green: #047857;
+    --green-light: #d1fae5;
+    --amber: #b45309;
+    --amber-light: #fef3c7;
+    --red: #be123c;
+    --red-light: #fff1f2;
+    --purple: #6d28d9;
+    --purple-light: #ede9fe;
+    --ink: #060d1a;
+    --navy: #0c1e35;
+    --electric: #00d4ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.72;
+    font-weight: 400;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(6,13,26,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #0e2a45;
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0;
+    height: 50px; overflow-x: auto;
+  }
+
+  nav .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #60a5fa;
+    flex-shrink: 0;
+    margin-right: 2rem;
+    letter-spacing: 0.04em;
+  }
+  nav .logo span { color: var(--electric); }
+
+  nav a {
+    color: #3a6080;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0 0.8rem;
+    height: 50px;
+    display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  nav a:hover { color: var(--electric); border-bottom-color: var(--electric); }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--navy);
+    color: #e0eaf8;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 85%, rgba(0,212,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 15%, rgba(14,165,233,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(0,212,255,0.03) 47px, rgba(0,212,255,0.03) 48px),
+      repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(0,212,255,0.03) 47px, rgba(0,212,255,0.03) 48px);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--electric);
+    margin-bottom: 1.75rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.8rem, 6.5vw, 5rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.08;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    color: #f0f8ff;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 strong {
+    font-style: normal;
+    font-weight: 400;
+    color: var(--electric);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    letter-spacing: 0.04em;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    color: rgba(224,234,248,0.55);
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.82;
+    position: relative;
+    z-index: 1;
+    font-weight: 300;
+    font-style: italic;
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.1rem;
+  }
+
+  .hero-meta {
+    display: flex; align-items: center; justify-content: center;
+    gap: 2rem; position: relative; z-index: 1;
+  }
+  .hero-meta a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(224,234,248,0.3);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  .hero-meta a:hover { color: var(--electric); }
+
+  /* ── CONTENT ── */
+  .content { max-width: 840px; margin: 0 auto; padding: 0 2rem 8rem; }
+  section { margin-bottom: 5rem; scroll-margin-top: 68px; }
+
+  /* ── HEADINGS ── */
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.1rem;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent-dark);
+    text-transform: uppercase;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .divider {
+    width: 32px; height: 2px;
+    background: var(--accent);
+    margin: 0.75rem 0 2rem;
+  }
+
+  p { margin-bottom: 1.25rem; color: #1e3348; font-size: 0.97rem; }
+  strong { color: var(--ink); font-weight: 500; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: #060d1a;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 0.83rem;
+    border: 1px solid #0d2035;
+    box-shadow: 0 0 0 1px rgba(0,212,255,0.05), 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .code-header {
+    background: #040b16;
+    border-bottom: 1px solid #0d2035;
+    padding: 0.5rem 1.2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .code-header span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: #1e4060;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid #0d2035;
+    color: #1e4060;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--electric); border-color: var(--electric); }
+
+  pre {
+    padding: 1.4rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.82;
+    color: #b8d4f0;
+    tab-size: 4;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: #e8f0fb;
+    padding: 0.1em 0.38em;
+    border-radius: 3px;
+    color: var(--accent-dark);
+  }
+  pre code { background: none; padding: 0; color: #b8d4f0; font-size: 1em; }
+
+  .kw  { color: #38bdf8; }
+  .st  { color: #86efac; }
+  .cm  { color: #1a3850; font-style: italic; }
+  .fn  { color: #7dd3fc; }
+  .nm  { color: #fde68a; }
+  .hl2 { color: #5eead4; }
+  .num { color: #fb923c; }
+  .hl3 { color: #c084fc; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 5px;
+    padding: 1rem 1.3rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    font-size: 0.91rem;
+  }
+  .callout.info    { background: var(--blue-light);   border-color: var(--blue);   }
+  .callout.warning { background: var(--amber-light);  border-color: var(--amber);  }
+  .callout.tip     { background: var(--green-light);  border-color: var(--green);  }
+  .callout.danger  { background: var(--red-light);    border-color: var(--red);    }
+  .callout.note    { background: var(--accent-light); border-color: var(--accent); }
+
+  .callout strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+  }
+  .callout.info    strong { color: var(--blue);   }
+  .callout.warning strong { color: var(--amber);  }
+  .callout.tip     strong { color: var(--green);  }
+  .callout.danger  strong { color: var(--red);    }
+  .callout.note    strong { color: var(--accent-dark); }
+  .callout p { margin: 0; color: #1e3348; font-size: 0.9rem; }
+
+  /* ── TABLES ── */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  .data-table th {
+    background: var(--navy);
+    color: #7ab8d8;
+    padding: 0.65rem 1rem;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border-bottom: 1px solid #0d2035;
+  }
+  .data-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: #1e3348; font-size: 0.87rem; vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem; color: var(--accent-dark); white-space: nowrap;
+  }
+  .data-table tr:hover td { background: var(--accent-light); }
+
+  /* ── TWO COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.35rem;
+    border-top: 3px solid var(--accent);
+  }
+  .card h4 {
+    margin-top: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent-dark);
+    margin-bottom: 0.75rem; padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .card ul { list-style: none; }
+  .card ul li {
+    padding: 0.28rem 0; font-size: 0.87rem;
+    color: #1e3348; display: flex; gap: 0.65rem;
+  }
+  .card ul li::before { content: '//'; color: var(--accent); font-size: 0.7rem; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; margin-top: 0.1rem; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--navy);
+    border-radius: 6px;
+    padding: 2rem;
+    margin: 3rem 0 4rem;
+    color: #7ab8d8;
+    border: 1px solid #0d2035;
+  }
+  .toc h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 0.62rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin-top: 0; margin-bottom: 1.25rem;
+    color: var(--electric);
+    text-transform: uppercase;
+  }
+  .toc ol { padding-left: 1.25rem; columns: 2; column-gap: 2.5rem; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+  .toc ol li { margin-bottom: 0.38rem; break-inside: avoid; }
+  .toc a {
+    color: #4a8aaa; text-decoration: none;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.86rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--electric); }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; }
+  .step {
+    position: relative; padding-left: 3.75rem;
+    margin-bottom: 2.5rem; counter-increment: step;
+  }
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute; left: 0; top: 0.05rem;
+    width: 2.4rem; height: 2.4rem;
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--electric);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 500;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h3 { margin-top: 0.2rem; }
+
+  /* ── API FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem 1.3rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; font-weight: 700;
+    color: var(--accent); flex-shrink: 0;
+    width: 1.6rem; margin-top: 0.05rem;
+  }
+  .flow-content { font-size: 0.88rem; color: #1e3348; }
+  .flow-content strong { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; color: var(--accent-dark); }
+
+  /* ── PITFALL ── */
+  .pitfall {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--red);
+  }
+  .pitfall-problem {
+    background: var(--red-light);
+    border-bottom: 1px solid #fecdd3;
+    padding: 0.75rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 500;
+    color: var(--red); letter-spacing: 0.04em;
+  }
+  .pitfall-body { background: var(--surface); padding: 0.9rem 1.2rem; }
+  .pitfall-body p { font-size: 0.88rem; margin-bottom: 0.5rem; color: #1e3348; }
+  .pitfall-body p:last-child { margin-bottom: 0; }
+  .pitfall-body .cause {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+    color: var(--muted); font-style: italic; display: block; margin-bottom: 0.4rem;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem;
+    margin: 0.9rem 0;
+    border-left: 3px solid var(--accent);
+  }
+  .checklist-group h4 {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+    color: var(--accent-dark); text-transform: uppercase;
+    letter-spacing: 0.14em; margin-bottom: 0.7rem; margin-top: 0;
+  }
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.42rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; color: #1e3348; display: flex; gap: 0.7rem; align-items: flex-start;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '☐'; font-size: 0.95rem; color: var(--border-strong); flex-shrink: 0; margin-top: 0.05rem;
+  }
+
+  /* ── PILL ── */
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 500;
+    padding: 0.1rem 0.5rem;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    margin-left: 0.3rem;
+  }
+  .pill.auto { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+  .pill.manual { background: var(--amber-light); color: var(--amber); border: 1px solid #fde68a; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    color: rgba(122,184,216,0.35);
+    padding: 2rem; text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.06em;
+  }
+  footer a { color: rgba(122,184,216,0.45); text-decoration: none; }
+  footer a:hover { color: var(--electric); }
+
+  @media (max-width: 640px) {
+    h2 { font-size: 1.7rem; }
+    .hero h1 { font-size: 2.5rem; }
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .content { padding: 0 1.25rem 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">drf-<span>spectacular</span></span>
+  <a href="#whatis">What It Is</a>
+  <a href="#howworks">Under the Hood</a>
+  <a href="#install">Install</a>
+  <a href="#settings">Settings</a>
+  <a href="#urls">URLs</a>
+  <a href="#static">Static Schema</a>
+  <a href="#discovery">Discovery</a>
+  <a href="#extendschema">@extend_schema</a>
+  <a href="#extendview">@extend_schema_view</a>
+  <a href="#params">Parameters</a>
+  <a href="#responses">Responses</a>
+  <a href="#inline">inline_serializer</a>
+  <a href="#fieldlevel">Field-Level</a>
+  <a href="#examples">Examples</a>
+  <a href="#excluding">Excluding</a>
+  <a href="#tags">Tags</a>
+  <a href="#auth">Auth</a>
+  <a href="#polymorphic">Polymorphic</a>
+  <a href="#hooks">Hooks</a>
+  <a href="#pitfalls">Pitfalls</a>
+  <a href="#checklist">Checklist</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Ultimate Guide — #4 of 6</div>
+  <h1>
+    <strong>drf-spectacular</strong>
+    OpenAPI 3 for Django REST Framework
+  </h1>
+  <p>Automatic schema generation, Swagger UI, ReDoc, and static schema export. The official DRF-recommended solution for API documentation.</p>
+  <div class="hero-meta">
+    <a href="https://drf-spectacular.readthedocs.io/" target="_blank">readthedocs.io</a>
+    <a href="https://github.com/tfranzel/drf-spectacular" target="_blank">GitHub</a>
+    <a href="https://pypi.org/project/drf-spectacular/" target="_blank">PyPI</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#whatis">What is drf-spectacular and Why Use It</a></li>
+      <li><a href="#howworks">How It Works Under the Hood</a></li>
+      <li><a href="#install">Installation</a></li>
+      <li><a href="#settings">The SPECTACULAR_SETTINGS Dictionary</a></li>
+      <li><a href="#urls">Serving the Schema — URLs and Views</a></li>
+      <li><a href="#static">Generating a Static Schema File</a></li>
+      <li><a href="#discovery">How drf-spectacular Discovers Your API</a></li>
+      <li><a href="#extendschema">The @extend_schema Decorator</a></li>
+      <li><a href="#extendview">The @extend_schema_view Decorator</a></li>
+      <li><a href="#params">Query and Path Parameters — OpenApiParameter</a></li>
+      <li><a href="#responses">Response Customization</a></li>
+      <li><a href="#inline">Inline Serializers</a></li>
+      <li><a href="#fieldlevel">Field-Level Schema Annotations</a></li>
+      <li><a href="#examples">Adding Examples</a></li>
+      <li><a href="#excluding">Excluding Views and Operations</a></li>
+      <li><a href="#tags">Tags — Organizing Operations</a></li>
+      <li><a href="#auth">Authentication in the Schema</a></li>
+      <li><a href="#polymorphic">Polymorphic Responses</a></li>
+      <li><a href="#hooks">Custom Extensions — Hooks and Postprocessors</a></li>
+      <li><a href="#pitfalls">Common Pitfalls &amp; Troubleshooting</a></li>
+      <li><a href="#checklist">Checklist</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="whatis">
+    <span class="section-label">Section 01</span>
+    <h2>What is drf-spectacular and Why Use It</h2>
+    <div class="divider"></div>
+
+    <p>Any API that other developers or services must consume needs documentation. Without it, consumers must read your source code to understand what endpoints exist, what parameters they accept, what they return, and what authentication they require.</p>
+
+    <p><strong>OpenAPI 3</strong> is the industry-standard specification for describing REST APIs in a machine-readable format. From an OpenAPI schema you can generate interactive documentation, strongly-typed client SDKs in dozens of languages, automated test suites, and mock servers.</p>
+
+    <p><strong>drf-spectacular</strong> generates OpenAPI 3 schemas automatically from your existing Django REST Framework views, serializers, and routers. It is the library that the DRF project itself recommends as the successor to the deprecated built-in schema generation.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h4>What drf-spectacular gives you</h4>
+        <ul>
+          <li>Automatic OpenAPI 3 schema generation from your DRF views and serializers</li>
+          <li>Swagger UI and ReDoc interactive documentation served from your running app</li>
+          <li>A <code>manage.py spectacular</code> command to export static YAML/JSON schema files</li>
+          <li>Reusable schema components — serializers are not duplicated</li>
+          <li>Support for pagination, django-filter, nested serializers, and common auth classes</li>
+          <li>The <code>@extend_schema</code> decorator to override anything automatic discovery gets wrong</li>
+          <li>Polymorphic responses (different serializers based on a condition)</li>
+          <li>Schema validation to catch errors before consumers do</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>What drf-spectacular does NOT do</h4>
+        <ul>
+          <li>Does not create or manage your API — only documents what you already have</li>
+          <li>Does not enforce that your API behaves like the docs say (that is contract testing)</li>
+          <li>Does not support Swagger 2.0 / OpenAPI 2.0 (use drf-yasg for that, but it is unmaintained)</li>
+        </ul>
+        <p style="margin-top:1rem;font-size:0.83rem;color:var(--muted);font-style:italic;">The design principle: automatic schema generation covers 80% of cases. <code>@extend_schema</code> handles the rest.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="howworks">
+    <span class="section-label">Section 02</span>
+    <h2>How It Works Under the Hood</h2>
+    <div class="divider"></div>
+
+    <p>drf-spectacular works in two phases: <strong>discovery</strong> and <strong>rendering</strong>. Discovery happens at schema generation time, not at request time — so it has zero impact on your API's performance.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>discovery → rendering pipeline</span></div>
+      <pre><code>URL conf (urlpatterns)
+    ↓ discover registered views
+DRF views (ViewSet, APIView, @api_view)
+    ↓ introspect each view
+serializer_class, queryset, filter_backends,
+pagination_class, authentication_classes, permission_classes
+    ↓ build internal schema representation
+Operations, Components, Parameters, Responses
+    ↓ @extend_schema decorators override / augment
+    ↓ postprocessing hooks run last
+OpenAPI 3 YAML/JSON document
+    ↓ served via SpectacularAPIView or written to disk
+Swagger UI / ReDoc / Client SDKs / Test suites</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="install">
+    <span class="section-label">Section 03</span>
+    <h2>Installation</h2>
+    <div class="divider"></div>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Install the package</h3>
+        <div class="code-block">
+          <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>pip install drf-spectacular
+
+<span class="cm"># or with uv</span>
+uv add drf-spectacular
+
+<span class="cm"># or with poetry</span>
+poetry add drf-spectacular</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Add to INSTALLED_APPS</h3>
+        <div class="code-block">
+          <div class="code-header"><span>settings.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>INSTALLED_APPS = [
+    <span class="cm"># ... your other apps</span>
+    <span class="st">'drf_spectacular'</span>,
+]</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Tell DRF to use drf-spectacular's AutoSchema</h3>
+        <div class="callout danger">
+          <strong>Critical step</strong>
+          <p>Without this, drf-spectacular's introspection does not run and your schema will be empty.</p>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span>settings.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>REST_FRAMEWORK = {
+    <span class="st">'DEFAULT_SCHEMA_CLASS'</span>: <span class="st">'drf_spectacular.openapi.AutoSchema'</span>,
+    <span class="cm"># ... your other DRF settings</span>
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Add minimal metadata</h3>
+        <div class="code-block">
+          <div class="code-header"><span>settings.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>SPECTACULAR_SETTINGS = {
+    <span class="st">'TITLE'</span>: <span class="st">'My Project API'</span>,
+    <span class="st">'DESCRIPTION'</span>: <span class="st">'API documentation for My Project.'</span>,
+    <span class="st">'VERSION'</span>: <span class="st">'1.0.0'</span>,
+    <span class="st">'SERVE_INCLUDE_SCHEMA'</span>: <span class="hl2">False</span>,  <span class="cm"># hide schema endpoint from the schema itself</span>
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Verify installation</h3>
+        <div class="code-block">
+          <div class="code-header"><span>bash</span></div>
+          <pre><code><span class="cm"># Generate and validate in one step</span>
+python manage.py spectacular --file schema.yaml --validate</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="settings">
+    <span class="section-label">Section 04</span>
+    <h2>The SPECTACULAR_SETTINGS Dictionary</h2>
+    <div class="divider"></div>
+
+    <p>All configuration lives in a single <code>SPECTACULAR_SETTINGS</code> dictionary. None of these settings are required — the schema generates with just the <code>AutoSchema</code> class set.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — complete annotated reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>SPECTACULAR_SETTINGS = {
+    <span class="cm"># ── API metadata ─────────────────────────────────────────────────────────</span>
+    <span class="st">'TITLE'</span>: <span class="st">'My Project API'</span>,
+    <span class="st">'DESCRIPTION'</span>: <span class="st">"""
+        Complete API documentation.
+
+        ## Authentication
+        All endpoints require a JWT token in the Authorization header.
+    """</span>,
+    <span class="st">'VERSION'</span>: <span class="st">'1.0.0'</span>,
+    <span class="st">'TERMS_OF_SERVICE'</span>: <span class="st">'https://www.example.com/terms/'</span>,
+    <span class="st">'CONTACT'</span>: {<span class="st">'name'</span>: <span class="st">'API Support'</span>, <span class="st">'email'</span>: <span class="st">'api@example.com'</span>},
+    <span class="st">'LICENSE'</span>: {<span class="st">'name'</span>: <span class="st">'MIT'</span>},
+
+    <span class="cm"># ── Schema behavior ───────────────────────────────────────────────────────</span>
+    <span class="st">'SERVE_INCLUDE_SCHEMA'</span>: <span class="hl2">False</span>,      <span class="cm"># hide schema endpoint from itself</span>
+    <span class="st">'SERVE_PUBLIC'</span>: <span class="hl2">True</span>,              <span class="cm"># allow unauthenticated schema access</span>
+    <span class="st">'SCHEMA_PATH_PREFIX'</span>: <span class="st">'/api/v[0-9]'</span>,  <span class="cm"># strip version from operation IDs</span>
+
+    <span class="cm"># ── Enum handling ─────────────────────────────────────────────────────────</span>
+    <span class="st">'ENUM_GENERATE_CHOICE_DESCRIPTION'</span>: <span class="hl2">True</span>,
+
+    <span class="cm"># ── Postprocessing (ALWAYS include the enum hook) ─────────────────────────</span>
+    <span class="st">'POSTPROCESSING_HOOKS'</span>: [
+        <span class="st">'drf_spectacular.hooks.postprocess_schema_enums'</span>,
+    ],
+
+    <span class="cm"># ── Swagger UI ───────────────────────────────────────────────────────────</span>
+    <span class="st">'SWAGGER_UI_SETTINGS'</span>: {
+        <span class="st">'deepLinking'</span>: <span class="hl2">True</span>,
+        <span class="st">'persistAuthorization'</span>: <span class="hl2">True</span>,
+        <span class="st">'displayOperationId'</span>: <span class="hl2">False</span>,
+        <span class="st">'filter'</span>: <span class="hl2">True</span>,
+        <span class="st">'displayRequestDuration'</span>: <span class="hl2">True</span>,
+        <span class="st">'docExpansion'</span>: <span class="st">'list'</span>,
+    },
+
+    <span class="cm"># ── Servers ──────────────────────────────────────────────────────────────</span>
+    <span class="st">'SERVERS'</span>: [
+        {<span class="st">'url'</span>: <span class="st">'https://api.example.com'</span>, <span class="st">'description'</span>: <span class="st">'Production'</span>},
+        {<span class="st">'url'</span>: <span class="st">'http://localhost:8000'</span>,  <span class="st">'description'</span>: <span class="st">'Local'</span>},
+    ],
+
+    <span class="cm"># ── Global security ──────────────────────────────────────────────────────</span>
+    <span class="st">'APPEND_COMPONENTS'</span>: {
+        <span class="st">'securitySchemes'</span>: {
+            <span class="st">'bearerAuth'</span>: {
+                <span class="st">'type'</span>: <span class="st">'http'</span>,
+                <span class="st">'scheme'</span>: <span class="st">'bearer'</span>,
+                <span class="st">'bearerFormat'</span>: <span class="st">'JWT'</span>,
+            }
+        }
+    },
+    <span class="st">'SECURITY'</span>: [{<span class="st">'bearerAuth'</span>: []}],
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="urls">
+    <span class="section-label">Section 05</span>
+    <h2>Serving the Schema — URLs and Views</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>urls.py — all three schema views</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.urls <span class="kw">import</span> path
+<span class="kw">from</span> drf_spectacular.views <span class="kw">import</span> (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
+
+urlpatterns = [
+    path(<span class="st">'api/'</span>, include(<span class="st">'myapp.urls'</span>)),
+
+    <span class="cm"># schema endpoints</span>
+    path(<span class="st">'api/schema/'</span>,          SpectacularAPIView.as_view(), name=<span class="st">'schema'</span>),
+    path(<span class="st">'api/schema/swagger-ui/'</span>, SpectacularSwaggerView.as_view(url_name=<span class="st">'schema'</span>), name=<span class="st">'swagger-ui'</span>),
+    path(<span class="st">'api/schema/redoc/'</span>,      SpectacularRedocView.as_view(url_name=<span class="st">'schema'</span>),   name=<span class="st">'redoc'</span>),
+]</code></pre>
+    </div>
+
+    <p>With this configuration: <code>GET /api/schema/</code> returns the YAML document, <code>?format=json</code> returns JSON, <code>/swagger-ui/</code> shows interactive Swagger UI, <code>/redoc/</code> shows ReDoc.</p>
+
+    <h3>Restricting Schema Access</h3>
+    <div class="code-block">
+      <div class="code-header"><span>urls.py — requiring authentication</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> rest_framework.permissions <span class="kw">import</span> IsAdminUser
+
+path(
+    <span class="st">'api/schema/'</span>,
+    SpectacularAPIView.as_view(permission_classes=[IsAdminUser]),
+    name=<span class="st">'schema'</span>,
+),</code></pre>
+    </div>
+
+    <h3>Versioned Schema URLs</h3>
+    <div class="code-block">
+      <div class="code-header"><span>urls.py — per-version schemas</span></div>
+      <pre><code>path(<span class="st">'api/schema/v1/'</span>, SpectacularAPIView.as_view(api_version=<span class="st">'v1'</span>), name=<span class="st">'schema-v1'</span>),
+path(<span class="st">'api/schema/v2/'</span>, SpectacularAPIView.as_view(api_version=<span class="st">'v2'</span>), name=<span class="st">'schema-v2'</span>),</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="static">
+    <span class="section-label">Section 06</span>
+    <h2>Generating a Static Schema File</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — management command options</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Generate YAML (default)</span>
+python manage.py spectacular --file schema.yaml
+
+<span class="cm"># Generate JSON</span>
+python manage.py spectacular --file schema.json --format json
+
+<span class="cm"># Generate and validate in one step</span>
+python manage.py spectacular --file schema.yaml --validate
+
+<span class="cm"># Generate for a specific API version</span>
+python manage.py spectacular --file schema-v2.yaml --api-version v2
+
+<span class="cm"># Output to stdout (useful in pipelines)</span>
+python manage.py spectacular</code></pre>
+    </div>
+
+    <h3>CI Integration</h3>
+    <div class="code-block">
+      <div class="code-header"><span>.github/workflows/ci.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>- name: Validate API Schema
+  run: |
+    python manage.py spectacular --file schema.yaml --validate
+    git diff --exit-code schema.yaml   <span class="cm"># fail if schema changed unexpectedly</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="discovery">
+    <span class="section-label">Section 07</span>
+    <h2>How drf-spectacular Discovers Your API</h2>
+    <div class="divider"></div>
+
+    <table class="data-table">
+      <thead><tr><th>Feature</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>ViewSets on a Router</td><td><span class="pill auto">auto</span></td><td>Full CRUD with correct HTTP methods</td></tr>
+        <tr><td>serializer_class attribute</td><td><span class="pill auto">auto</span></td><td>Used for both request and response</td></tr>
+        <tr><td>queryset attribute</td><td><span class="pill auto">auto</span></td><td>Model fields inferred from it</td></tr>
+        <tr><td>filter_backends</td><td><span class="pill auto">auto</span></td><td>Query parameters from filter class fields</td></tr>
+        <tr><td>pagination_class</td><td><span class="pill auto">auto</span></td><td>Response wrapped in pagination envelope</td></tr>
+        <tr><td>authentication_classes</td><td><span class="pill auto">auto</span></td><td>Security requirements inferred</td></tr>
+        <tr><td>Docstrings</td><td><span class="pill auto">auto</span></td><td>Used as operation description</td></tr>
+        <tr><td>APIView without serializer_class</td><td><span class="pill manual">manual</span></td><td>Use @extend_schema(request=..., responses=...)</td></tr>
+        <tr><td>Dynamic get_serializer_class()</td><td><span class="pill manual">manual</span></td><td>Add swagger_fake_view guard</td></tr>
+        <tr><td>SerializerMethodField</td><td><span class="pill manual">manual</span></td><td>Use @extend_schema_field</td></tr>
+        <tr><td>Per-status-code responses</td><td><span class="pill manual">manual</span></td><td>Use @extend_schema(responses={...})</td></tr>
+        <tr><td>Custom field classes</td><td><span class="pill manual">manual</span></td><td>Use @extend_schema_field</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="extendschema">
+    <span class="section-label">Section 08</span>
+    <h2>The @extend_schema Decorator</h2>
+    <div class="divider"></div>
+
+    <p><code>@extend_schema</code> is the primary customization tool. It partially or completely overrides what drf-spectacular generates for a view method. Only specify the arguments where automatic discovery is wrong or incomplete.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — full reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> extend_schema, OpenApiParameter, OpenApiResponse
+
+@extend_schema(
+    operation_id=<span class="st">'my_custom_operation_id'</span>,  <span class="cm"># override auto-generated ID</span>
+    summary=<span class="st">'Get album'</span>,                    <span class="cm"># one-line summary</span>
+    description=<span class="st">'Retrieve a specific album.'</span>,  <span class="cm"># longer description</span>
+    tags=[<span class="st">'Albums'</span>],                         <span class="cm"># grouping in Swagger UI / ReDoc</span>
+    deprecated=<span class="hl2">False</span>,
+    request=AlbumCreateSerializer,              <span class="cm"># override request body</span>
+    responses={
+        <span class="num">200</span>: AlbumSerializer,
+        <span class="num">404</span>: OpenApiResponse(description=<span class="st">'Album not found.'</span>),
+        <span class="num">422</span>: OpenApiResponse(response=ErrorSerializer, description=<span class="st">'Validation error.'</span>),
+    },
+    parameters=[
+        OpenApiParameter(<span class="st">'include_hidden'</span>, bool, description=<span class="st">'Include hidden albums.'</span>),
+    ],
+    auth=<span class="hl2">None</span>,   <span class="cm"># empty list [] = no auth required; None = use default</span>
+    methods=[<span class="st">'GET'</span>],          <span class="cm"># scope to specific HTTP methods</span>
+    versions=[<span class="st">'v2'</span>],          <span class="cm"># scope to specific API versions</span>
+    exclude=<span class="hl2">False</span>,             <span class="cm"># True to hide from schema entirely</span>
+)
+<span class="kw">def</span> <span class="fn">my_view</span>(request, pk):
+    ...</code></pre>
+    </div>
+
+    <h3>Common Patterns</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>common @extend_schema patterns</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Different request vs response serializer</span>
+@extend_schema(request=AlbumCreateSerializer, responses={<span class="num">201</span>: AlbumDetailSerializer})
+<span class="kw">def</span> <span class="fn">create</span>(self, request, *args, **kwargs):
+    <span class="kw">return</span> super().create(request, *args, **kwargs)
+
+<span class="cm"># Multiple response status codes</span>
+@extend_schema(
+    responses={
+        <span class="num">200</span>: UserSerializer,
+        <span class="num">401</span>: OpenApiResponse(description=<span class="st">'Authentication required.'</span>),
+        <span class="num">403</span>: OpenApiResponse(description=<span class="st">'Permission denied.'</span>),
+        <span class="num">404</span>: OpenApiResponse(description=<span class="st">'Not found.'</span>),
+    }
+)
+<span class="kw">def</span> <span class="fn">retrieve</span>(self, request, *args, **kwargs): ...
+
+<span class="cm"># Mark as public (no auth required)</span>
+@extend_schema(auth=[])
+@api_view([<span class="st">'GET'</span>])
+<span class="kw">def</span> <span class="fn">public_health_check</span>(request):
+    <span class="kw">return</span> Response({<span class="st">'status'</span>: <span class="st">'ok'</span>})</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 9 -->
+  <section id="extendview">
+    <span class="section-label">Section 09</span>
+    <h2>The @extend_schema_view Decorator</h2>
+    <div class="divider"></div>
+
+    <p>When your ViewSet inherits default methods (list, create, retrieve…) from a base class, you have nothing to attach <code>@extend_schema</code> to. <code>@extend_schema_view</code> lets you annotate those methods from the outside.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — extend_schema_view on a ModelViewSet</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> extend_schema, extend_schema_view
+
+@extend_schema_view(
+    list=extend_schema(
+        summary=<span class="st">'List all albums'</span>,
+        description=<span class="st">'Returns a paginated list of all albums.'</span>,
+        parameters=[OpenApiParameter(<span class="st">'genre'</span>, str, description=<span class="st">'Filter by genre.'</span>)],
+    ),
+    create=extend_schema(
+        summary=<span class="st">'Create an album'</span>,
+        request=AlbumCreateSerializer,
+        responses={<span class="num">201</span>: AlbumDetailSerializer},
+    ),
+    retrieve=extend_schema(summary=<span class="st">'Get album details'</span>),
+    update=extend_schema(summary=<span class="st">'Update an album'</span>, request=AlbumUpdateSerializer),
+    partial_update=extend_schema(summary=<span class="st">'Partial update'</span>, request=AlbumUpdateSerializer),
+    destroy=extend_schema(summary=<span class="st">'Delete an album'</span>, responses={<span class="num">204</span>: <span class="hl2">None</span>}),
+    <span class="cm"># Custom @action methods also work:</span>
+    favorites=extend_schema(
+        summary=<span class="st">'Get user favorites'</span>,
+        responses={<span class="num">200</span>: AlbumSerializer(many=<span class="hl2">True</span>)},
+    ),
+)
+<span class="kw">class</span> <span class="nm">AlbumViewSet</span>(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section id="params">
+    <span class="section-label">Section 10</span>
+    <h2>Query and Path Parameters — OpenApiParameter</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>OpenApiParameter — full reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> OpenApiParameter
+<span class="kw">from</span> drf_spectacular.types <span class="kw">import</span> OpenApiTypes
+
+OpenApiParameter(
+    name=<span class="st">'search'</span>,
+    type=str,                          <span class="cm"># Python type, OpenApiTypes, or Serializer</span>
+    location=OpenApiParameter.QUERY,   <span class="cm"># QUERY, PATH, HEADER, or COOKIE</span>
+    required=<span class="hl2">False</span>,
+    description=<span class="st">'Search by album title.'</span>,
+    enum=[<span class="st">'active'</span>, <span class="st">'inactive'</span>, <span class="st">'all'</span>],  <span class="cm"># restrict to allowed values</span>
+    pattern=<span class="st">r'^[A-Z]{2}\d{4}$'</span>,           <span class="cm"># regex validation</span>
+    deprecated=<span class="hl2">False</span>,
+    default=<span class="st">'active'</span>,
+    many=<span class="hl2">False</span>,                            <span class="cm"># True = accepts multiple values (array)</span>
+)</code></pre>
+    </div>
+
+    <h3>OpenApiTypes for Precise Type Control</h3>
+    <div class="code-block">
+      <div class="code-header"><span>OpenApiTypes reference</span></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.types <span class="kw">import</span> OpenApiTypes
+
+OpenApiTypes.STR      <span class="cm"># string</span>
+OpenApiTypes.INT      <span class="cm"># integer</span>
+OpenApiTypes.INT64    <span class="cm"># integer (64-bit)</span>
+OpenApiTypes.FLOAT    <span class="cm"># number (float)</span>
+OpenApiTypes.BOOL     <span class="cm"># boolean</span>
+OpenApiTypes.DATE     <span class="cm"># string (date, YYYY-MM-DD)</span>
+OpenApiTypes.DATETIME <span class="cm"># string (date-time, ISO 8601)</span>
+OpenApiTypes.UUID     <span class="cm"># string (UUID)</span>
+OpenApiTypes.URI      <span class="cm"># string (URI)</span>
+OpenApiTypes.EMAIL    <span class="cm"># string (email)</span>
+OpenApiTypes.DECIMAL  <span class="cm"># string (decimal)</span>
+OpenApiTypes.BINARY   <span class="cm"># file / binary response</span>
+OpenApiTypes.OBJECT   <span class="cm"># object (dict)</span>
+OpenApiTypes.ANY      <span class="cm"># any type</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 11 -->
+  <section id="responses">
+    <span class="section-label">Section 11</span>
+    <h2>Response Customization</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>per-status-code responses</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>@extend_schema(
+    responses={
+        <span class="num">200</span>: AlbumSerializer,
+        <span class="num">201</span>: OpenApiResponse(response=AlbumSerializer, description=<span class="st">'Created.'</span>),
+        <span class="num">400</span>: OpenApiResponse(response=ValidationErrorSerializer, description=<span class="st">'Invalid data.'</span>),
+        <span class="num">401</span>: OpenApiResponse(description=<span class="st">'Authentication required.'</span>),
+        <span class="num">404</span>: OpenApiResponse(description=<span class="st">'Not found.'</span>),
+        <span class="cm"># Empty 204 response (successful deletion)</span>
+        <span class="num">204</span>: <span class="hl2">None</span>,
+        <span class="cm"># Binary file response</span>
+        <span class="num">200</span>: OpenApiResponse(response=OpenApiTypes.BINARY, description=<span class="st">'JPEG image.'</span>),
+    }
+)</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Create operations</strong>
+      <p>Use <code>responses={201: Serializer}</code> (not <code>200</code>) for create operations. Using <code>200</code> for a response that should be <code>201</code> is a common error that breaks client generators.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 12 -->
+  <section id="inline">
+    <span class="section-label">Section 12</span>
+    <h2>Inline Serializers</h2>
+    <div class="divider"></div>
+
+    <p><code>inline_serializer</code> lets you define a simple one-off request/response schema without writing a full serializer class.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>inline_serializer — one-off request/response</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> extend_schema, inline_serializer
+<span class="kw">from</span> rest_framework <span class="kw">import</span> serializers
+
+@extend_schema(
+    request=inline_serializer(
+        name=<span class="st">'BulkDeleteRequest'</span>,        <span class="cm"># name must be unique — becomes component name</span>
+        fields={<span class="st">'ids'</span>: serializers.ListField(child=serializers.IntegerField())},
+    ),
+    responses={
+        <span class="num">200</span>: inline_serializer(
+            name=<span class="st">'BulkDeleteResponse'</span>,
+            fields={
+                <span class="st">'deleted_count'</span>: serializers.IntegerField(),
+                <span class="st">'message'</span>: serializers.CharField(),
+            },
+        ),
+    },
+)
+@api_view([<span class="st">'POST'</span>])
+<span class="kw">def</span> <span class="fn">bulk_delete</span>(request):
+    ids = request.data.get(<span class="st">'ids'</span>, [])
+    count = Album.objects.filter(pk__in=ids).delete()[<span class="num">0</span>]
+    <span class="kw">return</span> Response({<span class="st">'deleted_count'</span>: count, <span class="st">'message'</span>: <span class="kw">f</span><span class="st">'Deleted {count} albums.'</span>})</code></pre>
+    </div>
+    <div class="callout warning">
+      <strong>Names must be globally unique</strong>
+      <p>Two <code>inline_serializer</code> calls with the same <code>name</code> and different fields will conflict and produce incorrect schema output.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 13 -->
+  <section id="fieldlevel">
+    <span class="section-label">Section 13</span>
+    <h2>Field-Level Schema Annotations</h2>
+    <div class="divider"></div>
+
+    <h3>@extend_schema_field on SerializerMethodField</h3>
+    <div class="code-block">
+      <div class="code-header"><span>annotating SerializerMethodField return types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> extend_schema_field
+<span class="kw">from</span> drf_spectacular.types <span class="kw">import</span> OpenApiTypes
+
+<span class="kw">class</span> <span class="nm">AlbumSerializer</span>(serializers.ModelSerializer):
+    cover_url   = serializers.SerializerMethodField()
+    track_count = serializers.SerializerMethodField()
+    customer    = serializers.SerializerMethodField()
+    image_urls  = serializers.SerializerMethodField()
+
+    @extend_schema_field(OpenApiTypes.URI)   <span class="cm"># a URI string</span>
+    <span class="kw">def</span> <span class="fn">get_cover_url</span>(self, obj):
+        <span class="kw">return</span> obj.cover_image.url <span class="kw">if</span> obj.cover_image <span class="kw">else</span> <span class="hl2">None</span>
+
+    @extend_schema_field(int)                <span class="cm"># plain Python type</span>
+    <span class="kw">def</span> <span class="fn">get_track_count</span>(self, obj):
+        <span class="kw">return</span> obj.tracks.count()
+
+    @extend_schema_field(CustomerSerializer) <span class="cm"># nested serializer</span>
+    <span class="kw">def</span> <span class="fn">get_customer</span>(self, obj):
+        <span class="kw">return</span> CustomerSerializer(obj.user.customer_profile).data
+
+    @extend_schema_field({<span class="st">'type'</span>: <span class="st">'array'</span>, <span class="st">'items'</span>: {<span class="st">'type'</span>: <span class="st">'string'</span>, <span class="st">'format'</span>: <span class="st">'uri'</span>}})
+    <span class="kw">def</span> <span class="fn">get_image_urls</span>(self, obj):   <span class="cm"># raw schema dict</span>
+        <span class="kw">return</span> [img.url <span class="kw">for</span> img <span class="kw">in</span> obj.images.all()]</code></pre>
+    </div>
+
+    <h3>@extend_schema_serializer on a Serializer Class</h3>
+    <div class="code-block">
+      <div class="code-header"><span>exclude fields and attach serializer-level examples</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> extend_schema_serializer, OpenApiExample
+
+@extend_schema_serializer(
+    exclude_fields=[<span class="st">'internal_notes'</span>, <span class="st">'admin_flag'</span>],  <span class="cm"># hide from schema</span>
+    examples=[
+        OpenApiExample(
+            <span class="st">'Create Album'</span>,
+            value={<span class="st">'title'</span>: <span class="st">'Rumours'</span>, <span class="st">'artist'</span>: <span class="st">'Fleetwood Mac'</span>, <span class="st">'release_date'</span>: <span class="st">'1977-02-04'</span>},
+            request_only=<span class="hl2">True</span>,
+        ),
+        OpenApiExample(
+            <span class="st">'Album Response'</span>,
+            value={<span class="st">'id'</span>: <span class="num">1</span>, <span class="st">'title'</span>: <span class="st">'Rumours'</span>, <span class="st">'artist'</span>: <span class="st">'Fleetwood Mac'</span>, <span class="st">'created_at'</span>: <span class="st">'2024-01-15T10:30:00Z'</span>},
+            response_only=<span class="hl2">True</span>,
+        ),
+    ],
+)
+<span class="kw">class</span> <span class="nm">AlbumSerializer</span>(serializers.ModelSerializer):
+    <span class="kw">class</span> <span class="nm">Meta</span>:
+        model = Album
+        fields = <span class="st">'__all__'</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 14 -->
+  <section id="examples">
+    <span class="section-label">Section 14</span>
+    <h2>Adding Examples</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>OpenApiExample — full reference + view attachment</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> OpenApiExample
+
+<span class="cm"># Constructor reference</span>
+OpenApiExample(
+    name=<span class="st">'Example name'</span>,         <span class="cm"># shown in Swagger UI as title</span>
+    value={...},                   <span class="cm"># the actual example data</span>
+    summary=<span class="st">'Short description'</span>,
+    description=<span class="st">'Longer explanation'</span>,
+    request_only=<span class="hl2">True</span>,            <span class="cm"># only show in request context</span>
+    response_only=<span class="hl2">False</span>,           <span class="cm"># only show in response context</span>
+    status_codes=[<span class="st">'200'</span>, <span class="st">'201'</span>],  <span class="cm"># restrict to specific response codes</span>
+    media_type=<span class="st">'application/json'</span>, <span class="cm"># restrict to a specific media type</span>
+)
+
+<span class="cm"># Attaching to a view</span>
+@extend_schema(
+    examples=[
+        OpenApiExample(
+            <span class="st">'Successful creation'</span>,
+            value={<span class="st">'id'</span>: <span class="num">42</span>, <span class="st">'title'</span>: <span class="st">'Rumours'</span>},
+            response_only=<span class="hl2">True</span>, status_codes=[<span class="st">'201'</span>],
+        ),
+        OpenApiExample(
+            <span class="st">'Validation error'</span>,
+            value={<span class="st">'title'</span>: [<span class="st">'This field may not be blank.'</span>]},
+            response_only=<span class="hl2">True</span>, status_codes=[<span class="st">'400'</span>],
+        ),
+        OpenApiExample(
+            <span class="st">'Create request'</span>,
+            value={<span class="st">'title'</span>: <span class="st">'Rumours'</span>, <span class="st">'artist'</span>: <span class="st">'Fleetwood Mac'</span>},
+            request_only=<span class="hl2">True</span>,
+        ),
+    ]
+)
+<span class="kw">def</span> <span class="fn">create</span>(self, request, *args, **kwargs): ...</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 15 -->
+  <section id="excluding">
+    <span class="section-label">Section 15</span>
+    <h2>Excluding Views and Operations</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>four ways to exclude from schema</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># 1. Exclude an entire view</span>
+@extend_schema(exclude=<span class="hl2">True</span>)
+<span class="kw">class</span> <span class="nm">InternalHealthCheckView</span>(APIView): ...
+
+<span class="cm"># 2. Exclude a specific HTTP method on a ViewSet</span>
+<span class="kw">class</span> <span class="nm">AlbumViewSet</span>(viewsets.ModelViewSet):
+    @extend_schema(exclude=<span class="hl2">True</span>)
+    <span class="kw">def</span> <span class="fn">partial_update</span>(self, request, *args, **kwargs):
+        <span class="kw">return</span> Response(status=<span class="num">405</span>)
+
+<span class="cm"># 3. Exclude format-suffix patterns (.json, .api) globally</span>
+SPECTACULAR_SETTINGS = {
+    <span class="st">'PREPROCESSING_HOOKS'</span>: [
+        <span class="st">'drf_spectacular.hooks.preprocess_exclude_path_format'</span>,
+    ],
+}
+
+<span class="cm"># 4. Exclude all paths matching a prefix — custom preprocessing hook</span>
+<span class="cm"># myapp/schema.py:</span>
+<span class="kw">def</span> <span class="fn">exclude_internal_paths</span>(endpoints):
+    <span class="kw">return</span> [
+        (path, path_regex, method, callback)
+        <span class="kw">for</span> path, path_regex, method, callback <span class="kw">in</span> endpoints
+        <span class="kw">if not</span> path.startswith(<span class="st">'/internal/'</span>)
+    ]</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 16 -->
+  <section id="tags">
+    <span class="section-label">Section 16</span>
+    <h2>Tags — Organizing Operations</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>tags on views + global tag config</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Apply to entire ViewSet (all methods inherit the tag)</span>
+@extend_schema(tags=[<span class="st">'Albums'</span>])
+<span class="kw">class</span> <span class="nm">AlbumViewSet</span>(viewsets.ModelViewSet): ...
+
+<span class="cm"># Or per method using extend_schema_view</span>
+@extend_schema_view(
+    list=extend_schema(tags=[<span class="st">'Albums'</span>]),
+    create=extend_schema(tags=[<span class="st">'Albums'</span>]),
+)
+<span class="kw">class</span> <span class="nm">AlbumViewSet</span>(viewsets.ModelViewSet): ...
+
+<span class="cm"># Control tag order and add descriptions globally</span>
+SPECTACULAR_SETTINGS = {
+    <span class="st">'TAGS'</span>: [
+        {<span class="st">'name'</span>: <span class="st">'Albums'</span>,         <span class="st">'description'</span>: <span class="st">'Operations related to music albums.'</span>},
+        {<span class="st">'name'</span>: <span class="st">'Artists'</span>,        <span class="st">'description'</span>: <span class="st">'Operations related to artists.'</span>},
+        {<span class="st">'name'</span>: <span class="st">'Authentication'</span>, <span class="st">'description'</span>: <span class="st">'Login, logout, and token refresh.'</span>},
+    ],
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 17 -->
+  <section id="auth">
+    <span class="section-label">Section 17</span>
+    <h2>Authentication in the Schema</h2>
+    <div class="divider"></div>
+
+    <table class="data-table">
+      <thead><tr><th>DRF Authentication Class</th><th>OpenAPI Security Scheme</th></tr></thead>
+      <tbody>
+        <tr><td>BasicAuthentication</td><td>HTTP Basic</td></tr>
+        <tr><td>SessionAuthentication</td><td>Cookie-based</td></tr>
+        <tr><td>TokenAuthentication</td><td>API key in Authorization header</td></tr>
+        <tr><td>JWTAuthentication (Simple JWT)</td><td>Bearer token</td></tr>
+        <tr><td>OAuth2Authentication</td><td>OAuth 2.0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — manual JWT security scheme</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>SPECTACULAR_SETTINGS = {
+    <span class="st">'APPEND_COMPONENTS'</span>: {
+        <span class="st">'securitySchemes'</span>: {
+            <span class="st">'bearerAuth'</span>: {
+                <span class="st">'type'</span>: <span class="st">'http'</span>,
+                <span class="st">'scheme'</span>: <span class="st">'bearer'</span>,
+                <span class="st">'bearerFormat'</span>: <span class="st">'JWT'</span>,
+                <span class="st">'description'</span>: <span class="st">'Authorization: Bearer &lt;token&gt;'</span>,
+            },
+            <span class="st">'apiKeyAuth'</span>: {
+                <span class="st">'type'</span>: <span class="st">'apiKey'</span>,
+                <span class="st">'in'</span>: <span class="st">'header'</span>,
+                <span class="st">'name'</span>: <span class="st">'X-API-Key'</span>,
+            },
+        }
+    },
+    <span class="st">'SECURITY'</span>: [{<span class="st">'bearerAuth'</span>: []}],  <span class="cm"># apply globally to all endpoints</span>
+}
+
+<span class="cm"># Mark specific endpoints as public</span>
+@extend_schema(auth=[])           <span class="cm"># empty list = no auth required</span>
+@api_view([<span class="st">'GET'</span>])
+<span class="kw">def</span> <span class="fn">public_endpoint</span>(request): ...</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 18 -->
+  <section id="polymorphic">
+    <span class="section-label">Section 18</span>
+    <h2>Polymorphic Responses</h2>
+    <div class="divider"></div>
+
+    <p>When an endpoint can return different shapes of data depending on a condition, use <code>PolymorphicProxySerializer</code>. This generates an OpenAPI <code>oneOf</code> schema.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>polymorphic response with oneOf</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> PolymorphicProxySerializer, extend_schema
+
+@extend_schema(
+    responses=PolymorphicProxySerializer(
+        component_name=<span class="st">'Notification'</span>,
+        serializers=[
+            EmailNotificationSerializer,
+            SMSNotificationSerializer,
+            PushNotificationSerializer,
+        ],
+        resource_type_field_name=<span class="st">'type'</span>,  <span class="cm"># the discriminator field</span>
+    ),
+)
+<span class="kw">class</span> <span class="nm">NotificationListView</span>(generics.ListAPIView):
+    <span class="kw">def</span> <span class="fn">get_serializer_class</span>(self):
+        <span class="cm"># Runtime logic for choosing the actual serializer</span>
+        ...</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 19 -->
+  <section id="hooks">
+    <span class="section-label">Section 19</span>
+    <h2>Custom Extensions — Hooks and Postprocessors</h2>
+    <div class="divider"></div>
+
+    <h3>Postprocessing Hooks</h3>
+    <div class="code-block">
+      <div class="code-header"><span>myapp/schema_hooks.py — postprocessor</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">def</span> <span class="fn">add_x_internal_flag</span>(result, generator, request, public):
+    <span class="st">"""Add x-internal: true to all operations under /admin/."""</span>
+    <span class="kw">for</span> path, path_item <span class="kw">in</span> result.get(<span class="st">'paths'</span>, {}).items():
+        <span class="kw">if</span> <span class="st">'/admin/'</span> <span class="kw">in</span> path:
+            <span class="kw">for</span> method, operation <span class="kw">in</span> path_item.items():
+                <span class="kw">if</span> isinstance(operation, dict):
+                    operation[<span class="st">'x-internal'</span>] = <span class="hl2">True</span>
+    <span class="kw">return</span> result</code></pre>
+    </div>
+
+    <div class="callout danger">
+      <strong>Always include the enum hook</strong>
+      <p>Setting <code>POSTPROCESSING_HOOKS</code> replaces the default list. Always include <code>'drf_spectacular.hooks.postprocess_schema_enums'</code> unless you specifically want to disable enum consolidation.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — combining hooks</span></div>
+      <pre><code>SPECTACULAR_SETTINGS = {
+    <span class="st">'POSTPROCESSING_HOOKS'</span>: [
+        <span class="st">'drf_spectacular.hooks.postprocess_schema_enums'</span>,  <span class="cm"># keep this!</span>
+        <span class="st">'myapp.schema_hooks.add_x_internal_flag'</span>,
+    ],
+}</code></pre>
+    </div>
+
+    <h3>OpenApiViewExtension — Fix Third-Party Views</h3>
+    <div class="code-block">
+      <div class="code-header"><span>myapp/spectacular_extensions.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> drf_spectacular.extensions <span class="kw">import</span> OpenApiViewExtension
+<span class="kw">from</span> drf_spectacular.utils <span class="kw">import</span> extend_schema
+
+<span class="kw">class</span> <span class="nm">FixSomeThirdPartyView</span>(OpenApiViewExtension):
+    target_class = <span class="st">'third_party.views.SomeView'</span>
+
+    <span class="kw">def</span> <span class="fn">view_replacement</span>(self):
+        @extend_schema(responses={<span class="num">200</span>: MyProperSerializer})
+        <span class="kw">class</span> <span class="nm">Fixed</span>(self.target_class):
+            <span class="kw">pass</span>
+        <span class="kw">return</span> Fixed
+
+<span class="cm"># Register by importing in AppConfig.ready():</span>
+<span class="cm"># import myapp.spectacular_extensions  # noqa</span></code></pre>
+    </div>
+
+    <h3>The swagger_fake_view Guard</h3>
+    <p>When your view's <code>get_queryset()</code> or <code>get_serializer_class()</code> depends on the request user, drf-spectacular will raise an error during schema generation. Guard against this:</p>
+    <div class="code-block">
+      <div class="code-header"><span>swagger_fake_view guard pattern</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">def</span> <span class="fn">get_queryset</span>(self):
+    <span class="kw">if</span> getattr(self, <span class="st">'swagger_fake_view'</span>, <span class="hl2">False</span>):
+        <span class="kw">return</span> MyModel.objects.none()
+    <span class="kw">return</span> MyModel.objects.filter(user=self.request.user)
+
+<span class="kw">def</span> <span class="fn">get_serializer_class</span>(self):
+    <span class="kw">if</span> getattr(self, <span class="st">'swagger_fake_view'</span>, <span class="hl2">False</span>):
+        <span class="kw">return</span> MyDefaultSerializer
+    <span class="kw">return</span> self.decide_serializer(self.request)</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 20 -->
+  <section id="pitfalls">
+    <span class="section-label">Section 20</span>
+    <h2>Common Pitfalls &amp; Troubleshooting</h2>
+    <div class="divider"></div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ My view does not appear in the schema at all</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: The view is not using DRF's APIView or @api_view decorator, or is not reachable from urlpatterns.</span>
+        <p>Ensure your view inherits from a DRF class. Run <code>python manage.py spectacular</code> and check for warnings about missing views.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Query parameters from django-filter are not appearing in the schema</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: django-filter is not in INSTALLED_APPS, or filterset_class / filterset_fields is not set on the view.</span>
+        <p>Ensure <code>django-filter</code> is in <code>INSTALLED_APPS</code>, the view's <code>filter_backends</code> includes <code>DjangoFilterBackend</code>, and <code>filterset_fields</code> or <code>filterset_class</code> is set.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Pagination is not reflected — list endpoints show a plain array</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: The view has no pagination_class and no DEFAULT_PAGINATION_CLASS in REST_FRAMEWORK.</span>
+        <p>Add <code>pagination_class</code> to the view or set <code>DEFAULT_PAGINATION_CLASS</code> in <code>REST_FRAMEWORK</code> settings.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ SerializerMethodField shows as string instead of its real type</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: drf-spectacular cannot infer the return type of a Python method.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>fix</span></div>
+          <pre><code>@extend_schema_field(int)
+<span class="kw">def</span> <span class="fn">get_track_count</span>(self, obj):
+    <span class="kw">return</span> obj.tracks.count()</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Enum fields generate individual inline enums instead of reusable components</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: POSTPROCESSING_HOOKS was overridden and the enum hook was not included.</span>
+        <p>Ensure <code>POSTPROCESSING_HOOKS</code> includes <code>'drf_spectacular.hooks.postprocess_schema_enums'</code>. If you customized the list, you must add this hook back explicitly.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Swagger UI shows the wrong server URLs</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: drf-spectacular auto-detects servers from the request context, which is wrong in proxy/load balancer setups.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>fix</span></div>
+          <pre><code>SPECTACULAR_SETTINGS = {
+    <span class="st">'SERVERS'</span>: [
+        {<span class="st">'url'</span>: <span class="st">'https://api.example.com'</span>, <span class="st">'description'</span>: <span class="st">'Production'</span>},
+        {<span class="st">'url'</span>: <span class="st">'http://localhost:8000'</span>, <span class="st">'description'</span>: <span class="st">'Development'</span>},
+    ],
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ SERVE_INCLUDE_SCHEMA: False is set but the schema endpoint still appears</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: This setting only works when the schema URL is named 'schema' exactly in the URL configuration.</span>
+        <p>Add <code>name='schema'</code> to your <code>SpectacularAPIView</code> URL pattern: <code>path('api/schema/', SpectacularAPIView.as_view(), name='schema')</code>.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Error during schema introspection — get_queryset() raises an exception</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: get_queryset() or get_serializer_class() depends on request.user which is not available at schema generation time.</span>
+        <p>Add the <code>swagger_fake_view</code> guard. See Section 19.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 21 -->
+  <section id="checklist">
+    <span class="section-label">Section 21</span>
+    <h2>Checklist</h2>
+    <div class="divider"></div>
+
+    <div class="checklist-group">
+      <h4>Initial Setup</h4>
+      <ul class="checklist">
+        <li><code>'drf_spectacular'</code> is in <code>INSTALLED_APPS</code></li>
+        <li><code>'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'</code> is set in <code>REST_FRAMEWORK</code></li>
+        <li><code>SPECTACULAR_SETTINGS</code> defines at least <code>TITLE</code>, <code>DESCRIPTION</code>, and <code>VERSION</code></li>
+        <li><code>SERVE_INCLUDE_SCHEMA</code> is set to <code>False</code></li>
+        <li>Schema URLs (<code>SpectacularAPIView</code>, <code>SpectacularSwaggerView</code>, <code>SpectacularRedocView</code>) are in <code>urls.py</code></li>
+        <li>The <code>SpectacularAPIView</code> URL is named <code>'schema'</code> exactly</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Schema Generation</h4>
+      <ul class="checklist">
+        <li><code>python manage.py spectacular --validate</code> runs without errors</li>
+        <li>A static schema file is generated and committed to version control</li>
+        <li>Schema generation is part of the CI pipeline</li>
+        <li>CI fails if the schema changes unexpectedly (<code>git diff --exit-code schema.yaml</code>)</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Views and Serializers</h4>
+      <ul class="checklist">
+        <li>Every view that drf-spectacular cannot fully introspect has an <code>@extend_schema</code> annotation</li>
+        <li><code>APIView</code> subclasses without <code>serializer_class</code> have <code>@extend_schema(request=..., responses=...)</code></li>
+        <li><code>SerializerMethodField</code> methods with non-obvious return types have <code>@extend_schema_field</code></li>
+        <li>Custom field classes have <code>@extend_schema_field</code></li>
+        <li><code>get_queryset()</code> and <code>get_serializer_class()</code> handle <code>swagger_fake_view</code> if they depend on the request user</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Organization</h4>
+      <ul class="checklist">
+        <li>All operations have meaningful <code>summary</code> values</li>
+        <li>All operations are tagged with <code>tags=[...]</code></li>
+        <li>Tag descriptions are defined in <code>SPECTACULAR_SETTINGS['TAGS']</code></li>
+        <li>Internal/admin operations are excluded or marked with <code>x-internal</code></li>
+        <li><code>@extend_schema_view</code> is used on ViewSets to annotate default methods cleanly</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Responses</h4>
+      <ul class="checklist">
+        <li>Multiple status codes (400, 401, 403, 404) are documented on views where they are possible</li>
+        <li>Error response serializers are consistent and documented</li>
+        <li><code>204 No Content</code> responses on delete operations use <code>responses={204: None}</code></li>
+        <li>Create operations use <code>responses={201: Serializer}</code> not <code>{200: Serializer}</code></li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Authentication</h4>
+      <ul class="checklist">
+        <li>The authentication scheme is correctly represented (auto-detection or <code>APPEND_COMPONENTS</code>)</li>
+        <li><code>SECURITY</code> is set in <code>SPECTACULAR_SETTINGS</code> if authentication applies globally</li>
+        <li>Public endpoints are marked with <code>@extend_schema(auth=[])</code></li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Documentation Quality</h4>
+      <ul class="checklist">
+        <li>Important endpoints have at least one <code>OpenApiExample</code> in both request and response</li>
+        <li>Enum fields have descriptions explaining each allowed value</li>
+        <li>The <code>DESCRIPTION</code> in <code>SPECTACULAR_SETTINGS</code> includes authentication instructions</li>
+        <li><code>SERVERS</code> is set to actual API server URLs for each environment</li>
+        <li><code>POSTPROCESSING_HOOKS</code> includes the enum hook if the list was customized</li>
+      </ul>
+    </div>
+
+  </section>
+
+</div>
+
+<footer>
+  <p>
+    Official documentation:
+    <a href="https://drf-spectacular.readthedocs.io/" target="_blank">drf-spectacular.readthedocs.io</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/tfranzel/drf-spectacular" target="_blank">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://pypi.org/project/drf-spectacular/" target="_blank">PyPI</a>
+  </p>
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = 'var(--electric)';
+      btn.style.borderColor = 'var(--electric)';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>

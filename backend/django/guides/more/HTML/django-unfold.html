@@ -1927,4 +1927,348 @@ admin.site.unregister(Group)
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
     <span class="cm"># You can add all the normal ModelAdmin options on top</span>
-    list_display    = [<span class="st"></span>
+    list_display    = ["email", "first_name", "last_name", "is_active", "is_staff"]
+    list_filter     = ["is_active", "is_staff", "date_joined"]
+    search_fields   = ["email", "first_name", "last_name"]
+    compressed_fields = <span class="hl2">True</span>
+    warn_unsaved_form = <span class="hl2">True</span>
+
+@admin.register(Group)
+<span class="kw">class</span> <span class="nm">GroupAdmin</span>(BaseGroupAdmin, ModelAdmin):
+    <span class="kw">pass</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 17 -->
+  <section id="thirdparty">
+    <span class="section-label">Section 17</span>
+    <h2>Third-Party Integrations</h2>
+    <div class="divider"></div>
+
+    <p>Unfold provides styled integrations for several popular packages. Each requires its companion sub-app in <code>INSTALLED_APPS</code>.</p>
+
+    <h3>django-import-export</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py + admin.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># settings.py</span>
+INSTALLED_APPS = [
+    <span class="st">"unfold"</span>,
+    <span class="st">"unfold.contrib.import_export"</span>,  <span class="cm"># ← add this</span>
+    <span class="st">"import_export"</span>,
+    <span class="st">"django.contrib.admin"</span>,
+    ...
+]
+
+<span class="cm"># admin.py</span>
+<span class="kw">from</span> import_export.admin <span class="kw">import</span> ImportExportModelAdmin
+<span class="kw">from</span> unfold.admin <span class="kw">import</span> ModelAdmin
+
+@admin.register(Product)
+<span class="kw">class</span> <span class="nm">ProductAdmin</span>(ImportExportModelAdmin, ModelAdmin):
+    <span class="cm"># Import/Export buttons appear in the changelist, styled with Unfold</span>
+    <span class="kw">pass</span></code></pre>
+    </div>
+
+    <h3>django-simple-history</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py + admin.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># settings.py</span>
+INSTALLED_APPS = [
+    <span class="st">"unfold"</span>,
+    <span class="st">"unfold.contrib.simple_history"</span>,  <span class="cm"># ← add this</span>
+    <span class="st">"simple_history"</span>,
+    ...
+]
+
+<span class="cm"># admin.py</span>
+<span class="kw">from</span> simple_history.admin <span class="kw">import</span> SimpleHistoryAdmin
+<span class="kw">from</span> unfold.admin <span class="kw">import</span> ModelAdmin
+
+@admin.register(Order)
+<span class="kw">class</span> <span class="nm">OrderAdmin</span>(SimpleHistoryAdmin, ModelAdmin):
+    <span class="cm"># History view will be styled with Unfold</span>
+    <span class="kw">pass</span></code></pre>
+    </div>
+
+    <h3>django-guardian</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py</span></div>
+      <pre><code>INSTALLED_APPS = [
+    <span class="st">"unfold"</span>,
+    <span class="st">"unfold.contrib.guardian"</span>,  <span class="cm"># ← add this</span>
+    <span class="st">"guardian"</span>,
+    ...
+]</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>django-celery-beat</strong>
+      <p>The Celery Beat periodic task admin pages are automatically styled when <code>django-celery-beat</code> is installed alongside Unfold. No extra configuration is needed — the models just need to be registered via their standard admin classes.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 18 -->
+  <section id="sideadmin">
+    <span class="section-label">Section 18</span>
+    <h2>Running the Default Admin Alongside Unfold</h2>
+    <div class="divider"></div>
+
+    <p>If you have a large existing project and want to migrate gradually, you can run the default Django admin at a separate URL while building out Unfold:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>config/urls.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+<span class="kw">from</span> django.urls <span class="kw">import</span> path
+<span class="kw">from</span> unfold.sites <span class="kw">import</span> UnfoldAdminSite
+
+<span class="cm"># Create a separate admin site running Unfold</span>
+unfold_site = UnfoldAdminSite()
+
+urlpatterns = [
+    path(<span class="st">"admin/"</span>,        admin.site.urls),        <span class="cm"># Legacy default admin</span>
+    path(<span class="st">"modern-admin/"</span>, unfold_site.urls),       <span class="cm"># New Unfold admin</span>
+]</code></pre>
+    </div>
+
+    <p>Then register models with <code>unfold_site</code> instead of <code>admin.site</code>:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> config.urls <span class="kw">import</span> unfold_site
+
+@admin.register(MyModel, site=unfold_site)
+<span class="kw">class</span> <span class="nm">MyModelAdmin</span>(ModelAdmin):
+    <span class="kw">pass</span></code></pre>
+    </div>
+
+    <p>This lets you build out the Unfold admin incrementally while keeping the existing admin running.</p>
+  </section>
+
+  <!-- SECTION 19 -->
+  <section id="pitfalls">
+    <span class="section-label">Section 19</span>
+    <h2>Common Pitfalls &amp; Troubleshooting</h2>
+    <div class="divider"></div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ The admin page loads but has no styles — everything looks unstyled</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: "unfold" is not at the top of INSTALLED_APPS, or collectstatic has not been run in production.</span>
+        <p>Put <code>"unfold"</code> as the very first item in <code>INSTALLED_APPS</code>, before <code>"django.contrib.admin"</code>. In production, run <code>python manage.py collectstatic</code>.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ My model's change form fields are unstyled, but the rest of the admin looks correct</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Your ModelAdmin still inherits from django.contrib.admin.ModelAdmin instead of unfold.admin.ModelAdmin.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>fix</span></div>
+          <pre><code><span class="cm"># Wrong</span>
+<span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+<span class="kw">class</span> <span class="nm">MyAdmin</span>(admin.ModelAdmin): ...
+
+<span class="cm"># Right</span>
+<span class="kw">from</span> unfold.admin <span class="kw">import</span> ModelAdmin
+<span class="kw">class</span> <span class="nm">MyAdmin</span>(ModelAdmin): ...</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ The User change form looks broken — password fields are missing or unstyled</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Django's User admin uses special form classes for password handling. You must use Unfold's versions.</span>
+        <p>See Section 16. Use <code>UserChangeForm</code>, <code>UserCreationForm</code>, and <code>AdminPasswordChangeForm</code> from <code>unfold.forms</code>.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Filters with number or date inputs do not work — there is no way to submit them</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Filters with input fields require a submit button. Without it, the user has no way to apply the filter value.</span>
+        <p>Set <code>list_filter_submit = True</code> on any <code>ModelAdmin</code> that uses <code>RangeDateFilter</code>, <code>RangeNumericFilter</code>, or any other input-based filter.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ I added a custom Tailwind CSS file and now Unfold's styles are broken</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Starting with Unfold 0.56.0, Unfold ships a precompiled Tailwind stylesheet. Including your own compiled Tailwind on admin pages causes conflicts.</span>
+        <p>Do not include your custom Tailwind stylesheet on admin pages. Use Unfold's <code>STYLES</code> setting to inject only additional custom CSS that does not conflict with Tailwind's base styles.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ My actions_row or actions_detail methods receive no arguments or the wrong arguments</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Each action type has a different signature. Mismatching it causes errors.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>correct signatures by action type</span></div>
+          <pre><code><span class="cm"># actions_list — global, above changelist table</span>
+<span class="kw">def</span> <span class="fn">my_action</span>(self, request: HttpRequest): ...
+
+<span class="cm"># actions_row — per-row in the changelist</span>
+<span class="kw">def</span> <span class="fn">my_action</span>(self, request: HttpRequest, object_id: <span class="nm">int</span>): ...
+
+<span class="cm"># actions_detail — at the top of the change form</span>
+<span class="kw">def</span> <span class="fn">my_action</span>(self, request: HttpRequest, object_id: <span class="nm">int</span>): ...
+
+<span class="cm"># actions_submit_line — next to the save buttons</span>
+<span class="kw">def</span> <span class="fn">my_action</span>(self, request: HttpRequest, obj: MyModel): ...
+
+<span class="cm"># Standard bulk actions — selected rows + action dropdown</span>
+<span class="kw">def</span> <span class="fn">my_action</span>(self, request: HttpRequest, queryset: QuerySet): ...</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Sidebar items do not appear even though they are configured</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: The "permission" callback is returning False, or the URL in "link" is not a valid URL.</span>
+        <p>Test your permission callback in a Django shell. Ensure the <code>reverse_lazy()</code> calls in your navigation config point to URLs that actually exist.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 20 -->
+  <section id="checklist">
+    <span class="section-label">Section 20</span>
+    <h2>Checklist</h2>
+    <div class="divider"></div>
+
+    <p>Use this every time you add or configure Unfold in a project.</p>
+
+    <div class="checklist-group">
+      <h4>Initial Setup</h4>
+      <ul class="checklist">
+        <li><code>"unfold"</code> is the very first item in <code>INSTALLED_APPS</code>, before <code>"django.contrib.admin"</code></li>
+        <li>Only the <code>unfold.contrib.*</code> sub-apps you actually use are included</li>
+        <li><code>python manage.py collectstatic</code> has been run (production)</li>
+        <li>The <code>UNFOLD</code> settings dictionary is defined in <code>settings.py</code></li>
+        <li><code>SITE_TITLE</code> and <code>SITE_HEADER</code> are set with the project name</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Model Admin</h4>
+      <ul class="checklist">
+        <li>Every <code>ModelAdmin</code> class inherits from <code>unfold.admin.ModelAdmin</code>, not Django's</li>
+        <li>User admin is unregistered and re-registered with Unfold's form classes (<code>UserChangeForm</code>, <code>UserCreationForm</code>, <code>AdminPasswordChangeForm</code>)</li>
+        <li>Group admin is also re-registered with <code>unfold.admin.ModelAdmin</code></li>
+        <li><code>compressed_fields = True</code> is set on models with many fields</li>
+        <li><code>warn_unsaved_form = True</code> is set on models where accidental navigation is risky</li>
+        <li><code>list_filter_submit = True</code> is set whenever date/number input filters are used</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Actions</h4>
+      <ul class="checklist">
+        <li>Each action method has the correct signature for its placement type</li>
+        <li>Action methods that navigate away return a redirect, not <code>None</code></li>
+        <li>Custom permissions are defined with a matching <code>has_&lt;name&gt;_permission</code> method</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Filters</h4>
+      <ul class="checklist">
+        <li><code>"unfold.contrib.filters"</code> is in <code>INSTALLED_APPS</code> if using enhanced filters</li>
+        <li><code>list_filter_submit = True</code> is set whenever filters have input fields</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Display Decorator</h4>
+      <ul class="checklist">
+        <li><code>@display</code> is imported from <code>unfold.decorators</code>, not <code>django.contrib.admin</code></li>
+        <li>Status fields use <code>label={value: color}</code> for colored badges</li>
+        <li>Color values are one of: <code>"success"</code>, <code>"info"</code>, <code>"warning"</code>, <code>"danger"</code></li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Dashboard</h4>
+      <ul class="checklist">
+        <li><code>DASHBOARD_CALLBACK</code> points to a real, importable function</li>
+        <li>The callback returns the modified <code>context</code> dict</li>
+        <li><code>templates/admin/index.html</code> exists in a templates directory that Django searches</li>
+        <li>The template extends <code>"admin/index.html"</code> and loads the <code>unfold</code> template tag library</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Sidebar</h4>
+      <ul class="checklist">
+        <li>All sidebar <code>"link"</code> values use <code>reverse_lazy()</code> (not hardcoded strings or <code>reverse()</code>)</li>
+        <li>Permission callbacks return a boolean</li>
+        <li>Badge callbacks return an integer or <code>None</code></li>
+        <li>External links have a full URL with scheme (<code>https://...</code>)</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Environment Label</h4>
+      <ul class="checklist">
+        <li><code>ENVIRONMENT</code> callback correctly identifies all environments</li>
+        <li>Production is labeled <code>"danger"</code> so it is visually distinct from staging/dev</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Theming</h4>
+      <ul class="checklist">
+        <li>Primary colors are defined in OKLCH format</li>
+        <li>All 11 shades (50 to 950) are provided for the primary color</li>
+        <li><code>BORDER_RADIUS</code> is set to match the project's design system</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Third-Party Integrations</h4>
+      <ul class="checklist">
+        <li>Each integration's <code>unfold.contrib.*</code> sub-app is in <code>INSTALLED_APPS</code> before <code>django.contrib.admin</code></li>
+        <li>Admin classes use the correct multiple-inheritance order (Unfold-specific class, then the third-party class, then <code>ModelAdmin</code>)</li>
+      </ul>
+    </div>
+
+  </section>
+
+</div><!-- /.content -->
+
+<footer>
+  <p>
+    Official documentation:
+    <a href="https://unfoldadmin.com/docs/" target="_blank">unfoldadmin.com/docs</a>
+    &nbsp;·&nbsp;
+    <a href="https://demo.unfoldadmin.com" target="_blank">Live Demo</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/unfoldadmin/formula" target="_blank">Demo Source on GitHub</a>
+  </p>
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = 'var(--accent-mid)';
+      btn.style.borderColor = 'var(--accent-mid)';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 1800);
+    });
+  }
+</script>
+
+</body>
+</html>

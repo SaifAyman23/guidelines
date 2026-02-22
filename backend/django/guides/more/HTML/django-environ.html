@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ultimate Guide: django-environ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f5;
+    --surface: #ffffff;
+    --surface2: #e6ecee;
+    --border: #ccd6da;
+    --border-strong: #99b0b8;
+    --text: #0f2027;
+    --muted: #4d7080;
+    --muted2: #7a9aa8;
+    --accent: #0e7490;
+    --accent-light: #ecfeff;
+    --accent-mid: #0891b2;
+    --blue: #0369a1;
+    --blue-light: #e0f2fe;
+    --green: #047857;
+    --green-light: #d1fae5;
+    --amber: #b45309;
+    --amber-light: #fef3c7;
+    --red: #be123c;
+    --red-light: #fff1f2;
+    --purple: #6d28d9;
+    --purple-light: #ede9fe;
+    --ink: #0f2027;
+    --teal-deep: #164e63;
+    --teal-mid: #0e7490;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,32,39,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #1e4a5a;
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0;
+    height: 50px; overflow-x: auto;
+  }
+
+  nav .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #7dd3e8;
+    flex-shrink: 0;
+    margin-right: 2rem;
+    letter-spacing: 0.04em;
+  }
+  nav .logo span { color: #22d3ee; }
+
+  nav a {
+    color: #5a8a9a;
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0 0.85rem;
+    height: 50px;
+    display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  nav a:hover { color: #22d3ee; border-bottom-color: #22d3ee; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0f2027 0%, #1a3a4a 40%, #0e4d5c 100%);
+    color: #e0f2f8;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(8,145,178,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(14,116,144,0.10) 0%, transparent 60%),
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(14,116,144,0.04) 59px, rgba(14,116,144,0.04) 60px),
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(14,116,144,0.04) 59px, rgba(14,116,144,0.04) 60px);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #22d3ee;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 6.5vw, 5rem);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.5rem;
+    position: relative;
+    color: #f0fafb;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: #22d3ee;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    color: rgba(224,242,248,0.6);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.8;
+    position: relative;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  .hero-meta {
+    display: flex; align-items: center; justify-content: center;
+    gap: 2rem; position: relative;
+  }
+
+  .hero-meta a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(224,242,248,0.35);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  .hero-meta a:hover { color: #22d3ee; }
+
+  /* ── CONTENT ── */
+  .content { max-width: 840px; margin: 0 auto; padding: 0 2rem 8rem; }
+
+  section { margin-bottom: 5rem; scroll-margin-top: 68px; }
+
+  /* ── HEADINGS ── */
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.18;
+    margin-bottom: 0.5rem;
+    color: var(--teal-deep);
+  }
+
+  h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--ink);
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .divider {
+    width: 28px;
+    height: 2px;
+    background: var(--accent-mid);
+    margin: 0.75rem 0 2rem;
+  }
+
+  p { margin-bottom: 1.25rem; color: #2a4a58; }
+  strong { color: var(--ink); font-weight: 500; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: #0a1f28;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 0.84rem;
+    border: 1px solid #1a3a4a;
+  }
+
+  .code-header {
+    background: #071520;
+    border-bottom: 1px solid #1a3a4a;
+    padding: 0.5rem 1.2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .code-header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: #3a6a7a;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid #1a3a4a;
+    color: #3a6a7a;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: #22d3ee; border-color: #22d3ee; }
+
+  pre {
+    padding: 1.4rem 1.2rem;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    color: #cce8f0;
+    tab-size: 4;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83em;
+    background: #e0f0f5;
+    padding: 0.1em 0.38em;
+    border-radius: 3px;
+    color: var(--teal-deep);
+  }
+  pre code { background: none; padding: 0; color: #cce8f0; font-size: 1em; }
+
+  /* syntax */
+  .kw { color: #67c8dd; }
+  .st { color: #80e8a8; }
+  .cm { color: #2a5060; font-style: italic; }
+  .fn { color: #88c8f0; }
+  .nm { color: #f0c060; }
+  .hl2 { color: #60d8d0; }
+  .num { color: #f0a060; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 4px;
+    padding: 1rem 1.3rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    font-size: 0.92rem;
+  }
+
+  .callout.info    { background: var(--blue-light);   border-color: var(--blue);   }
+  .callout.warning { background: var(--amber-light);  border-color: var(--amber);  }
+  .callout.tip     { background: var(--green-light);  border-color: var(--green);  }
+  .callout.danger  { background: var(--red-light);    border-color: var(--red);    }
+  .callout.note    { background: var(--accent-light); border-color: var(--accent); }
+
+  .callout strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+  }
+  .callout.info    strong { color: var(--blue);   }
+  .callout.warning strong { color: var(--amber);  }
+  .callout.tip     strong { color: var(--green);  }
+  .callout.danger  strong { color: var(--red);    }
+  .callout.note    strong { color: var(--accent); }
+  .callout p { margin: 0; color: #2a4050; font-size: 0.9rem; }
+
+  /* ── TABLES ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .data-table th {
+    background: var(--teal-deep);
+    color: #a8d8e8;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #0c3a4a;
+  }
+  .data-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: #2a4a58;
+    font-size: 0.87rem;
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.77rem;
+    color: var(--teal-mid);
+    white-space: nowrap;
+  }
+  .data-table tr:hover td { background: #eaf4f8; }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;
+  }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1.3rem;
+    border-top: 3px solid var(--teal-mid);
+  }
+  .card h4 {
+    margin-top: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .card ul { list-style: none; }
+  .card ul li {
+    padding: 0.28rem 0;
+    font-size: 0.87rem;
+    color: #2a4a58;
+    display: flex; gap: 0.6rem;
+  }
+  .card ul li::before { content: '→'; color: var(--teal-mid); font-size: 0.85rem; flex-shrink: 0; font-family: 'DM Mono', monospace; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--teal-deep);
+    border-radius: 5px;
+    padding: 2rem;
+    margin: 3rem 0 4rem;
+    color: #a8d8e8;
+  }
+  .toc h3 {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: #22d3ee;
+  }
+  .toc ol { padding-left: 1.25rem; columns: 2; column-gap: 2.5rem; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+  .toc ol li { margin-bottom: 0.38rem; break-inside: avoid; }
+  .toc a {
+    color: #7ac8d8;
+    text-decoration: none;
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.87rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: #22d3ee; }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; }
+  .step {
+    position: relative; padding-left: 3.75rem;
+    margin-bottom: 2.5rem; counter-increment: step;
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0.1rem;
+    width: 2.2rem; height: 2.2rem;
+    background: var(--teal-mid); color: white;
+    font-family: 'DM Mono', monospace; font-size: 0.9rem; font-weight: 500;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h3 { margin-top: 0.15rem; }
+
+  /* ── PITFALL ── */
+  .pitfall {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--red);
+  }
+  .pitfall-problem {
+    background: var(--red-light);
+    border-bottom: 1px solid #fecdd3;
+    padding: 0.75rem 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--red);
+    letter-spacing: 0.04em;
+  }
+  .pitfall-body { background: var(--surface); padding: 0.9rem 1.2rem; }
+  .pitfall-body p { font-size: 0.88rem; margin-bottom: 0.5rem; color: #2a4050; }
+  .pitfall-body p:last-child { margin-bottom: 0; }
+  .pitfall-body .cause {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    color: var(--muted); font-style: italic; display: block; margin-bottom: 0.4rem;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1.2rem 1.4rem;
+    margin: 0.9rem 0;
+    border-left: 3px solid var(--teal-mid);
+  }
+  .checklist-group h4 {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    color: var(--teal-mid); text-transform: uppercase;
+    letter-spacing: 0.14em; margin-bottom: 0.7rem; margin-top: 0;
+  }
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.42rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; color: #2a4a58; display: flex; gap: 0.7rem; align-items: flex-start;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '☐'; font-size: 0.95rem; color: var(--border-strong); flex-shrink: 0; margin-top: 0.05rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--teal-deep);
+    color: rgba(168,216,232,0.4);
+    padding: 2rem;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+  footer a { color: rgba(168,216,232,0.5); text-decoration: none; }
+  footer a:hover { color: #22d3ee; }
+
+  @media (max-width: 640px) {
+    h2 { font-size: 1.7rem; }
+    .hero h1 { font-size: 2.5rem; }
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .content { padding: 0 1.25rem 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">django-<span>environ</span></span>
+  <a href="#whatis">What It Is</a>
+  <a href="#howworks">Under the Hood</a>
+  <a href="#install">Install</a>
+  <a href="#envfile">.env File</a>
+  <a href="#envobj">Env Object</a>
+  <a href="#types">Type Casting</a>
+  <a href="#urls">URL Parsers</a>
+  <a href="#path">Path</a>
+  <a href="#docker">Docker</a>
+  <a href="#prefix">Prefixing</a>
+  <a href="#smart">Smart Cast</a>
+  <a href="#multi">Multi-.env</a>
+  <a href="#fullexample">Full Example</a>
+  <a href="#pitfalls">Pitfalls</a>
+  <a href="#checklist">Checklist</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Ultimate Guide — #2 of 6</div>
+  <h1>django-<em>environ</em></h1>
+  <p>Twelve-Factor App configuration for Django. Read environment variables and .env files with type-safe parsing — cleanly, correctly, and without secrets in version control.</p>
+  <div class="hero-meta">
+    <a href="https://django-environ.readthedocs.io/" target="_blank">readthedocs.io</a>
+    <a href="https://github.com/joke2k/django-environ" target="_blank">GitHub</a>
+    <a href="https://pypi.org/project/django-environ/" target="_blank">PyPI</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#whatis">What is django-environ and Why Use It</a></li>
+      <li><a href="#howworks">How It Works Under the Hood</a></li>
+      <li><a href="#install">Installation</a></li>
+      <li><a href="#envfile">Your First .env File</a></li>
+      <li><a href="#envobj">The environ.Env Object</a></li>
+      <li><a href="#types">Type Casting — Reading Values with the Right Type</a></li>
+      <li><a href="#urls">URL Parsers — Databases, Caches, and Email</a></li>
+      <li><a href="#path">The Path Helper</a></li>
+      <li><a href="#docker">Docker and Kubernetes — FileAwareEnv</a></li>
+      <li><a href="#prefix">Prefixing Environment Variables</a></li>
+      <li><a href="#smart">Smart Casting and Its Pitfalls</a></li>
+      <li><a href="#multi">Multiple .env Files</a></li>
+      <li><a href="#fullexample">A Full Production settings.py Example</a></li>
+      <li><a href="#split">Using with Split Settings</a></li>
+      <li><a href="#pitfalls">Common Pitfalls &amp; Troubleshooting</a></li>
+      <li><a href="#checklist">Checklist</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="whatis">
+    <span class="section-label">Section 01</span>
+    <h2>What is django-environ and Why Use It</h2>
+    <div class="divider"></div>
+    <p>Every non-trivial Django project needs at least two configurations: one for local development and one for production. The naive approach is to keep multiple <code>settings_local.py</code>, <code>settings_production.py</code> files and flip between them manually. This approach creates several problems. Secrets leak into version control. Developers overwrite each other's local settings. Deployment gets complicated.</p>
+    <p>The <strong>Twelve-Factor App</strong> methodology defines the correct solution: store configuration in the <strong>environment</strong>, not in the code. Your <code>settings.py</code> should read values from environment variables, and the values themselves should live outside your repository entirely.</p>
+    <p><strong>django-environ</strong> makes this painless. It provides a clean API to read environment variables from a <code>.env</code> file or from the real OS environment, parse them into typed Python values, and configure Django's settings with them — all in a few lines of code.</p>
+    <div class="two-col">
+      <div class="card">
+        <h4>What django-environ gives you</h4>
+        <ul>
+          <li>A single <code>Env</code> object that reads from environment variables with type-safe parsing</li>
+          <li>Automatic loading of a <code>.env</code> file into the environment</li>
+          <li>URL parsers for databases, caches, and email in one line</li>
+          <li>A <code>Path</code> helper for building filesystem paths robustly</li>
+          <li><code>FileAwareEnv</code> for Docker and Kubernetes secrets mounted as files</li>
+          <li>Support for defaults — missing variables fail loudly, not silently</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>What django-environ does NOT do</h4>
+        <ul>
+          <li>Does not manage multiple settings files (that is django-split-settings)</li>
+          <li>Does not encrypt your secrets — only reads them from outside your codebase</li>
+          <li>Does not set variables for you — you or your deployment system must provide them</li>
+        </ul>
+        <p style="margin-top:1rem;font-size:0.83rem;color:var(--muted);font-style:italic;">Your <code>.env</code> file is a development convenience that simulates what a production environment would inject.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="howworks">
+    <span class="section-label">Section 02</span>
+    <h2>How It Works Under the Hood</h2>
+    <div class="divider"></div>
+    <p>When you call <code>environ.Env.read_env(path)</code>, the library reads the file line by line and calls <code>os.environ.setdefault()</code> for each key-value pair. The critical word is <strong>setdefault</strong>: it only sets the value if that key is not already present in the real environment. Real OS environment variables always win over <code>.env</code> file values.</p>
+    <div class="code-block">
+      <div class="code-header"><span>flow diagram</span></div>
+      <pre><code>Your .env file:
+  DEBUG=on
+  DATABASE_URL=psql://user:pass@localhost/mydb
+
+     ↓  environ.Env.read_env()
+     ↓  calls os.environ.setdefault() for each line
+
+os.environ (after read_env):
+  DEBUG=on              ← from .env file
+  DATABASE_URL=...      ← from .env file
+  SECRET_KEY=...        ← already existed from real environment, unchanged
+
+     ↓  env('DEBUG') / env.bool('DEBUG') / env.db()
+     ↓  reads from os.environ and casts to the right Python type
+
+settings.py values:
+  DEBUG = True          ← cast from string 'on' → Python bool True
+  DATABASES = {...}     ← parsed from URL string into Django's dict format
+  SECRET_KEY = '...'    ← read directly from real environment</code></pre>
+    </div>
+    <p>This flow means you never hardcode secrets. Your <code>.env</code> file contains development-only values and is added to <code>.gitignore</code>. Production values come from wherever your deployment platform injects them.</p>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="install">
+    <span class="section-label">Section 03</span>
+    <h2>Installation</h2>
+    <div class="divider"></div>
+    <div class="steps">
+      <div class="step">
+        <h3>Install the package</h3>
+        <div class="code-block">
+          <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>pip install django-environ
+
+<span class="cm"># or with uv</span>
+uv add django-environ
+
+<span class="cm"># or with poetry</span>
+poetry add django-environ</code></pre>
+        </div>
+      </div>
+      <div class="step">
+        <h3>No changes to INSTALLED_APPS</h3>
+        <p>Unlike many Django packages, django-environ does <strong>not</strong> go into <code>INSTALLED_APPS</code>. It is a plain Python utility you import in <code>settings.py</code>.</p>
+      </div>
+      <div class="step">
+        <h3>Add .env to .gitignore — mandatory</h3>
+        <div class="callout danger">
+          <strong>Never commit .env</strong>
+          <p>Your <code>.env</code> file will contain real secrets and must never be committed to version control.</p>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span>.gitignore</span></div>
+          <pre><code>.env
+.env.*
+!.env.example</code></pre>
+        </div>
+        <p>Create a <code>.env.example</code> file with all the keys but placeholder values. Commit this file. New developers copy it to <code>.env</code> and fill in real values.</p>
+        <div class="code-block">
+          <div class="code-header"><span>.env.example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>DEBUG=on
+SECRET_KEY=replace-this-with-a-real-secret-key
+DATABASE_URL=psql://user:password@127.0.0.1:5432/dbname
+CACHE_URL=redis://127.0.0.1:6379/0
+EMAIL_URL=consolemail://
+ALLOWED_HOSTS=localhost,127.0.0.1</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="envfile">
+    <span class="section-label">Section 04</span>
+    <h2>Your First .env File</h2>
+    <div class="divider"></div>
+    <p>The <code>.env</code> file uses a simple <code>KEY=value</code> syntax. Here are the important rules and common patterns:</p>
+    <div class="code-block">
+      <div class="code-header"><span>.env — annotated reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Comments start with #</span>
+<span class="cm"># Inline comments are NOT stripped by default (see Section 11)</span>
+
+<span class="cm"># Simple strings — no quotes needed</span>
+DEBUG=on
+SITE_NAME=My Django App
+
+<span class="cm"># Strings with spaces — use quotes</span>
+SITE_TAGLINE=<span class="st">"The best Django app around"</span>
+
+<span class="cm"># Booleans — these all evaluate to True: true, on, ok, y, yes, 1</span>
+DEBUG=on
+FEATURE_FLAG=True
+
+<span class="cm"># Booleans — these all evaluate to False: false, off, no, n, 0</span>
+MAINTENANCE_MODE=off
+
+<span class="cm"># Lists — comma-separated</span>
+ALLOWED_HOSTS=mysite.com,www.mysite.com,localhost
+
+<span class="cm"># Admins — see Section 6 for parsing</span>
+DJANGO_ADMINS=Alice &lt;alice@example.com&gt;, Bob &lt;bob@example.com&gt;
+
+<span class="cm"># Secrets — treat exactly like any other variable</span>
+SECRET_KEY=50-character-random-string-here
+DATABASE_URL=psql://myuser:mypassword@127.0.0.1:5432/mydb</code></pre>
+    </div>
+    <div class="callout warning">
+      <strong>Special characters in passwords</strong>
+      <p>If your password contains <code>#</code>, <code>@</code>, <code>:</code>, or <code>/</code>, URL-encode them. Use <code>urllib.parse.quote()</code> to encode the value first, then put the encoded string in your <code>.env</code> file.</p>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>encoding special characters</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> urllib.parse <span class="kw">import</span> quote
+print(quote(<span class="st">"p@ssw#rd!"</span>))
+<span class="cm"># Output: p%40ssw%23rd%21</span>
+
+<span class="cm"># Then in .env:</span>
+<span class="cm"># DATABASE_URL=psql://user:p%40ssw%23rd%21@127.0.0.1:5432/mydb</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="envobj">
+    <span class="section-label">Section 05</span>
+    <h2>The environ.Env Object</h2>
+    <div class="divider"></div>
+    <p>Everything starts with creating an <code>Env</code> instance at the top of <code>settings.py</code>, before reading any values.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — basic setup</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> environ
+<span class="kw">import</span> os
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+<span class="cm"># Create the Env object with type declarations and defaults</span>
+<span class="cm"># Variables without defaults are REQUIRED — missing them raises ImproperlyConfigured</span>
+env = environ.Env(
+    DEBUG=(bool, <span class="hl2">False</span>),
+    ALLOWED_HOSTS=(list, []),
+)
+
+<span class="cm"># Read the .env file</span>
+environ.Env.read_env(os.path.join(BASE_DIR, <span class="st">'.env'</span>))
+
+<span class="cm"># Read settings</span>
+DEBUG = env(<span class="st">'DEBUG'</span>)           <span class="cm"># bool, defaults to False</span>
+SECRET_KEY = env(<span class="st">'SECRET_KEY'</span>) <span class="cm"># str, REQUIRED — raises error if missing</span>
+ALLOWED_HOSTS = env(<span class="st">'ALLOWED_HOSTS'</span>)  <span class="cm"># list, defaults to []</span></code></pre>
+    </div>
+
+    <h3>Declaring Defaults: Constructor vs. Read Time</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — three declaration styles</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Option A: declare defaults in the constructor</span>
+env = environ.Env(
+    DEBUG=(bool, <span class="hl2">False</span>),
+    PORT=(int, <span class="num">8000</span>),
+)
+DEBUG = env(<span class="st">'DEBUG'</span>)     <span class="cm"># returns False if not in environment</span>
+
+<span class="cm"># Option B: declare defaults at read time</span>
+env = environ.Env()
+DEBUG = env.bool(<span class="st">'DEBUG'</span>, default=<span class="hl2">False</span>)
+PORT  = env.int(<span class="st">'PORT'</span>,  default=<span class="num">8000</span>)
+
+<span class="cm"># Option C: require a variable (no default = mandatory)</span>
+env = environ.Env()
+SECRET_KEY = env(<span class="st">'SECRET_KEY'</span>)  <span class="cm"># raises ImproperlyConfigured if missing</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="types">
+    <span class="section-label">Section 06</span>
+    <h2>Type Casting</h2>
+    <div class="divider"></div>
+    <p>All environment variables are strings in the OS. django-environ provides typed reader methods that cast the string to the appropriate Python type.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — all typed readers</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>env = environ.Env()
+
+<span class="cm"># Strings</span>
+name  = env.str(<span class="st">'SITE_NAME'</span>)
+name  = env(<span class="st">'SITE_NAME'</span>)         <span class="cm"># str() is the default</span>
+
+<span class="cm"># Booleans</span>
+<span class="cm"># Truthy: 'true', 'on', 'ok', 'y', 'yes', '1'</span>
+<span class="cm"># Falsy:  'false', 'off', 'no', 'n', '', '0'</span>
+debug = env.bool(<span class="st">'DEBUG'</span>, default=<span class="hl2">False</span>)
+
+<span class="cm"># Integers</span>
+port = env.int(<span class="st">'PORT'</span>, default=<span class="num">8000</span>)
+
+<span class="cm"># Floats and Decimals</span>
+rate  = env.float(<span class="st">'TAX_RATE'</span>, default=<span class="num">0.0</span>)
+price = env.decimal(<span class="st">'MIN_PRICE'</span>, default=Decimal(<span class="st">'0.00'</span>))
+
+<span class="cm"># Lists (comma-separated)</span>
+<span class="cm"># 'localhost,mysite.com' → ['localhost', 'mysite.com']</span>
+hosts = env.list(<span class="st">'ALLOWED_HOSTS'</span>, default=[])
+
+<span class="cm"># JSON — parses arbitrary JSON from an env var</span>
+<span class="cm"># MY_JSON_CONFIG='{"key": "val", "numbers": [1, 2, 3]}'</span>
+config = env.json(<span class="st">'MY_JSON_CONFIG'</span>)
+
+<span class="cm"># Dates and times (ISO 8601)</span>
+dt    = env.datetime(<span class="st">'EVENT_DATETIME'</span>)  <span class="cm"># 2024-06-15T14:30:00</span>
+d     = env.date(<span class="st">'START_DATE'</span>)           <span class="cm"># 2024-06-15</span>
+delta = env.timedelta(<span class="st">'SESSION_AGE'</span>)      <span class="cm"># 86400 → timedelta(seconds=86400)</span></code></pre>
+    </div>
+
+    <h3>Reading ADMINS and MANAGERS</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — parsing ADMINS tuples</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> email.utils <span class="kw">import</span> getaddresses
+
+<span class="cm"># In .env:</span>
+<span class="cm"># DJANGO_ADMINS=Alice Judge &lt;alice@example.com&gt;, Bob &lt;bob@example.com&gt;</span>
+
+ADMINS = getaddresses([env(<span class="st">'DJANGO_ADMINS'</span>, default=<span class="st">''</span>)])
+<span class="cm"># → [('Alice Judge', 'alice@example.com'), ('Bob', 'bob@example.com')]</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="urls">
+    <span class="section-label">Section 07</span>
+    <h2>URL Parsers — Databases, Caches, and Email</h2>
+    <div class="divider"></div>
+    <p>The most powerful feature of django-environ. Instead of writing Django's verbose nested dictionaries, you express connections as a single URL string in your <code>.env</code> file and let django-environ expand them.</p>
+
+    <h3>Database URLs</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — databases</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>DATABASES = {
+    <span class="st">'default'</span>: env.db(),              <span class="cm"># reads DATABASE_URL</span>
+    <span class="st">'replica'</span>: env.db(<span class="st">'REPLICA_URL'</span>, default=<span class="st">'sqlite:////tmp/replica.db'</span>),
+}</code></pre>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>URL Scheme</th><th>Django Backend</th></tr></thead>
+      <tbody>
+        <tr><td>psql:// / postgresql:// / postgres://</td><td>django.db.backends.postgresql</td></tr>
+        <tr><td>postgis://</td><td>django.contrib.gis.db.backends.postgis</td></tr>
+        <tr><td>mysql:// / mysql2://</td><td>django.db.backends.mysql</td></tr>
+        <tr><td>sqlite:///</td><td>django.db.backends.sqlite3</td></tr>
+        <tr><td>sqlite://:memory:</td><td>SQLite in-memory database</td></tr>
+        <tr><td>oracle://</td><td>django.db.backends.oracle</td></tr>
+        <tr><td>cockroachdb://</td><td>django_cockroachdb</td></tr>
+      </tbody>
+    </table>
+    <div class="code-block">
+      <div class="code-header"><span>.env — database URL examples</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># PostgreSQL on localhost</span>
+DATABASE_URL=psql://myuser:mypassword@127.0.0.1:5432/mydb
+
+<span class="cm"># MySQL</span>
+DATABASE_URL=mysql://myuser:mypassword@127.0.0.1:3306/mydb
+
+<span class="cm"># SQLite — four slashes for absolute path</span>
+DATABASE_URL=sqlite:////home/user/project/db.sqlite3
+
+<span class="cm"># SQLite in-memory (for testing)</span>
+DATABASE_URL=sqlite://:memory:
+
+<span class="cm"># With extra options as query parameters</span>
+DATABASE_URL=psql://user:pass@host:5432/db?conn_max_age=60&sslmode=require</code></pre>
+    </div>
+
+    <h3>Cache URLs</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py + .env — caches</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># settings.py</span>
+CACHES = {
+    <span class="st">'default'</span>: env.cache(),              <span class="cm"># reads CACHE_URL</span>
+    <span class="st">'sessions'</span>: env.cache_url(<span class="st">'SESSION_CACHE_URL'</span>, default=<span class="st">'locmemcache://'</span>),
+}
+
+<span class="cm"># .env examples</span>
+<span class="cm"># CACHE_URL=redis://127.0.0.1:6379/0</span>
+<span class="cm"># CACHE_URL=rediss://user:password@redis.example.com:6379/0  (TLS)</span>
+<span class="cm"># CACHE_URL=memcache://127.0.0.1:11211</span>
+<span class="cm"># CACHE_URL=locmemcache://     (development only)</span>
+<span class="cm"># CACHE_URL=dummycache://      (swallows all writes)</span></code></pre>
+    </div>
+
+    <h3>Email URLs</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py + .env — email</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># settings.py</span>
+EMAIL_CONFIG = env.email(
+    <span class="st">'EMAIL_URL'</span>,
+    default=<span class="st">'consolemail://'</span>,    <span class="cm"># prints to console in development</span>
+)
+vars().update(EMAIL_CONFIG)
+<span class="cm"># Sets: EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS,</span>
+<span class="cm">#       EMAIL_USE_SSL, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD</span>
+
+<span class="cm"># .env examples</span>
+<span class="cm"># EMAIL_URL=consolemail://</span>
+<span class="cm"># EMAIL_URL=smtp+tls://user@example.com:password@smtp.sendgrid.net:587</span>
+<span class="cm"># EMAIL_URL=smtp+ssl://user@example.com:password@smtp.gmail.com:465</span>
+<span class="cm"># EMAIL_URL=filemail:///var/mail/django-emails/</span>
+<span class="cm"># EMAIL_URL=dummymail://</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="path">
+    <span class="section-label">Section 08</span>
+    <h2>The Path Helper</h2>
+    <div class="divider"></div>
+    <p>django-environ provides a <code>Path</code> class that simplifies building filesystem paths in settings. It supports Python's <code>/</code> operator for path joining.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — path helper</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Go up 2 levels from settings.py to reach the project root</span>
+ROOT = environ.Path(__file__) - <span class="num">2</span>
+<span class="cm"># If settings.py is at /home/user/myproject/config/settings.py</span>
+<span class="cm"># ROOT is now /home/user/myproject</span>
+
+STATIC_ROOT    = ROOT.path(<span class="st">'staticfiles'</span>)()
+MEDIA_ROOT     = ROOT.path(<span class="st">'media'</span>)()
+TEMPLATES_DIR  = ROOT.path(<span class="st">'templates'</span>)()
+
+<span class="cm"># Path supports the / operator (same as .path())</span>
+LOGS_DIR = str(ROOT / <span class="st">'logs'</span>)
+
+<span class="cm"># The Path object itself is not a string — call it to get the string value</span>
+root_str    = ROOT()       <span class="cm"># '/home/user/myproject'</span>
+media_path  = MEDIA_ROOT   <span class="cm"># already a string (called above)</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 9 -->
+  <section id="docker">
+    <span class="section-label">Section 09</span>
+    <h2>Docker and Kubernetes — FileAwareEnv</h2>
+    <div class="divider"></div>
+    <p>Docker Swarm and Kubernetes share secrets with containers by mounting secret values as <strong>files</strong>, typically under <code>/run/secrets/</code>. A corresponding environment variable with a <code>_FILE</code> suffix points to the file path.</p>
+    <p><code>environ.FileAwareEnv</code> is a drop-in replacement for <code>environ.Env</code> that handles this automatically. When you call <code>env('SECRET_KEY')</code>, it first checks for <code>SECRET_KEY_FILE</code>. If that exists, it reads and returns the file's contents. If not, it falls back to <code>SECRET_KEY</code> normally.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — FileAwareEnv</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> environ
+
+<span class="cm"># Use FileAwareEnv instead of Env for Docker/Kubernetes compatibility</span>
+env = environ.FileAwareEnv(
+    DEBUG=(bool, <span class="hl2">False</span>),
+)
+environ.FileAwareEnv.read_env()
+
+<span class="cm"># These calls now automatically check SECRET_KEY_FILE first,</span>
+<span class="cm"># then fall back to SECRET_KEY</span>
+SECRET_KEY   = env(<span class="st">'SECRET_KEY'</span>)
+DATABASE_URL = env(<span class="st">'DATABASE_URL'</span>)</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>docker-compose.yml — mounting secrets</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>version: <span class="st">'3.8'</span>
+secrets:
+  secret_key:
+    file: ./secrets/secret_key.txt
+
+services:
+  web:
+    image: myapp
+    secrets:
+      - secret_key
+    environment:
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - DEBUG=off
+      - DATABASE_URL=psql://user:pass@db:5432/mydb</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section id="prefix">
+    <span class="section-label">Section 10</span>
+    <h2>Prefixing Environment Variables</h2>
+    <div class="divider"></div>
+    <p>In shared environments or when multiple Django services run on the same host, use a prefix to namespace your environment variables and avoid collisions.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py + .env — prefixed vars</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># settings.py</span>
+env = environ.Env(prefix=<span class="st">'MYAPP_'</span>)
+
+<span class="cm"># Now env('DEBUG') reads MYAPP_DEBUG from the environment</span>
+<span class="cm"># env('SECRET_KEY') reads MYAPP_SECRET_KEY</span>
+
+DEBUG      = env.bool(<span class="st">'DEBUG'</span>, default=<span class="hl2">False</span>)  <span class="cm"># reads MYAPP_DEBUG</span>
+SECRET_KEY = env(<span class="st">'SECRET_KEY'</span>)                  <span class="cm"># reads MYAPP_SECRET_KEY</span>
+
+<span class="cm"># .env</span>
+<span class="cm"># MYAPP_DEBUG=on</span>
+<span class="cm"># MYAPP_SECRET_KEY=supersecretvalue</span>
+<span class="cm"># MYAPP_DATABASE_URL=psql://user:pass@localhost/mydb</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 11 -->
+  <section id="smart">
+    <span class="section-label">Section 11</span>
+    <h2>Smart Casting and Its Pitfalls</h2>
+    <div class="divider"></div>
+    <p>By default, django-environ enables <strong>smart casting</strong>: if you call <code>env('SOME_VAR')</code> without specifying a type, and there is a default declared in the constructor, it infers the type from the default and casts automatically.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — smart casting behavior</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>env = environ.Env(
+    DEBUG=(bool, <span class="hl2">False</span>),   <span class="cm"># default is a bool → env('DEBUG') casts to bool</span>
+    PORT=(int, <span class="num">8000</span>),      <span class="cm"># default is an int → env('PORT') casts to int</span>
+)
+
+DEBUG = env(<span class="st">'DEBUG'</span>)   <span class="cm"># smartcast: returns bool, not string ✓</span>
+PORT  = env(<span class="st">'PORT'</span>)    <span class="cm"># smartcast: returns int, not string ✓</span>
+
+<span class="cm"># To disable smart casting entirely (recommended):</span>
+env = environ.Env()
+env.smart_cast = <span class="hl2">False</span>
+
+<span class="cm"># Now you MUST always use typed methods:</span>
+DEBUG = env.bool(<span class="st">'DEBUG'</span>, default=<span class="hl2">False</span>)
+PORT  = env.int(<span class="st">'PORT'</span>,  default=<span class="num">8000</span>)</code></pre>
+    </div>
+    <div class="callout tip">
+      <strong>Best practice</strong>
+      <p>Disable smart casting now with <code>env.smart_cast = False</code> and use explicit typed methods throughout. The library's next major version will disable it by default.</p>
+    </div>
+
+    <h3>Comment Parsing</h3>
+    <p>By default, django-environ does <strong>not</strong> strip inline comments from <code>.env</code> values. Pass <code>parse_comments=True</code> to strip them:</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — stripping inline comments</span></div>
+      <pre><code><span class="cm"># Without parse_comments=True:</span>
+<span class="cm"># MY_VAR=hello  # this comment becomes part of the value!</span>
+
+environ.Env.read_env(os.path.join(BASE_DIR, <span class="st">'.env'</span>), parse_comments=<span class="hl2">True</span>)
+<span class="cm"># Now 'hello  # comment' → 'hello'</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 12 -->
+  <section id="multi">
+    <span class="section-label">Section 12</span>
+    <h2>Multiple .env Files</h2>
+    <div class="divider"></div>
+    <p>You can read multiple <code>.env</code> files by calling <code>read_env()</code> more than once. The second call's values only set variables not already in the environment (because <code>setdefault()</code> does not overwrite). Pass <code>overwrite=True</code> to make a second file's values override the first.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — multiple env files</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Read a shared base .env first</span>
+environ.Env.read_env(os.path.join(BASE_DIR, <span class="st">'.env'</span>))
+
+<span class="cm"># Then read an environment-specific override</span>
+<span class="cm"># overwrite=True makes this file's values win over the first file</span>
+environ_name = os.environ.get(<span class="st">'DJANGO_ENV'</span>, <span class="st">'local'</span>)
+environ.Env.read_env(
+    os.path.join(BASE_DIR, <span class="kw">f</span><span class="st">'.env.{environ_name}'</span>),
+    overwrite=<span class="hl2">True</span>
+)</code></pre>
+    </div>
+    <div class="callout info">
+      <strong>Recommended file structure</strong>
+      <p><code>.env.base</code> — shared defaults (safe to commit) · <code>.env.example</code> — template with all keys (committed) · <code>.env</code> — developer's local overrides (never committed) · <code>.env.test</code> — test-specific values (often committed)</p>
+    </div>
+  </section>
+
+  <!-- SECTION 13 -->
+  <section id="fullexample">
+    <span class="section-label">Section 13</span>
+    <h2>A Full Production settings.py Example</h2>
+    <div class="divider"></div>
+    <p>A complete, real-world <code>settings.py</code> using django-environ. It handles all of Django's core settings, uses URL parsers for the database/cache/email, and fails loudly if required variables are missing.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — complete production example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> environ
+<span class="kw">import</span> os
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+<span class="kw">from</span> email.utils <span class="kw">import</span> getaddresses
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    DEBUG=(bool, <span class="hl2">False</span>),
+    ALLOWED_HOSTS=(list, []),
+    SESSION_COOKIE_AGE=(int, <span class="num">1209600</span>),  <span class="cm"># 2 weeks</span>
+    USE_SSL=(bool, <span class="hl2">False</span>),
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, <span class="st">'.env'</span>))
+
+<span class="cm"># ── Core ──────────────────────────────────────────────────────────────────</span>
+SECRET_KEY    = env(<span class="st">'SECRET_KEY'</span>)       <span class="cm"># required — no default</span>
+DEBUG         = env(<span class="st">'DEBUG'</span>)             <span class="cm"># bool, defaults to False</span>
+ALLOWED_HOSTS = env(<span class="st">'ALLOWED_HOSTS'</span>)
+
+<span class="cm"># ── Database ──────────────────────────────────────────────────────────────</span>
+DATABASES = {<span class="st">'default'</span>: env.db()}
+DATABASES[<span class="st">'default'</span>][<span class="st">'CONN_MAX_AGE'</span>] = env.int(<span class="st">'CONN_MAX_AGE'</span>, default=<span class="num">60</span>)
+
+<span class="cm"># ── Cache ─────────────────────────────────────────────────────────────────</span>
+CACHES = {<span class="st">'default'</span>: env.cache(<span class="st">'CACHE_URL'</span>, default=<span class="st">'locmemcache://'</span>)}
+
+<span class="cm"># ── Email ─────────────────────────────────────────────────────────────────</span>
+EMAIL_CONFIG = env.email(<span class="st">'EMAIL_URL'</span>, default=<span class="st">'consolemail://'</span>)
+vars().update(EMAIL_CONFIG)
+DEFAULT_FROM_EMAIL = env(<span class="st">'DEFAULT_FROM_EMAIL'</span>, default=<span class="st">'noreply@example.com'</span>)
+
+<span class="cm"># ── People ────────────────────────────────────────────────────────────────</span>
+ADMINS   = getaddresses([env(<span class="st">'DJANGO_ADMINS'</span>, default=<span class="st">''</span>)])
+MANAGERS = ADMINS
+
+<span class="cm"># ── Files ─────────────────────────────────────────────────────────────────</span>
+STATIC_URL  = env(<span class="st">'STATIC_URL'</span>, default=<span class="st">'/static/'</span>)
+STATIC_ROOT = env.path(<span class="st">'STATIC_ROOT'</span>, default=str(BASE_DIR / <span class="st">'staticfiles'</span>))()
+MEDIA_URL   = env(<span class="st">'MEDIA_URL'</span>,  default=<span class="st">'/media/'</span>)
+MEDIA_ROOT  = env.path(<span class="st">'MEDIA_ROOT'</span>,  default=str(BASE_DIR / <span class="st">'media'</span>))()
+
+<span class="cm"># ── Security ──────────────────────────────────────────────────────────────</span>
+SESSION_COOKIE_AGE = env(<span class="st">'SESSION_COOKIE_AGE'</span>)
+
+<span class="kw">if not</span> DEBUG:
+    SECURE_SSL_REDIRECT            = env.bool(<span class="st">'USE_SSL'</span>, default=<span class="hl2">True</span>)
+    SECURE_HSTS_SECONDS            = env.int(<span class="st">'SECURE_HSTS_SECONDS'</span>, default=<span class="num">31536000</span>)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = <span class="hl2">True</span>
+    SESSION_COOKIE_SECURE          = <span class="hl2">True</span>
+    CSRF_COOKIE_SECURE             = <span class="hl2">True</span>
+
+<span class="cm"># ── i18n ──────────────────────────────────────────────────────────────────</span>
+LANGUAGE_CODE = env(<span class="st">'LANGUAGE_CODE'</span>, default=<span class="st">'en-us'</span>)
+TIME_ZONE     = env(<span class="st">'TIME_ZONE'</span>,     default=<span class="st">'UTC'</span>)
+USE_I18N      = <span class="hl2">True</span>
+USE_TZ        = <span class="hl2">True</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 14 -->
+  <section id="split">
+    <span class="section-label">Section 14</span>
+    <h2>Using with Split Settings</h2>
+    <div class="divider"></div>
+    <p>django-environ pairs naturally with django-split-settings. Initialize the <code>env</code> object in <code>base.py</code> and it flows into all subsequent files via the shared namespace.</p>
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/base.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> environ, os
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
+<span class="cm"># Create env once — available to all subsequent component files</span>
+env = environ.Env(DEBUG=(bool, <span class="hl2">False</span>))
+environ.Env.read_env(os.path.join(BASE_DIR, <span class="st">'.env'</span>))
+
+SECRET_KEY = env(<span class="st">'SECRET_KEY'</span>)
+DEBUG      = env(<span class="st">'DEBUG'</span>)</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/database.py</span></div>
+      <pre><code><span class="cm"># `env` is available here — set in base.py (shared namespace)</span>
+DATABASES = {<span class="st">'default'</span>: env.db()}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 15 -->
+  <section id="pitfalls">
+    <span class="section-label">Section 15</span>
+    <h2>Common Pitfalls &amp; Troubleshooting</h2>
+    <div class="divider"></div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ ImproperlyConfigured: Set the SECRET_KEY environment variable</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: The variable is not in your OS environment and not in your .env file, or read_env() was called before the env object was created.</span>
+        <p>Ensure <code>.env</code> exists in the directory you pass to <code>read_env()</code>. Print <code>os.path.join(BASE_DIR, '.env')</code> to verify the path. Check the file actually contains the variable.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Boolean env variables aren't being cast — DEBUG stays as the string 'on'</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Calling env('DEBUG') without a type declaration and smart casting is off.</span>
+        <p>Use the explicit typed reader: <code>env.bool('DEBUG', default=False)</code>. Or declare it in the constructor: <code>env = environ.Env(DEBUG=(bool, False))</code>.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Database password with special characters causes a URL parse error</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: Characters like @, #, :, / have special meaning in URLs and break the parser.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>fix</span></div>
+          <pre><code><span class="kw">from</span> urllib.parse <span class="kw">import</span> quote
+print(quote(<span class="st">"p@ss#word"</span>))  <span class="cm"># → p%40ss%23word</span>
+<span class="cm"># DATABASE_URL=psql://user:p%40ss%23word@host:5432/db</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Inline comments in .env are being included in the value</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: By default, django-environ does not strip inline comments.</span>
+        <p>Pass <code>parse_comments=True</code> to <code>read_env()</code>.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ read_env() silently does nothing — no variables are being set</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: read_env() does not raise an error if the file doesn't exist.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>fix — verify file exists</span></div>
+          <pre><code>env_file = os.path.join(BASE_DIR, <span class="st">'.env'</span>)
+<span class="kw">if not</span> os.path.exists(env_file):
+    print(<span class="kw">f</span><span class="st">"WARNING: .env file not found at {env_file}"</span>)
+environ.Env.read_env(env_file)</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ BASE_DIR points to the wrong directory after converting to a settings package</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: When settings.py becomes settings/__init__.py or settings/base.py, __file__ now points inside the settings directory.</span>
+        <p>Add one more <code>.parent</code> for each extra level. Count the directories between your <code>__file__</code> and the project root, and use the matching number of <code>.parent</code> calls.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 16 -->
+  <section id="checklist">
+    <span class="section-label">Section 16</span>
+    <h2>Checklist</h2>
+    <div class="divider"></div>
+    <p>Use this every time you add or configure django-environ in a project.</p>
+
+    <div class="checklist-group">
+      <h4>Initial Setup</h4>
+      <ul class="checklist">
+        <li><code>.env</code> is listed in <code>.gitignore</code></li>
+        <li><code>.env.example</code> exists with all keys and placeholder values, and IS committed</li>
+        <li><code>environ.Env.read_env()</code> is called before any <code>env(...)</code> calls in <code>settings.py</code></li>
+        <li>The path passed to <code>read_env()</code> is correct (verify <code>BASE_DIR</code> points to project root)</li>
+        <li>No secrets are hardcoded anywhere in <code>settings.py</code></li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Variable Declarations</h4>
+      <ul class="checklist">
+        <li>All required variables (no defaults) intentionally lack defaults — they raise <code>ImproperlyConfigured</code> if missing</li>
+        <li>Optional variables have sensible defaults</li>
+        <li><code>DEBUG</code> defaults to <code>False</code> so missing it in production is safe</li>
+        <li>Smart casting is disabled (<code>env.smart_cast = False</code>) if you prefer explicit types</li>
+        <li>All boolean variables use <code>env.bool()</code> or declare <code>(bool, default)</code> in the constructor</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>URL Parsers</h4>
+      <ul class="checklist">
+        <li><code>DATABASE_URL</code> is used for databases, not individual <code>DB_NAME</code>, <code>DB_USER</code>, etc.</li>
+        <li><code>CACHE_URL</code> is used for caches</li>
+        <li><code>EMAIL_URL</code> is used for email configuration</li>
+        <li>Passwords in URL strings are URL-encoded if they contain special characters</li>
+        <li><code>env.email()</code> result is injected with <code>vars().update()</code></li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Docker / Kubernetes</h4>
+      <ul class="checklist">
+        <li><code>FileAwareEnv</code> is used instead of <code>Env</code> in containerized environments</li>
+        <li>Secrets are mounted as files and referenced via <code>*_FILE</code> environment variables</li>
+        <li>The <code>.env</code> file is NOT baked into the Docker image</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Environment-Specific</h4>
+      <ul class="checklist">
+        <li>Development <code>.env</code> uses <code>DEBUG=on</code> and <code>consolemail://</code> for email</li>
+        <li>Production deployment does not use a <code>.env</code> file — secrets are injected via the environment</li>
+        <li>Production <code>SECRET_KEY</code> is at least 50 characters of random data</li>
+        <li><code>ALLOWED_HOSTS</code> contains real hostnames in production</li>
+      </ul>
+    </div>
+
+  </section>
+
+</div>
+
+<footer>
+  <p>
+    Official documentation:
+    <a href="https://django-environ.readthedocs.io/" target="_blank">django-environ.readthedocs.io</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/joke2k/django-environ" target="_blank">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://pypi.org/project/django-environ/" target="_blank">PyPI</a>
+  </p>
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = '#22d3ee';
+      btn.style.borderColor = '#22d3ee';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>

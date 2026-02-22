@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ultimate Guide: django-split-settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf6f0;
+    --surface: #fffcf8;
+    --surface2: #f4ede0;
+    --border: #e2d5c3;
+    --border-strong: #c8b599;
+    --text: #2c1a0e;
+    --muted: #7a5c3a;
+    --muted2: #a88c6a;
+    --accent: #b45309;
+    --accent-light: #fff7ed;
+    --accent-mid: #d97706;
+    --blue: #1d4ed8;
+    --blue-light: #eff6ff;
+    --green: #15803d;
+    --green-light: #f0fdf4;
+    --amber: #92400e;
+    --amber-light: #fffbeb;
+    --red: #991b1b;
+    --red-light: #fef2f2;
+    --purple: #5b21b6;
+    --purple-light: #f5f3ff;
+    --ink: #1c0f06;
+    --sienna: #92400e;
+    --warm-mid: #c2410c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.78;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,246,240,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0;
+    height: 52px; overflow-x: auto;
+  }
+
+  nav .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--ink);
+    flex-shrink: 0;
+    margin-right: 2rem;
+    letter-spacing: -0.01em;
+  }
+  nav .logo span { color: var(--accent); }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0 0.9rem;
+    height: 52px;
+    display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  nav a:hover { color: var(--accent); border-bottom-color: var(--accent-mid); }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    color: #f5ede0;
+    padding: 5.5rem 2rem 4.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 70%, rgba(180,83,9,0.15) 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 30%, rgba(146,64,14,0.10) 0%, transparent 55%),
+      repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 1.75rem;
+    position: relative;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.8rem, 6.5vw, 5rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    position: relative;
+    color: #fdf4e8;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--accent-mid);
+  }
+
+  .hero p {
+    font-size: 1rem;
+    color: rgba(245,237,224,0.58);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.85;
+    position: relative;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .hero-meta {
+    display: flex; align-items: center; justify-content: center;
+    gap: 2rem; position: relative;
+  }
+
+  .hero-meta a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(245,237,224,0.35);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  .hero-meta a:hover { color: var(--accent-mid); }
+
+  /* ── CONTENT ── */
+  .content { max-width: 840px; margin: 0 auto; padding: 0 2rem 8rem; }
+
+  section { margin-bottom: 5rem; scroll-margin-top: 70px; }
+
+  /* ── HEADINGS ── */
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.1rem;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--sienna);
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-mid), transparent);
+    margin: 0.75rem 0 2rem;
+  }
+
+  p { margin-bottom: 1.25rem; color: #3d2510; }
+  strong { color: var(--ink); font-weight: 500; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: #1a0e06;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 0.84rem;
+    border: 1px solid #2d1a0a;
+    border-left: 3px solid var(--accent);
+  }
+
+  .code-header {
+    background: #120a04;
+    border-bottom: 1px solid #2d1a0a;
+    padding: 0.5rem 1.2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .code-header span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: #5a3a20;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid #2d1a0a;
+    color: #5a3a20;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    padding: 0.15rem 0.48rem;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--accent-mid); border-color: var(--accent-mid); }
+
+  pre {
+    padding: 1.4rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    color: #e8d5bb;
+    tab-size: 4;
+  }
+
+  code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82em;
+    background: #f4ede0;
+    padding: 0.1em 0.38em;
+    border-radius: 2px;
+    color: var(--sienna);
+  }
+  pre code { background: none; padding: 0; color: #e8d5bb; font-size: 1em; }
+
+  .kw  { color: #f0a060; }
+  .st  { color: #90d880; }
+  .cm  { color: #4a3020; font-style: italic; }
+  .fn  { color: #80c8e8; }
+  .nm  { color: #f0d060; }
+  .hl2 { color: #60d8c0; }
+  .num { color: #f08060; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 3px;
+    padding: 1rem 1.3rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    font-size: 0.92rem;
+  }
+  .callout.info    { background: var(--blue-light);   border-color: var(--blue);   }
+  .callout.warning { background: var(--amber-light);  border-color: var(--amber);  }
+  .callout.tip     { background: var(--green-light);  border-color: var(--green);  }
+  .callout.danger  { background: var(--red-light);    border-color: var(--red);    }
+  .callout.note    { background: var(--accent-light); border-color: var(--accent); }
+
+  .callout strong {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+  }
+  .callout.info    strong { color: var(--blue);   }
+  .callout.warning strong { color: var(--amber);  }
+  .callout.tip     strong { color: var(--green);  }
+  .callout.danger  strong { color: var(--red);    }
+  .callout.note    strong { color: var(--accent); }
+  .callout p { margin: 0; color: #3d2510; font-size: 0.9rem; }
+
+  /* ── TABLES ── */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+  .data-table th {
+    background: var(--sienna);
+    color: #f5e0c8;
+    padding: 0.65rem 1rem;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border-bottom: 1px solid #7a3a0e;
+  }
+  .data-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: #3d2510; font-size: 0.87rem; vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.76rem; color: var(--accent); white-space: nowrap;
+  }
+  .data-table tr:hover td { background: var(--accent-light); }
+
+  /* ── TWO COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.35rem;
+    border-top: 3px solid var(--accent-mid);
+  }
+  .card h4 {
+    margin-top: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 0.75rem; padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .card ul { list-style: none; }
+  .card ul li {
+    padding: 0.28rem 0; font-size: 0.87rem;
+    color: #3d2510; display: flex; gap: 0.6rem;
+  }
+  .card ul li::before { content: '◆'; color: var(--accent-mid); font-size: 0.45rem; flex-shrink: 0; margin-top: 0.45rem; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    margin: 3rem 0 4rem;
+    border-left: 4px solid var(--accent-mid);
+  }
+  .toc h3 {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 0; margin-bottom: 1.25rem;
+    color: var(--accent);
+    font-style: normal;
+  }
+  .toc ol { padding-left: 1.25rem; columns: 2; column-gap: 2.5rem; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+  .toc ol li { margin-bottom: 0.38rem; break-inside: avoid; }
+  .toc a {
+    color: var(--muted); text-decoration: none;
+    font-family: 'Lora', serif; font-size: 0.87rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; }
+  .step {
+    position: relative; padding-left: 3.75rem;
+    margin-bottom: 2.5rem; counter-increment: step;
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0.1rem;
+    width: 2.2rem; height: 2.2rem;
+    background: var(--accent); color: white;
+    font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h3 { margin-top: 0.15rem; }
+
+  /* ── STRUCTURE DIAGRAM ── */
+  .file-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.5rem 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.95;
+    color: #3d2510;
+  }
+  .file-tree .dir  { color: var(--sienna); font-weight: 700; }
+  .file-tree .file { color: #5a3a20; }
+  .file-tree .annot { color: var(--muted2); font-style: italic; }
+
+  /* ── PITFALL ── */
+  .pitfall {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--red);
+  }
+  .pitfall-problem {
+    background: var(--red-light);
+    border-bottom: 1px solid #fecaca;
+    padding: 0.75rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--red); letter-spacing: 0.03em;
+  }
+  .pitfall-body { background: var(--surface); padding: 0.9rem 1.2rem; }
+  .pitfall-body p { font-size: 0.88rem; margin-bottom: 0.5rem; color: #3d2510; }
+  .pitfall-body p:last-child { margin-bottom: 0; }
+  .pitfall-body .cause {
+    font-family: 'Space Mono', monospace; font-size: 0.67rem;
+    color: var(--muted); font-style: italic; display: block; margin-bottom: 0.4rem;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    margin: 0.9rem 0;
+    border-left: 3px solid var(--accent-mid);
+  }
+  .checklist-group h4 {
+    font-family: 'Space Mono', monospace; font-size: 0.62rem;
+    color: var(--accent); text-transform: uppercase;
+    letter-spacing: 0.14em; margin-bottom: 0.7rem; margin-top: 0;
+  }
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.42rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; color: #3d2510; display: flex; gap: 0.7rem; align-items: flex-start;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '☐'; font-size: 0.95rem; color: var(--border-strong); flex-shrink: 0; margin-top: 0.05rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(245,237,224,0.35);
+    padding: 2rem; text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.05em;
+  }
+  footer a { color: rgba(245,237,224,0.45); text-decoration: none; }
+  footer a:hover { color: var(--accent-mid); }
+
+  @media (max-width: 640px) {
+    h2 { font-size: 1.7rem; }
+    .hero h1 { font-size: 2.5rem; }
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .content { padding: 0 1.25rem 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">django-<span>split-settings</span></span>
+  <a href="#whatis">What It Is</a>
+  <a href="#howworks">Under the Hood</a>
+  <a href="#install">Install</a>
+  <a href="#firststructure">First Structure</a>
+  <a href="#include">include()</a>
+  <a href="#optional">optional()</a>
+  <a href="#wildcards">Wildcards</a>
+  <a href="#envswitch">Env Switching</a>
+  <a href="#modifying">Modifying Settings</a>
+  <a href="#basedir">BASE_DIR Fix</a>
+  <a href="#structures">Project Structures</a>
+  <a href="#withenviron">With django-environ</a>
+  <a href="#running">Running</a>
+  <a href="#pitfalls">Pitfalls</a>
+  <a href="#checklist">Checklist</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Ultimate Guide — #3 of 6</div>
+  <h1>django-<em>split-settings</em></h1>
+  <p>Organize Django settings into multiple focused files, with wildcard support, optional includes, and environment-based switching — without any magic.</p>
+  <div class="hero-meta">
+    <a href="https://django-split-settings.readthedocs.io/" target="_blank">readthedocs.io</a>
+    <a href="https://github.com/wemake-services/django-split-settings" target="_blank">GitHub</a>
+    <a href="https://pypi.org/project/django-split-settings/" target="_blank">PyPI</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#whatis">What is django-split-settings and Why Use It</a></li>
+      <li><a href="#howworks">How It Works Under the Hood</a></li>
+      <li><a href="#install">Installation</a></li>
+      <li><a href="#firststructure">Your First Split Settings Structure</a></li>
+      <li><a href="#include">The include() Function</a></li>
+      <li><a href="#optional">The optional() Wrapper</a></li>
+      <li><a href="#wildcards">Wildcards — Loading Files Dynamically</a></li>
+      <li><a href="#envswitch">Environment-Based Settings Switching</a></li>
+      <li><a href="#modifying">Modifying Settings from Previous Files</a></li>
+      <li><a href="#basedir">Fixing BASE_DIR After Converting to a Package</a></li>
+      <li><a href="#structures">Recommended Project Structures</a></li>
+      <li><a href="#withenviron">Using with django-environ</a></li>
+      <li><a href="#running">Running the Dev Server and Tests</a></li>
+      <li><a href="#pitfalls">Common Pitfalls &amp; Troubleshooting</a></li>
+      <li><a href="#checklist">Checklist</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="whatis">
+    <span class="section-label">Section 01</span>
+    <h2>What is django-split-settings and Why Use It</h2>
+    <div class="divider"></div>
+
+    <p>Every Django project starts with a single <code>settings.py</code> file. For small projects, this works fine. For anything real, it becomes a problem.</p>
+
+    <p>A typical settings file for a medium project contains 200–400 lines covering installed apps, database configuration, cache backends, email backends, logging, Celery, static/media files, security settings, and third-party package configuration. When you add multiple environments — local development, staging, production, CI — this single file becomes unmanageable. Developers resort to commenting out sections, maintaining multiple parallel files, and using fragile <code>try/except ImportError</code> tricks.</p>
+
+    <p><strong>django-split-settings</strong> solves this with a clean, explicit approach: you replace your <code>settings.py</code> with a <code>settings/</code> package, and a single <code>__init__.py</code> file that uses <code>include()</code> to assemble the final settings from multiple component files. Each file shares the same namespace as all previous files — later files can read and modify what earlier files set.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h4>What split-settings gives you</h4>
+        <ul>
+          <li>Split settings into any number of files with a simple <code>include()</code> call</li>
+          <li>Mark files as optional so they are silently skipped if missing</li>
+          <li>Use glob wildcards to load all files in a directory</li>
+          <li>Files share the same namespace — any setting can be read or modified by a later file</li>
+          <li>Compatible with Django's <code>runserver</code> auto-reloading</li>
+          <li>No magic, no meta-classes, no custom format — just Python files</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>What split-settings does NOT do</h4>
+        <ul>
+          <li>Does not read environment variables — that is django-environ's job</li>
+          <li>Does not encrypt or protect secrets</li>
+          <li>Does not provide settings validation beyond what Python gives you</li>
+        </ul>
+        <p style="margin-top:1rem;font-size:0.83rem;color:var(--muted);font-style:italic;">These two libraries are designed to work together: split-settings handles <em>structure</em>, django-environ handles <em>values</em>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="howworks">
+    <span class="section-label">Section 02</span>
+    <h2>How It Works Under the Hood</h2>
+    <div class="divider"></div>
+
+    <p>The library is deliberately simple. The <code>include()</code> function takes the calling scope's <code>globals()</code> dictionary, iterates over the file paths you provide, and for each file, compiles and executes it — passing the same globals dictionary. Each file's assignments modify that shared dictionary directly.</p>
+
+    <p>This is the same mechanism Python uses for <code>exec()</code> with a shared namespace. The result is that every included file sees all the settings defined by every file that came before it.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>flow diagram</span></div>
+      <pre><code>settings/__init__.py calls include('components/base.py', 'components/database.py', ...)
+
+  components/base.py executes:      globals = {BASE_DIR, INSTALLED_APPS, ...}
+  components/database.py executes:  globals = {BASE_DIR, INSTALLED_APPS, DATABASES, ...}
+  components/email.py executes:     globals = {BASE_DIR, ..., DATABASES, EMAIL_BACKEND, ...}
+  components/local.py executes:     globals = {all previous settings + any overrides}
+
+Final result: Django's settings are the accumulated globals dictionary.</code></pre>
+    </div>
+
+    <p>Any Python you can write in <code>settings.py</code> you can write in a component file. Imports work. Conditionals work. Loops work. There is no magic to learn.</p>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="install">
+    <span class="section-label">Section 03</span>
+    <h2>Installation</h2>
+    <div class="divider"></div>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Install the package</h3>
+        <div class="code-block">
+          <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>pip install django-split-settings
+
+<span class="cm"># or with uv</span>
+uv add django-split-settings
+
+<span class="cm"># or with poetry</span>
+poetry add django-split-settings</code></pre>
+        </div>
+        <p>django-split-settings does not go into <code>INSTALLED_APPS</code>. It is used only in your settings package.</p>
+      </div>
+
+      <div class="step">
+        <h3>Convert settings.py to a package</h3>
+        <p>This is a one-time migration. No changes are needed to <code>manage.py</code>, <code>wsgi.py</code>, or <code>asgi.py</code>.</p>
+        <div class="code-block">
+          <div class="code-header"><span>bash — migration steps</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code><span class="cm"># 1. Create the settings directory and components subfolder</span>
+mkdir myproject/settings
+mkdir myproject/settings/components
+
+<span class="cm"># 2. Create the __init__.py (the entry point)</span>
+touch myproject/settings/__init__.py
+
+<span class="cm"># 3. Split your old settings.py content into component files</span>
+
+<span class="cm"># 4. Delete the old file</span>
+rm myproject/settings.py</code></pre>
+        </div>
+        <div class="callout info">
+          <strong>No URL changes needed</strong>
+          <p>Django discovers settings via <code>DJANGO_SETTINGS_MODULE</code>, which already points to <code>myproject.settings</code>. Now that <code>settings</code> is a package, Python finds <code>settings/__init__.py</code> automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="firststructure">
+    <span class="section-label">Section 04</span>
+    <h2>Your First Split Settings Structure</h2>
+    <div class="divider"></div>
+
+    <h3>settings/__init__.py</h3>
+    <p>This file contains <strong>only</strong> the <code>include()</code> call. All actual settings live in component files.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> split_settings.tools <span class="kw">import</span> optional, include
+
+include(
+    <span class="st">'components/base.py'</span>,
+    <span class="st">'components/database.py'</span>,
+    <span class="st">'components/cache.py'</span>,
+    <span class="st">'components/email.py'</span>,
+    <span class="st">'components/logging.py'</span>,
+    <span class="st">'components/security.py'</span>,
+    optional(<span class="st">'components/local.py'</span>),   <span class="cm"># developer overrides, not committed</span>
+)</code></pre>
+    </div>
+
+    <h3>settings/components/base.py</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/base.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> os
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="cm"># BASE_DIR — note: 4 x .parent from components/base.py to project root</span>
+<span class="cm"># See Section 10 for the full explanation of why this many levels</span>
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
+SECRET_KEY = os.environ.get(<span class="st">'SECRET_KEY'</span>, <span class="st">'dev-only-insecure-key'</span>)
+DEBUG = os.environ.get(<span class="st">'DEBUG'</span>, <span class="st">'on'</span>) == <span class="st">'on'</span>
+ALLOWED_HOSTS = os.environ.get(<span class="st">'ALLOWED_HOSTS'</span>, <span class="st">'localhost'</span>).split(<span class="st">','</span>)
+
+INSTALLED_APPS = [
+    <span class="st">'django.contrib.admin'</span>,
+    <span class="st">'django.contrib.auth'</span>,
+    <span class="st">'django.contrib.contenttypes'</span>,
+    <span class="st">'django.contrib.sessions'</span>,
+    <span class="st">'django.contrib.messages'</span>,
+    <span class="st">'django.contrib.staticfiles'</span>,
+    <span class="st">'myapp'</span>,
+]
+
+MIDDLEWARE = [
+    <span class="st">'django.middleware.security.SecurityMiddleware'</span>,
+    <span class="st">'django.contrib.sessions.middleware.SessionMiddleware'</span>,
+    <span class="st">'django.middleware.common.CommonMiddleware'</span>,
+    <span class="st">'django.middleware.csrf.CsrfViewMiddleware'</span>,
+    <span class="st">'django.contrib.auth.middleware.AuthenticationMiddleware'</span>,
+    <span class="st">'django.contrib.messages.middleware.MessageMiddleware'</span>,
+    <span class="st">'django.middleware.clickjacking.XFrameOptionsMiddleware'</span>,
+]
+
+ROOT_URLCONF = <span class="st">'myproject.urls'</span>
+WSGI_APPLICATION = <span class="st">'myproject.wsgi.application'</span>
+DEFAULT_AUTO_FIELD = <span class="st">'django.db.models.BigAutoField'</span>
+
+LANGUAGE_CODE = <span class="st">'en-us'</span>
+TIME_ZONE = <span class="st">'UTC'</span>
+USE_I18N = <span class="hl2">True</span>
+USE_TZ = <span class="hl2">True</span>
+
+STATIC_URL = <span class="st">'/static/'</span>
+STATIC_ROOT = BASE_DIR / <span class="st">'staticfiles'</span>
+MEDIA_URL = <span class="st">'/media/'</span>
+MEDIA_ROOT = BASE_DIR / <span class="st">'media'</span></code></pre>
+    </div>
+
+    <h3>settings/components/local.py (not committed)</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/local.py — gitignored</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Each developer has their own copy. Overrides settings from earlier files.</span>
+
+DEBUG = <span class="hl2">True</span>
+
+INSTALLED_APPS += [<span class="st">'debug_toolbar'</span>]       <span class="cm"># INSTALLED_APPS set in base.py</span>
+MIDDLEWARE   += [<span class="st">'debug_toolbar.middleware.DebugToolbarMiddleware'</span>]
+
+EMAIL_BACKEND = <span class="st">'django.core.mail.backends.console.EmailBackend'</span>
+
+<span class="cm"># Use SQLite locally for speed</span>
+DATABASES[<span class="st">'default'</span>] = {
+    <span class="st">'ENGINE'</span>: <span class="st">'django.db.backends.sqlite3'</span>,
+    <span class="st">'NAME'</span>: BASE_DIR / <span class="st">'db.sqlite3'</span>,
+}</code></pre>
+    </div>
+    <div class="callout danger">
+      <strong>Add to .gitignore</strong>
+      <p>Add <code>settings/components/local.py</code> (or wherever your local override file lives) to <code>.gitignore</code>. Each developer keeps their own copy. Never commit it.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="include">
+    <span class="section-label">Section 05</span>
+    <h2>The include() Function</h2>
+    <div class="divider"></div>
+
+    <p><code>include()</code> accepts any number of file path strings and executes them in order within the calling scope. File paths are resolved <strong>relative to the file that calls include()</strong> — usually <code>settings/__init__.py</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py — path resolution</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>include(
+    <span class="st">'components/base.py'</span>,       <span class="cm"># → settings/components/base.py</span>
+    <span class="st">'components/database.py'</span>,  <span class="cm"># → settings/components/database.py</span>
+    <span class="st">'/etc/myapp/server.py'</span>,    <span class="cm"># absolute paths also work</span>
+)</code></pre>
+    </div>
+
+    <h3>Shared Context Between Files</h3>
+    <p>All included files share the same namespace. Variables set by earlier files are available in later files without any import:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>components/base.py → components/local.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># components/base.py</span>
+INSTALLED_APPS = [<span class="st">'django.contrib.admin'</span>, <span class="st">'django.contrib.auth'</span>]
+DEBUG = <span class="hl2">False</span>
+
+<span class="cm"># components/local.py — no import needed; shared namespace</span>
+DEBUG = <span class="hl2">True</span>
+INSTALLED_APPS += [<span class="st">'debug_toolbar'</span>]   <span class="cm"># read + modify from base.py</span></code></pre>
+    </div>
+
+    <h3>Explicitly Passing Scope</h3>
+    <p>In almost all cases, <code>include()</code> automatically captures the correct <code>globals()</code>. Only pass <code>scope=globals()</code> if calling <code>include()</code> from inside a function or nested scope:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>edge case — calling from inside a function</span></div>
+      <pre><code><span class="kw">def</span> <span class="fn">load_settings</span>():
+    include(
+        <span class="st">'components/base.py'</span>,
+        scope=globals(),  <span class="cm"># required when calling from inside a function</span>
+    )
+
+load_settings()</code></pre>
+    </div>
+    <div class="callout tip">
+      <strong>Don't add scope=globals() unnecessarily</strong>
+      <p>Do not add <code>scope=globals()</code> unless you actually encounter a scope problem. At module level in <code>__init__.py</code>, automatic scope capture works correctly.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="optional">
+    <span class="section-label">Section 06</span>
+    <h2>The optional() Wrapper</h2>
+    <div class="divider"></div>
+
+    <p><code>optional()</code> marks a file path as optional. If the file does not exist, it is silently skipped. If the file exists and contains a Python error, that error is still raised normally.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py — using optional()</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> split_settings.tools <span class="kw">import</span> optional, include
+
+include(
+    <span class="st">'components/base.py'</span>,              <span class="cm"># required — raises OSError if missing</span>
+    optional(<span class="st">'components/local.py'</span>),    <span class="cm"># silently skipped if missing</span>
+)</code></pre>
+    </div>
+
+    <h3>Common Uses for optional()</h3>
+
+    <table class="data-table">
+      <thead><tr><th>Use Case</th><th>Pattern</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Per-developer local overrides</td>
+          <td>optional('components/local.py')</td>
+        </tr>
+        <tr>
+          <td>CI-specific overrides</td>
+          <td>optional('components/ci.py')</td>
+        </tr>
+        <tr>
+          <td>Server machine overrides</td>
+          <td>optional('/etc/myapp/local_settings.py')</td>
+        </tr>
+        <tr>
+          <td>Feature flag toggle</td>
+          <td>optional('components/feature_x.py')</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="wildcards">
+    <span class="section-label">Section 07</span>
+    <h2>Wildcards — Loading Files Dynamically</h2>
+    <div class="divider"></div>
+
+    <p><code>include()</code> passes paths through Python's <code>glob.glob()</code>. You can use standard glob wildcards to load all files matching a pattern.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py — wildcard include</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>include(
+    <span class="st">'components/base.py'</span>,
+    <span class="st">'components/*.py'</span>,             <span class="cm"># load all .py files in components/</span>
+    <span class="st">'components/third_party/*.py'</span>, <span class="cm"># plugin-style loading</span>
+)</code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Wildcard order is not alphabetical</strong>
+      <p>Files matched by wildcards are loaded in the order <code>glob.glob()</code> returns them — typically directory order, not alphabetical. If file order matters, include files by explicit name, or use a numeric prefix: <code>01_base.py</code>, <code>02_database.py</code>.</p>
+    </div>
+
+    <h3>Plugin-Style Settings</h3>
+    <p>Wildcards enable a plugin pattern where each third-party package gets its own settings file in a dedicated folder:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py + folder structure</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># settings/__init__.py</span>
+include(
+    <span class="st">'components/base.py'</span>,
+    <span class="st">'components/database.py'</span>,
+    <span class="st">'components/third_party/*.py'</span>,  <span class="cm"># celery.py, sentry.py, stripe.py all load</span>
+    <span class="st">'components/security.py'</span>,
+    optional(<span class="st">'components/local.py'</span>),
+)
+
+<span class="cm"># Folder layout</span>
+<span class="cm"># settings/components/third_party/</span>
+<span class="cm">#   celery.py       ← Celery + Beat config</span>
+<span class="cm">#   sentry.py       ← Sentry DSN and options</span>
+<span class="cm">#   stripe.py       ← Stripe API keys</span>
+<span class="cm">#   redis.py        ← Redis connection settings</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="envswitch">
+    <span class="section-label">Section 08</span>
+    <h2>Environment-Based Settings Switching</h2>
+    <div class="divider"></div>
+
+    <h3>Pattern A — Override File Per Environment</h3>
+    <p>The most common pattern. A shared base file applies everywhere, and an environment-specific file applies overrides on top.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py — Pattern A</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> os
+<span class="kw">from</span> split_settings.tools <span class="kw">import</span> optional, include
+
+ENVIRONMENT = os.environ.get(<span class="st">'DJANGO_ENV'</span>, <span class="st">'development'</span>)
+
+include(
+    <span class="st">'components/base.py'</span>,
+    <span class="kw">f</span><span class="st">'environments/{ENVIRONMENT}.py'</span>,  <span class="cm"># development.py or production.py</span>
+    optional(<span class="st">'components/local.py'</span>),
+)</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/environments/development.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>DEBUG = <span class="hl2">True</span>
+INTERNAL_IPS = [<span class="st">'127.0.0.1'</span>]
+EMAIL_BACKEND = <span class="st">'django.core.mail.backends.console.EmailBackend'</span>
+INSTALLED_APPS += [<span class="st">'debug_toolbar'</span>]
+MIDDLEWARE += [<span class="st">'debug_toolbar.middleware.DebugToolbarMiddleware'</span>]</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/environments/production.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>DEBUG = <span class="hl2">False</span>
+SECURE_SSL_REDIRECT = <span class="hl2">True</span>
+SECURE_HSTS_SECONDS = <span class="num">31536000</span>
+SECURE_HSTS_INCLUDE_SUBDOMAINS = <span class="hl2">True</span>
+SECURE_CONTENT_TYPE_NOSNIFF = <span class="hl2">True</span>
+SESSION_COOKIE_SECURE = <span class="hl2">True</span>
+CSRF_COOKIE_SECURE = <span class="hl2">True</span></code></pre>
+    </div>
+
+    <h3>Pattern B — Entirely Separate Include Lists</h3>
+    <p>A more explicit approach that makes each environment completely self-contained:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py — Pattern B</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> os
+<span class="kw">from</span> split_settings.tools <span class="kw">import</span> optional, include
+
+ENVIRONMENT = os.environ.get(<span class="st">'DJANGO_ENV'</span>, <span class="st">'development'</span>)
+
+<span class="kw">if</span> ENVIRONMENT == <span class="st">'production'</span>:
+    include(
+        <span class="st">'components/base.py'</span>,
+        <span class="st">'components/production_security.py'</span>,
+        <span class="st">'components/production_logging.py'</span>,
+    )
+<span class="kw">elif</span> ENVIRONMENT == <span class="st">'ci'</span>:
+    include(
+        <span class="st">'components/base.py'</span>,
+        <span class="st">'components/ci_database.py'</span>,
+        <span class="st">'components/ci_email.py'</span>,
+    )
+<span class="kw">else</span>:
+    include(
+        <span class="st">'components/base.py'</span>,
+        <span class="st">'components/database.py'</span>,
+        <span class="st">'components/development.py'</span>,
+        optional(<span class="st">'components/local.py'</span>),
+    )</code></pre>
+    </div>
+
+    <h3>Pattern C — Feature Flags via Optional Files</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings/__init__.py — Pattern C</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>include(
+    <span class="st">'components/base.py'</span>,
+    <span class="st">'components/database.py'</span>,
+    optional(<span class="st">'components/feature_payments.py'</span>),  <span class="cm"># create file to enable</span>
+    optional(<span class="st">'components/feature_ai.py'</span>),         <span class="cm"># create file to enable</span>
+    optional(<span class="st">'components/local.py'</span>),
+)</code></pre>
+    </div>
+    <p>A developer enables a feature by creating the corresponding file. This keeps base settings clean and avoids sprawling feature-flag conditionals.</p>
+  </section>
+
+  <!-- SECTION 9 -->
+  <section id="modifying">
+    <span class="section-label">Section 09</span>
+    <h2>Modifying Settings from Previous Files</h2>
+    <div class="divider"></div>
+
+    <p>Because all files share the same namespace, modifying a setting set by an earlier file is straightforward.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>extending lists, modifying dicts</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Extending lists — use += to avoid overwriting</span>
+INSTALLED_APPS += [<span class="st">'debug_toolbar'</span>, <span class="st">'django_extensions'</span>]
+MIDDLEWARE += [<span class="st">'debug_toolbar.middleware.DebugToolbarMiddleware'</span>]
+
+<span class="cm"># Modifying nested dictionaries — replace just the key you want to change</span>
+DATABASES[<span class="st">'default'</span>][<span class="st">'CONN_MAX_AGE'</span>] = <span class="num">0</span>   <span class="cm"># update one key within the dict</span>
+
+<span class="cm"># Replacing an entire sub-dict for local SQLite</span>
+DATABASES[<span class="st">'default'</span>] = {
+    <span class="st">'ENGINE'</span>: <span class="st">'django.db.backends.sqlite3'</span>,
+    <span class="st">'NAME'</span>: BASE_DIR / <span class="st">'db.sqlite3'</span>,
+}
+
+<span class="cm"># Using settings from earlier files in expressions</span>
+<span class="cm"># BASE_DIR was set in base.py — available here without any import</span>
+LOG_DIR = BASE_DIR / <span class="st">'logs'</span>
+LOG_DIR.mkdir(exist_ok=<span class="hl2">True</span>)</code></pre>
+    </div>
+
+    <div class="callout danger">
+      <strong>Use += not = for lists</strong>
+      <p>Always use <code>INSTALLED_APPS += [...]</code> (not <code>INSTALLED_APPS = [...]</code>) to extend a list from a previous file. Using <code>=</code> replaces the entire list, losing everything defined earlier.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section id="basedir">
+    <span class="section-label">Section 10</span>
+    <h2>Fixing BASE_DIR After Converting to a Package</h2>
+    <div class="divider"></div>
+
+    <p>This is the most common source of confusion when migrating, and it trips up nearly every team. When your settings lived in <code>settings.py</code>, <code>BASE_DIR</code> used two <code>.parent</code> calls. After converting to a package, the file is deeper — you need more.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>BASE_DIR — before and after migration</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Before — settings.py at /home/user/myproject/myproject/settings.py</span>
+BASE_DIR = Path(__file__).resolve().parent.parent
+<span class="cm">#   Path(__file__)  = /home/.../myproject/myproject/settings.py</span>
+<span class="cm">#   .parent         = /home/.../myproject/myproject/   (inner package)</span>
+<span class="cm">#   .parent         = /home/.../myproject/              ✓ project root</span>
+
+<span class="cm"># After — settings/__init__.py at .../myproject/myproject/settings/__init__.py</span>
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+<span class="cm">#   Path(__file__)  = /home/.../myproject/myproject/settings/__init__.py</span>
+<span class="cm">#   .parent         = /home/.../myproject/myproject/settings/</span>
+<span class="cm">#   .parent         = /home/.../myproject/myproject/</span>
+<span class="cm">#   .parent         = /home/.../myproject/              ✓ project root</span>
+
+<span class="cm"># After — components/base.py at .../settings/components/base.py</span>
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+<span class="cm">#   Path(__file__)  = .../settings/components/base.py</span>
+<span class="cm">#   .parent         = .../settings/components/</span>
+<span class="cm">#   .parent         = .../settings/</span>
+<span class="cm">#   .parent         = .../myproject/</span>
+<span class="cm">#   .parent         = /home/user/myproject/              ✓ project root</span></code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Verify BASE_DIR during migration</strong>
+      <p>Temporarily add <code>import sys; print(f"BASE_DIR = {BASE_DIR}", file=sys.stderr)</code> to your settings and run <code>python manage.py check</code>. You should see the project root printed, not a subdirectory.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 11 -->
+  <section id="structures">
+    <span class="section-label">Section 11</span>
+    <h2>Recommended Project Structures</h2>
+    <div class="divider"></div>
+
+    <h3>Structure A — Simple (Small Projects)</h3>
+    <div class="file-tree">
+<span class="dir">myproject/</span>
+├── manage.py
+├── .env
+├── .env.example
+└── <span class="dir">config/</span>
+    ├── __init__.py
+    ├── urls.py
+    ├── wsgi.py
+    └── <span class="dir">settings/</span>
+        ├── __init__.py           <span class="annot">← include() call lives here</span>
+        ├── base.py               <span class="annot">← all shared settings</span>
+        └── local.py              <span class="annot">← developer overrides, not committed</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>config/settings/__init__.py — Structure A</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> split_settings.tools <span class="kw">import</span> optional, include
+
+include(
+    <span class="st">'base.py'</span>,
+    optional(<span class="st">'local.py'</span>),
+)</code></pre>
+    </div>
+
+    <h3>Structure B — Standard (Medium Projects)</h3>
+    <div class="file-tree">
+<span class="dir">myproject/</span>
+├── manage.py
+├── .env  ·  .env.example
+└── <span class="dir">config/settings/</span>
+    ├── __init__.py               <span class="annot">← environment switch + include()</span>
+    ├── <span class="dir">components/</span>
+    │   ├── base.py               <span class="annot">← core Django settings</span>
+    │   ├── apps.py               <span class="annot">← INSTALLED_APPS only</span>
+    │   ├── database.py
+    │   ├── cache.py
+    │   ├── email.py
+    │   ├── logging.py
+    │   ├── security.py
+    │   └── storage.py
+    ├── <span class="dir">environments/</span>
+    │   ├── development.py
+    │   ├── staging.py
+    │   ├── production.py
+    │   └── ci.py
+    └── local.py                  <span class="annot">← per-developer, not committed</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>config/settings/__init__.py — Structure B</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> os
+<span class="kw">from</span> split_settings.tools <span class="kw">import</span> optional, include
+
+ENVIRONMENT = os.environ.get(<span class="st">'DJANGO_ENV'</span>, <span class="st">'development'</span>)
+
+include(
+    <span class="st">'components/base.py'</span>,
+    <span class="st">'components/apps.py'</span>,
+    <span class="st">'components/database.py'</span>,
+    <span class="st">'components/cache.py'</span>,
+    <span class="st">'components/email.py'</span>,
+    <span class="st">'components/logging.py'</span>,
+    <span class="st">'components/security.py'</span>,
+    <span class="st">'components/storage.py'</span>,
+    <span class="kw">f</span><span class="st">'environments/{ENVIRONMENT}.py'</span>,
+    optional(<span class="st">'local.py'</span>),
+)</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 12 -->
+  <section id="withenviron">
+    <span class="section-label">Section 12</span>
+    <h2>Using with django-environ</h2>
+    <div class="divider"></div>
+
+    <p>These two libraries are designed to work together. Initialize <code>environ.Env</code> in <code>base.py</code> and it flows into all subsequent files via the shared namespace.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/base.py — with environ</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">import</span> environ, os
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
+<span class="cm"># Create env once — available to all subsequent component files via shared namespace</span>
+env = environ.Env(
+    DEBUG=(bool, <span class="hl2">False</span>),
+    ALLOWED_HOSTS=(list, []),
+)
+environ.Env.read_env(os.path.join(BASE_DIR, <span class="st">'.env'</span>))
+
+SECRET_KEY    = env(<span class="st">'SECRET_KEY'</span>)
+DEBUG         = env(<span class="st">'DEBUG'</span>)
+ALLOWED_HOSTS = env(<span class="st">'ALLOWED_HOSTS'</span>)
+
+INSTALLED_APPS = [...]</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/database.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># `env` is available here — defined in base.py (shared namespace)</span>
+DATABASES = {<span class="st">'default'</span>: env.db()}  <span class="cm"># reads DATABASE_URL</span></code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/cache.py</span></div>
+      <pre><code>CACHES = {<span class="st">'default'</span>: env.cache(<span class="st">'CACHE_URL'</span>, default=<span class="st">'locmemcache://'</span>)}</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/components/email.py</span></div>
+      <pre><code>EMAIL_CONFIG = env.email(<span class="st">'EMAIL_URL'</span>, default=<span class="st">'consolemail://'</span>)
+vars().update(EMAIL_CONFIG)
+DEFAULT_FROM_EMAIL = env(<span class="st">'DEFAULT_FROM_EMAIL'</span>, default=<span class="st">'noreply@example.com'</span>)</code></pre>
+    </div>
+
+    <h3>Testing with a Specific Environment</h3>
+    <div class="code-block">
+      <div class="code-header"><span>settings/environments/test.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Fast test settings</span>
+DATABASES = {<span class="st">'default'</span>: {<span class="st">'ENGINE'</span>: <span class="st">'django.db.backends.sqlite3'</span>, <span class="st">'NAME'</span>: <span class="st">':memory:'</span>}}
+EMAIL_BACKEND = <span class="st">'django.core.mail.backends.locmem.EmailBackend'</span>
+CACHES = {<span class="st">'default'</span>: {<span class="st">'BACKEND'</span>: <span class="st">'django.core.cache.backends.dummy.DummyCache'</span>}}</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>bash — run tests in CI env</span></div>
+      <pre><code>DJANGO_ENV=test python manage.py test
+DJANGO_ENV=ci pytest</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 13 -->
+  <section id="running">
+    <span class="section-label">Section 13</span>
+    <h2>Running the Dev Server and Tests</h2>
+    <div class="divider"></div>
+
+    <p>No changes to <code>manage.py</code> are needed. Django discovers settings via <code>DJANGO_SETTINGS_MODULE</code>, which already points to <code>myproject.settings</code>. Python finds <code>settings/__init__.py</code> automatically.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>setting DJANGO_ENV — four options</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="cm"># Option 1: Export in your shell (lasts for the session)</span>
+export DJANGO_ENV=development
+python manage.py runserver
+
+<span class="cm"># Option 2: Inline (lasts for one command)</span>
+DJANGO_ENV=development python manage.py runserver
+
+<span class="cm"># Option 3: In your .env file (if using django-environ)</span>
+<span class="cm"># DJANGO_ENV=development</span>
+
+<span class="cm"># Option 4: In direnv (automatic on cd into the project)</span>
+<span class="cm"># .envrc:  export DJANGO_ENV=development</span></code></pre>
+    </div>
+
+    <h3>pytest configuration</h3>
+    <div class="code-block">
+      <div class="code-header"><span>pytest.ini</span></div>
+      <pre><code>[pytest]
+DJANGO_SETTINGS_MODULE = config.settings</code></pre>
+    </div>
+
+    <h3>GitHub Actions CI configuration</h3>
+    <div class="code-block">
+      <div class="code-header"><span>.github/workflows/ci.yml</span></div>
+      <pre><code>env:
+  DJANGO_SETTINGS_MODULE: config.settings
+  DJANGO_ENV: ci</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 14 -->
+  <section id="pitfalls">
+    <span class="section-label">Section 14</span>
+    <h2>Common Pitfalls &amp; Troubleshooting</h2>
+    <div class="divider"></div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ STATIC_ROOT, MEDIA_ROOT, or template directories point to the wrong location</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: BASE_DIR was not updated after converting settings.py to a package — it points one level too shallow.</span>
+        <p>See Section 10. Count the directory levels between your <code>__file__</code> and the project root, and use the correct number of <code>.parent</code> calls.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ OSError: No such file or directory: 'components/base.py'</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: The path passed to include() is wrong. Paths are relative to the file that calls include().</span>
+        <p>If your <code>__init__.py</code> is at <code>config/settings/__init__.py</code>, then <code>'components/base.py'</code> refers to <code>config/settings/components/base.py</code>. Print <code>__file__</code> to verify.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ INSTALLED_APPS += ['debug_toolbar'] fails with NameError</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: local.py is being loaded before base.py, or base.py was not included at all.</span>
+        <p>Verify <code>__init__.py</code> lists files in the correct order. <code>base.py</code> must come before any file that references its variables.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Wildcard includes are loading files in the wrong order</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: glob.glob() does not guarantee alphabetical order — it returns files in directory order.</span>
+        <p>If order matters, include files by explicit name. Or name files with a numeric prefix: <code>01_base.py</code>, <code>02_database.py</code>.</p>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ Tests pick up the wrong settings when running in CI</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: DJANGO_SETTINGS_MODULE or DJANGO_ENV is not set correctly in the CI environment.</span>
+        <div class="code-block" style="margin:0.5rem 0 0">
+          <div class="code-header"><span>fix — GitHub Actions</span></div>
+          <pre><code>env:
+  DJANGO_SETTINGS_MODULE: config.settings
+  DJANGO_ENV: ci</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitfall">
+      <div class="pitfall-problem">⚠ ImproperlyConfigured: The SECRET_KEY setting must not be empty</div>
+      <div class="pitfall-body">
+        <span class="cause">Cause: SECRET_KEY is not set in any component file or in the environment.</span>
+        <p>Add <code>SECRET_KEY</code> to your <code>base.py</code> or read it from an environment variable. Never hardcode real secret keys.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 15 -->
+  <section id="checklist">
+    <span class="section-label">Section 15</span>
+    <h2>Checklist</h2>
+    <div class="divider"></div>
+    <p>Use this every time you add or configure django-split-settings in a project.</p>
+
+    <div class="checklist-group">
+      <h4>Initial Setup</h4>
+      <ul class="checklist">
+        <li><code>settings.py</code> has been moved to <code>settings/__init__.py</code></li>
+        <li><code>settings/</code> is a proper Python package (has <code>__init__.py</code>)</li>
+        <li><code>settings/__init__.py</code> contains only the <code>include()</code> call, no actual settings</li>
+        <li><code>manage.py</code>, <code>wsgi.py</code>, and <code>asgi.py</code> still point to <code>yourproject.settings</code> — no changes needed</li>
+        <li><code>DJANGO_SETTINGS_MODULE</code> still works and resolves to the new package</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>BASE_DIR</h4>
+      <ul class="checklist">
+        <li><code>BASE_DIR</code> is calculated in the first included component file (usually <code>base.py</code>), not in <code>__init__.py</code></li>
+        <li>The number of <code>.parent</code> calls in <code>BASE_DIR</code> is correct for the new file location</li>
+        <li><code>STATIC_ROOT</code>, <code>MEDIA_ROOT</code>, and template directories resolve to the right paths</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>File Structure</h4>
+      <ul class="checklist">
+        <li>Component files are logically named and each covers one area of concern</li>
+        <li>Environment-specific files are in an <code>environments/</code> directory</li>
+        <li>The local override file (<code>local.py</code>) is in <code>.gitignore</code></li>
+        <li>A <code>local.py.example</code> or <code>.env.example</code> is committed to show what keys are needed</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>include() Usage</h4>
+      <ul class="checklist">
+        <li>Required files are not wrapped in <code>optional()</code></li>
+        <li>Local/developer override files are wrapped in <code>optional()</code></li>
+        <li>File order in <code>include()</code> matches dependency order (<code>base.py</code> before files that use its variables)</li>
+        <li>Environment switching uses <code>os.environ.get('DJANGO_ENV', 'development')</code> with a sensible default</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Modification of Existing Settings</h4>
+      <ul class="checklist">
+        <li>List extensions use <code>+= [...]</code> not <code>= [...]</code> (to avoid overwriting)</li>
+        <li>Dictionary modifications use <code>['key'] = value</code> not replacing the entire dict (unless intended)</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h4>Testing and CI</h4>
+      <ul class="checklist">
+        <li>Tests run with the correct <code>DJANGO_ENV</code> set</li>
+        <li>CI pipeline sets both <code>DJANGO_SETTINGS_MODULE</code> and <code>DJANGO_ENV</code></li>
+        <li>A CI-specific environment file exists with fast test settings (in-memory db, dummy cache)</li>
+        <li><code>pytest.ini</code> or <code>setup.cfg</code> sets <code>DJANGO_SETTINGS_MODULE</code> for local test runs</li>
+      </ul>
+    </div>
+
+  </section>
+
+</div>
+
+<footer>
+  <p>
+    Official documentation:
+    <a href="https://django-split-settings.readthedocs.io/" target="_blank">django-split-settings.readthedocs.io</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/wemake-services/django-split-settings" target="_blank">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://pypi.org/project/django-split-settings/" target="_blank">PyPI</a>
+  </p>
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = 'var(--accent-mid)';
+      btn.style.borderColor = 'var(--accent-mid)';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>

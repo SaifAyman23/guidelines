@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ultimate Guide: Gunicorn & Uvicorn for Django</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --text: #e8e6e1;
+    --muted: #888;
+    --green: #4ade80;
+    --green-dim: #166534;
+    --amber: #fbbf24;
+    --amber-dim: #78350f;
+    --blue: #60a5fa;
+    --blue-dim: #1e3a5f;
+    --red: #f87171;
+    --red-dim: #7f1d1d;
+    --purple: #c084fc;
+    --accent: #4ade80;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 56px;
+    overflow-x: auto;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--accent); }
+
+  nav .logo {
+    color: var(--text);
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    letter-spacing: 0;
+    text-transform: none;
+    flex-shrink: 0;
+    margin-right: 1rem;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 6rem 2rem 4rem;
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-label {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.2);
+    padding: 0.3rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 8rem;
+  }
+
+  /* SECTIONS */
+  section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 80px;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    margin-top: 2rem;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin: 1rem 0 2rem;
+  }
+
+  p { margin-bottom: 1.2rem; color: #c5c2ba; }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 0.875rem;
+  }
+
+  .code-header {
+    background: #111;
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .code-header span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .code-header .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    padding: 1.5rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    tab-size: 4;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: rgba(255,255,255,0.06);
+    padding: 0.15em 0.45em;
+    border-radius: 3px;
+    color: var(--amber);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+    font-size: 1em;
+  }
+
+  /* Syntax colors */
+  .k { color: #c084fc; }  /* keyword */
+  .s { color: #4ade80; }  /* string */
+  .c { color: #555; }     /* comment */
+  .n { color: #60a5fa; }  /* name */
+  .o { color: var(--text); } /* operator */
+  .m { color: #fbbf24; }  /* number */
+  .p { color: #e879f9; }  /* punctuation */
+  .cmd { color: var(--accent); } /* terminal command */
+  .flag { color: var(--amber); }
+  .val { color: var(--blue); }
+  .comment-line { color: #4a4a4a; font-style: italic; }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    font-size: 0.95rem;
+  }
+
+  .callout.info {
+    background: rgba(96,165,250,0.06);
+    border-color: var(--blue);
+  }
+
+  .callout.warning {
+    background: rgba(251,191,36,0.06);
+    border-color: var(--amber);
+  }
+
+  .callout.tip {
+    background: rgba(74,222,128,0.06);
+    border-color: var(--green);
+  }
+
+  .callout.danger {
+    background: rgba(248,113,113,0.06);
+    border-color: var(--red);
+  }
+
+  .callout strong {
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .callout.info strong { color: var(--blue); }
+  .callout.warning strong { color: var(--amber); }
+  .callout.tip strong { color: var(--green); }
+  .callout.danger strong { color: var(--red); }
+
+  .callout p { margin: 0; color: #b5b2aa; }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .compare-table th {
+    background: #111;
+    padding: 0.9rem 1.2rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table th.gunicorn { color: var(--amber); }
+  .compare-table th.uvicorn { color: var(--blue); }
+
+  .compare-table td {
+    padding: 0.85rem 1.2rem;
+    border-bottom: 1px solid #1a1a1a;
+    vertical-align: top;
+    color: #c5c2ba;
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .compare-table td:first-child {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .badge.yes { background: rgba(74,222,128,0.12); color: var(--green); }
+  .badge.no { background: rgba(248,113,113,0.12); color: var(--red); }
+  .badge.partial { background: rgba(251,191,36,0.12); color: var(--amber); }
+
+  /* VISUAL DIAGRAMS */
+  .diagram {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+    overflow-x: auto;
+  }
+
+  .diagram-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  /* ASCII-style architecture diagrams using SVG */
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .arch-box {
+    border: 1.5px solid;
+    border-radius: 6px;
+    padding: 0.65rem 1.4rem;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 160px;
+    position: relative;
+  }
+
+  .arch-box small {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 0.15rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .arch-box.client { border-color: #555; color: #aaa; background: #111; }
+  .arch-box.nginx  { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.04); }
+  .arch-box.server { border-color: var(--amber); color: var(--amber); background: rgba(251,191,36,0.04); }
+  .arch-box.server.blue { border-color: var(--blue); color: var(--blue); background: rgba(96,165,250,0.04); }
+  .arch-box.django { border-color: var(--purple); color: var(--purple); background: rgba(192,132,252,0.04); }
+  .arch-box.worker { border-color: var(--red); color: var(--red); background: rgba(248,113,113,0.04); font-size: 0.78rem; min-width: 120px; }
+
+  .arch-arrow {
+    width: 2px;
+    height: 28px;
+    background: var(--border);
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .arch-arrow::after {
+    content: '▼';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--border);
+  }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .arch-h-arrow {
+    color: var(--border);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* SIDE BY SIDE */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card h4 .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-left: auto;
+  }
+
+  .card.gunicorn-card { border-top: 2px solid var(--amber); }
+  .card.uvicorn-card { border-top: 2px solid var(--blue); }
+
+  .card.gunicorn-card h4 .tag { background: rgba(251,191,36,0.1); color: var(--amber); }
+  .card.uvicorn-card h4 .tag { background: rgba(96,165,250,0.1); color: var(--blue); }
+
+  .card ul { list-style: none; }
+  .card ul li { padding: 0.35rem 0; font-size: 0.9rem; color: #aaa; display: flex; gap: 0.6rem; }
+  .card ul li::before { content: '—'; color: var(--border); flex-shrink: 0; }
+
+  /* DECISION TREE */
+  .decision-tree {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+
+  .dt-node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0 auto;
+    max-width: 360px;
+  }
+
+  .dt-node.question { border-color: var(--blue); color: var(--blue); }
+  .dt-node.answer.green { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.04); }
+  .dt-node.answer.amber { border-color: var(--amber); color: var(--amber); background: rgba(251,191,36,0.04); }
+  .dt-node.answer.purple { border-color: var(--purple); color: var(--purple); background: rgba(192,132,252,0.04); }
+
+  .dt-row {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .dt-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dt-line {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+  }
+
+  .dt-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-style: italic;
+  }
+
+  /* PERF CHART */
+  .perf-bars {
+    margin: 1.5rem 0;
+  }
+
+  .perf-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .perf-label {
+    width: 180px;
+    font-size: 0.82rem;
+    color: #aaa;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .perf-bar-wrap {
+    flex: 1;
+    background: #111;
+    border-radius: 4px;
+    height: 22px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .perf-bar {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #000;
+    transition: width 1s ease;
+  }
+
+  .perf-bar.amber { background: var(--amber); }
+  .perf-bar.blue { background: var(--blue); }
+  .perf-bar.green { background: var(--green); }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .toc h3 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .toc ol {
+    padding-left: 1.2rem;
+  }
+
+  .toc ol li {
+    margin-bottom: 0.4rem;
+  }
+
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.2s;
+  }
+
+  .toc a:hover { color: var(--accent); }
+
+  .toc ol ol {
+    margin-top: 0.3rem;
+    padding-left: 1.2rem;
+  }
+
+  /* INLINE LABEL */
+  .inline-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    color: var(--muted);
+    vertical-align: middle;
+  }
+
+  /* STEP */
+  .steps { counter-reset: step; }
+
+  .step {
+    position: relative;
+    padding-left: 3.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .step::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--accent);
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .step h3 { margin-top: 0.3rem; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.6rem; }
+    .perf-label { width: 120px; font-size: 0.72rem; }
+    .hero { padding: 4rem 1.5rem 3rem; }
+  }
+
+  /* HIGHLIGHT */
+  .highlight {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .text-amber { color: var(--amber); }
+  .text-blue { color: var(--blue); }
+  .text-purple { color: var(--purple); }
+  .text-red { color: var(--red); }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  /* MATRIX */
+  .choice-matrix {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+
+  .cm-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cm-row:last-child { border-bottom: none; }
+  .cm-row.header { background: #111; }
+
+  .cm-cell {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    border-right: 1px solid var(--border);
+    color: #c5c2ba;
+  }
+
+  .cm-cell:last-child { border-right: none; }
+  .cm-row.header .cm-cell {
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cm-row.header .cm-cell.g { color: var(--amber); }
+  .cm-row.header .cm-cell.u { color: var(--blue); }
+  .cm-row.header .cm-cell.gu { color: var(--green); }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Django Deployment</span>
+  <a href="#overview">Overview</a>
+  <a href="#gunicorn">Gunicorn</a>
+  <a href="#uvicorn">Uvicorn</a>
+  <a href="#comparison">Comparison</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#config">Configuration</a>
+  <a href="#docker">Docker</a>
+  <a href="#nginx">Nginx</a>
+  <a href="#decision">Which to Choose</a>
+  <a href="#production">Production</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Ultimate Guide — #3 of 6</div>
+  <h1>Gunicorn & <em>Uvicorn</em><br>for Django</h1>
+  <p>A complete, production-ready guide to running Django with Python's two dominant WSGI/ASGI servers. Understand the difference, configure them correctly, and deploy with confidence.</p>
+</div>
+
+<div class="content">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#overview">Overview — WSGI vs ASGI</a></li>
+      <li><a href="#gunicorn">Gunicorn Deep Dive</a>
+        <ol>
+          <li><a href="#gunicorn-install">Installation & Quick Start</a></li>
+          <li><a href="#gunicorn-workers">Worker Types</a></li>
+          <li><a href="#gunicorn-config">Full Configuration Reference</a></li>
+        </ol>
+      </li>
+      <li><a href="#uvicorn">Uvicorn Deep Dive</a>
+        <ol>
+          <li><a href="#uvicorn-install">Installation & Quick Start</a></li>
+          <li><a href="#uvicorn-gunicorn">Uvicorn + Gunicorn (Production Pattern)</a></li>
+          <li><a href="#uvicorn-config">Full Configuration Reference</a></li>
+        </ol>
+      </li>
+      <li><a href="#comparison">Side-by-Side Comparison</a></li>
+      <li><a href="#architecture">Architecture Diagrams</a></li>
+      <li><a href="#config">Configuration Files</a></li>
+      <li><a href="#docker">Docker & Docker Compose</a></li>
+      <li><a href="#nginx">Nginx Reverse Proxy</a></li>
+      <li><a href="#decision">Which Should You Use?</a></li>
+      <li><a href="#production">Production Hardening Checklist</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1: OVERVIEW -->
+  <section id="overview">
+    <span class="section-label">Section 01</span>
+    <h2>Overview — WSGI vs ASGI</h2>
+    <div class="divider"></div>
+
+    <p>Before choosing a server, you need to understand the protocol your Django app speaks. This is the single most important decision that determines everything else.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h4>WSGI <span class="tag" style="background:rgba(251,191,36,0.1);color:var(--amber)">Traditional</span></h4>
+        <p style="font-size:0.88rem;color:#888;margin-bottom:0.75rem">Web Server Gateway Interface — synchronous, sequential request handling.</p>
+        <ul>
+          <li>One request at a time per worker</li>
+          <li>Simple mental model</li>
+          <li>Battle-tested for 15+ years</li>
+          <li>Django's original protocol</li>
+          <li>Perfect for traditional HTTP APIs</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>ASGI <span class="tag" style="background:rgba(96,165,250,0.1);color:var(--blue)">Modern</span></h4>
+        <p style="font-size:0.88rem;color:#888;margin-bottom:0.75rem">Async Server Gateway Interface — handles concurrent connections and async code.</p>
+        <ul>
+          <li>Handles WebSockets natively</li>
+          <li>Supports async/await Django views</li>
+          <li>Better for long-lived connections</li>
+          <li>Required for Django Channels</li>
+          <li>Higher concurrency potential</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <strong>Which protocol does Django use?</strong>
+      <p>Django supports <strong>both</strong>. Every Django project has <code>wsgi.py</code> and (since Django 3.0) <code>asgi.py</code>. Most traditional Django apps only need WSGI. Use ASGI if you have WebSockets, use <code>async def</code> views, or use Django Channels.</p>
+    </div>
+
+    <p>The server you run determines the protocol: <strong class="text-amber">Gunicorn</strong> speaks WSGI by default (and can speak ASGI via uvicorn workers). <strong class="text-blue">Uvicorn</strong> is a pure ASGI server. Understanding this distinction makes every configuration decision obvious.</p>
+  </section>
+
+  <!-- SECTION 2: GUNICORN -->
+  <section id="gunicorn">
+    <span class="section-label">Section 02</span>
+    <h2>Gunicorn Deep Dive</h2>
+    <div class="divider"></div>
+
+    <p>Gunicorn ("Green Unicorn") is a Python WSGI HTTP server that has been the industry standard for Django deployment since around 2010. It uses a pre-fork worker model: a master process manages a pool of worker processes that each handle requests independently.</p>
+
+    <h3 id="gunicorn-install">Installation & Quick Start</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — install</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Install gunicorn</span>
+pip install gunicorn
+
+<span class="comment-line"># Add to requirements</span>
+pip freeze | grep gunicorn >> requirements.txt
+<span class="comment-line"># or just add: gunicorn>=21.0.0</span></code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — run gunicorn</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Minimal — development only</span>
+gunicorn myproject.wsgi:application
+
+<span class="comment-line"># With port and reload (dev)</span>
+gunicorn myproject.wsgi:application \
+  --bind 0.0.0.0:8000 \
+  --reload
+
+<span class="comment-line"># Production-ready command</span>
+gunicorn myproject.wsgi:application \
+  --bind 0.0.0.0:8000 \
+  --workers 4 \
+  --worker-class sync \
+  --timeout 30 \
+  --keep-alive 5 \
+  --max-requests 1000 \
+  --max-requests-jitter 100 \
+  --log-level info \
+  --access-logfile - \
+  --error-logfile -</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>The wsgi:application path</strong>
+      <p>The string <code>myproject.wsgi:application</code> tells Gunicorn: find the Python module <code>myproject/wsgi.py</code> and use the object named <code>application</code> inside it. Django auto-generates this file. Replace <code>myproject</code> with your actual project name (the folder that contains <code>settings.py</code>).</p>
+    </div>
+
+    <h3 id="gunicorn-workers">Worker Types — The Critical Decision</h3>
+
+    <p>Gunicorn supports several worker types. This is where most people get confused. Each worker type has a completely different concurrency model.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Gunicorn Worker Types — Overview</div>
+      <table class="compare-table" style="margin:0">
+        <thead>
+          <tr>
+            <th>Worker Class</th>
+            <th>Concurrency Model</th>
+            <th>Install</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sync</td>
+            <td>1 request per worker at a time</td>
+            <td>built-in</td>
+            <td>CPU-bound, standard Django</td>
+          </tr>
+          <tr>
+            <td>gevent</td>
+            <td>Green threads (cooperative)</td>
+            <td>pip install gevent</td>
+            <td>Many concurrent I/O requests</td>
+          </tr>
+          <tr>
+            <td>eventlet</td>
+            <td>Green threads (cooperative)</td>
+            <td>pip install eventlet</td>
+            <td>Legacy; prefer gevent</td>
+          </tr>
+          <tr>
+            <td>gthread</td>
+            <td>OS threads per worker</td>
+            <td>built-in</td>
+            <td>Thread-safe I/O heavy apps</td>
+          </tr>
+          <tr>
+            <td>uvicorn.workers.UvicornWorker</td>
+            <td>Async event loop (ASGI)</td>
+            <td>pip install uvicorn</td>
+            <td>Async views, WebSockets</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — using different worker types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Default sync workers (most common, no extra dependencies)</span>
+gunicorn myproject.wsgi:application --worker-class sync
+
+<span class="comment-line"># Gevent workers — handles 1000s of concurrent connections per worker</span>
+pip install gevent
+gunicorn myproject.wsgi:application --worker-class gevent --worker-connections 1000
+
+<span class="comment-line"># Thread workers — each worker runs multiple threads</span>
+gunicorn myproject.wsgi:application --worker-class gthread --threads 4
+
+<span class="comment-line"># Uvicorn workers — run ASGI apps via Gunicorn (best of both worlds)</span>
+pip install uvicorn
+gunicorn myproject.asgi:application --worker-class uvicorn.workers.UvicornWorker</code></pre>
+    </div>
+
+    <h3>How Many Workers? The Formula</h3>
+
+    <p>Worker count has the largest impact on performance. Too few means wasted CPU; too many causes thrashing and memory pressure.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>formula</span></div>
+      <pre><code><span class="comment-line"># The classic formula (Gunicorn docs recommendation):</span>
+workers = (2 × CPU_cores) + 1
+
+<span class="comment-line"># For a 2-core machine:   2*2+1 = 5 workers</span>
+<span class="comment-line"># For a 4-core machine:   2*4+1 = 9 workers</span>
+<span class="comment-line"># For an 8-core machine:  2*8+1 = 17 workers</span>
+
+<span class="comment-line"># Get CPU count in Python:</span>
+python -c "import multiprocessing; print(multiprocessing.cpu_count())"
+
+<span class="comment-line"># Dynamic workers in gunicorn.conf.py:</span>
+import multiprocessing
+workers = multiprocessing.cpu_count() * 2 + 1</code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Memory Warning</strong>
+      <p>Each Gunicorn worker is a full Python process. If your Django app uses 100MB of RAM, 9 workers use ~900MB. Monitor your memory usage in production and reduce workers if you're memory-constrained. Prefer fewer workers + threads (<code>gthread</code>) on memory-limited servers.</p>
+    </div>
+
+    <h3 id="gunicorn-config">Full Configuration Reference</h3>
+
+    <p>Gunicorn can be configured via command-line flags, environment variables, or a Python config file. A config file is strongly recommended for production.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>gunicorn.conf.py — complete reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line">"""
+gunicorn.conf.py — place this in your project root.
+Run with: gunicorn -c gunicorn.conf.py myproject.wsgi:application
+"""</span>
+<span class="k">import</span> multiprocessing
+<span class="k">import</span> os
+
+<span class="comment-line"># ─── Binding ────────────────────────────────────────────────────────────────</span>
+<span class="comment-line"># The socket to bind. For production, use a Unix socket for nginx integration.</span>
+bind = os.getenv(<span class="s">"GUNICORN_BIND"</span>, <span class="s">"0.0.0.0:8000"</span>)
+<span class="comment-line"># Alternative: bind = "unix:/run/gunicorn/gunicorn.sock"</span>
+backlog = <span class="m">2048</span>  <span class="comment-line"># pending connection queue size</span>
+
+<span class="comment-line"># ─── Workers ─────────────────────────────────────────────────────────────────</span>
+workers = int(os.getenv(<span class="s">"GUNICORN_WORKERS"</span>, multiprocessing.cpu_count() * <span class="m">2</span> + <span class="m">1</span>))
+worker_class = os.getenv(<span class="s">"GUNICORN_WORKER_CLASS"</span>, <span class="s">"sync"</span>)
+<span class="comment-line"># Options: sync | gthread | gevent | eventlet | uvicorn.workers.UvicornWorker</span>
+
+threads = int(os.getenv(<span class="s">"GUNICORN_THREADS"</span>, <span class="m">1</span>))
+<span class="comment-line"># Threads per worker (only for gthread). Total concurrency = workers × threads.</span>
+
+worker_connections = <span class="m">1000</span>
+<span class="comment-line"># Max simultaneous clients per worker (gevent/eventlet only).</span>
+
+<span class="comment-line"># ─── Timeouts ────────────────────────────────────────────────────────────────</span>
+timeout = <span class="m">30</span>
+<span class="comment-line"># Worker silent for more than this many seconds is killed and restarted.
+# Increase for views that do heavy computation or slow DB queries.
+# Set to 0 to disable (dangerous in production).</span>
+
+graceful_timeout = <span class="m">30</span>
+<span class="comment-line"># Seconds to wait for workers to finish in-flight requests on restart.</span>
+
+keepalive = <span class="m">5</span>
+<span class="comment-line"># Seconds to wait for next request on a keep-alive connection.
+# Should match your nginx keepalive_timeout value.</span>
+
+<span class="comment-line"># ─── Worker Recycling ─────────────────────────────────────────────────────────</span>
+max_requests = <span class="m">1000</span>
+<span class="comment-line"># Restart workers after this many requests to prevent memory leaks.</span>
+
+max_requests_jitter = <span class="m">100</span>
+<span class="comment-line"># Randomize max_requests by ±jitter to prevent all workers restarting at once.</span>
+
+<span class="comment-line"># ─── Logging ─────────────────────────────────────────────────────────────────</span>
+accesslog = <span class="s">"-"</span>     <span class="comment-line"># "-" means stdout (good for Docker/systemd)</span>
+errorlog  = <span class="s">"-"</span>     <span class="comment-line"># "-" means stderr</span>
+loglevel  = os.getenv(<span class="s">"LOG_LEVEL"</span>, <span class="s">"info"</span>)
+<span class="comment-line"># Options: debug | info | warning | error | critical</span>
+
+access_log_format = (
+    <span class="s">'%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)sµs'</span>
+)
+<span class="comment-line"># %(D)s = request duration in microseconds</span>
+
+<span class="comment-line"># ─── Process Naming ──────────────────────────────────────────────────────────</span>
+proc_name = <span class="s">"myproject-gunicorn"</span>
+
+<span class="comment-line"># ─── Security ────────────────────────────────────────────────────────────────</span>
+limit_request_line   = <span class="m">4096</span>   <span class="comment-line"># max HTTP request line size (bytes)</span>
+limit_request_fields = <span class="m">100</span>    <span class="comment-line"># max number of HTTP headers</span>
+limit_request_field_size = <span class="m">8190</span>  <span class="comment-line"># max size of each header</span>
+
+<span class="comment-line"># ─── Server Hooks ─────────────────────────────────────────────────────────────</span>
+<span class="k">def</span> <span class="n">pre_fork</span>(server, worker):
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="n">post_fork</span>(server, worker):
+    <span class="comment-line"># Called after a worker is forked. Use this to set up per-worker state,</span>
+    <span class="comment-line"># e.g., reconnect database connections.</span>
+    server.log.info(<span class="s">"Worker spawned (pid: %s)"</span>, worker.pid)
+
+<span class="k">def</span> <span class="n">worker_exit</span>(server, worker):
+    server.log.info(<span class="s">"Worker exiting (pid: %s)"</span>, worker.pid)</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — run with config file</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Gunicorn automatically finds gunicorn.conf.py in current directory, or:</span>
+gunicorn -c gunicorn.conf.py myproject.wsgi:application
+
+<span class="comment-line"># All config options can also be set via env vars prefixed with GUNICORN_:</span>
+<span class="comment-line"># GUNICORN_WORKERS=4 GUNICORN_TIMEOUT=60 gunicorn myproject.wsgi:application</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 3: UVICORN -->
+  <section id="uvicorn">
+    <span class="section-label">Section 03</span>
+    <h2>Uvicorn Deep Dive</h2>
+    <div class="divider"></div>
+
+    <p>Uvicorn is a lightning-fast ASGI server built on top of <code>uvloop</code> and <code>httptools</code>. It is the reference implementation server for ASGI and the recommended server for async Django apps, FastAPI, and Starlette.</p>
+
+    <div class="callout warning">
+      <strong>Uvicorn is not a process manager</strong>
+      <p>Uvicorn alone runs a single process. In production, you need multiple processes for redundancy and to use multiple CPU cores. The recommended production pattern is <strong>Gunicorn managing Uvicorn workers</strong>, or a dedicated process manager like systemd or Docker.</p>
+    </div>
+
+    <h3 id="uvicorn-install">Installation & Quick Start</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — install</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Standard install</span>
+pip install uvicorn
+
+<span class="comment-line"># Install with the "standard" extras — highly recommended for production.
+# Includes uvloop (fast event loop) and httptools (fast HTTP parsing).</span>
+pip install "uvicorn[standard]"
+
+<span class="comment-line"># uvloop is Linux/macOS only. Windows gets the default asyncio event loop.</span></code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — run uvicorn</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Minimal</span>
+uvicorn myproject.asgi:application
+
+<span class="comment-line"># With hot reload (development only)</span>
+uvicorn myproject.asgi:application --reload --host 0.0.0.0 --port 8000
+
+<span class="comment-line"># Production — single process (use Gunicorn for multi-process)</span>
+uvicorn myproject.asgi:application \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --workers 4 \
+  --loop uvloop \
+  --http httptools \
+  --log-level info \
+  --access-log \
+  --no-server-header</code></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>asgi vs wsgi</strong>
+      <p>Notice we point Uvicorn at <code>myproject.asgi:application</code> (not <code>wsgi</code>). Every Django project has both. The <code>asgi.py</code> file is in the same directory as <code>wsgi.py</code> and <code>settings.py</code>. Django's default ASGI entry point supports both sync and async views transparently.</p>
+    </div>
+
+    <h3 id="uvicorn-gunicorn">Uvicorn + Gunicorn — The Production Pattern</h3>
+
+    <p>This is the most recommended production setup when you need ASGI. Gunicorn acts as the process manager (handling signals, worker restart, graceful shutdown) and spawns Uvicorn workers instead of its own sync workers.</p>
+
+    <div class="callout tip">
+      <strong>Why combine them?</strong>
+      <p>Uvicorn's built-in <code>--workers</code> flag works but lacks Gunicorn's robust process management: no graceful restart on config change, no automatic worker replacement on crash with backoff, no pre/post fork hooks. Gunicorn has solved these problems over 15 years of production use.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — gunicorn with uvicorn workers</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Install both</span>
+pip install gunicorn "uvicorn[standard]"
+
+<span class="comment-line"># Run — point at asgi.py, use UvicornWorker</span>
+gunicorn myproject.asgi:application \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --workers 4 \
+  --bind 0.0.0.0:8000</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>gunicorn.conf.py — asgi/uvicorn setup</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="k">import</span> multiprocessing
+<span class="k">import</span> os
+
+bind         = os.getenv(<span class="s">"BIND"</span>, <span class="s">"0.0.0.0:8000"</span>)
+workers      = multiprocessing.cpu_count() * <span class="m">2</span> + <span class="m">1</span>
+worker_class = <span class="s">"uvicorn.workers.UvicornWorker"</span>
+
+<span class="comment-line"># Timeouts — increase if you have slow async DB queries</span>
+timeout         = <span class="m">30</span>
+graceful_timeout = <span class="m">30</span>
+keepalive       = <span class="m">5</span>
+
+<span class="comment-line"># Recycling to prevent memory leaks in long-lived workers</span>
+max_requests        = <span class="m">1000</span>
+max_requests_jitter = <span class="m">100</span>
+
+<span class="comment-line"># Logging</span>
+accesslog = <span class="s">"-"</span>
+errorlog  = <span class="s">"-"</span>
+loglevel  = os.getenv(<span class="s">"LOG_LEVEL"</span>, <span class="s">"info"</span>)</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — run with config</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>gunicorn -c gunicorn.conf.py myproject.asgi:application</code></pre>
+    </div>
+
+    <h3 id="uvicorn-config">Full Uvicorn Configuration Reference</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — all uvicorn flags</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>uvicorn myproject.asgi:application \
+  <span class="comment-line"># ─── Network ────────────────────────────────────────────────</span>
+  --host 0.0.0.0 \            <span class="comment-line"># Interface to bind</span>
+  --port 8000 \               <span class="comment-line"># Port to listen on</span>
+  --uds /tmp/uvicorn.sock \   <span class="comment-line"># Unix socket (alternative to host/port)</span>
+  --fd 0 \                    <span class="comment-line"># File descriptor (advanced)</span>
+
+  <span class="comment-line"># ─── Workers & Concurrency ──────────────────────────────────</span>
+  --workers 4 \               <span class="comment-line"># Number of worker processes</span>
+  --loop uvloop \             <span class="comment-line"># Event loop: uvloop | asyncio</span>
+  --http httptools \          <span class="comment-line"># HTTP protocol: h11 | httptools</span>
+  --ws websockets \           <span class="comment-line"># WebSocket library: websockets | wsproto</span>
+  --lifespan on \             <span class="comment-line"># ASGI lifespan events: on | off | auto</span>
+  --interface asgi3 \         <span class="comment-line"># App interface: asgi3 | asgi2 | wsgi</span>
+
+  <span class="comment-line"># ─── Timeouts ────────────────────────────────────────────────</span>
+  --timeout-keep-alive 5 \    <span class="comment-line"># Keep-alive seconds after last data</span>
+  --timeout-notify 30 \       <span class="comment-line"># Worker restart notification seconds</span>
+
+  <span class="comment-line"># ─── TLS (use nginx instead in production) ──────────────────</span>
+  --ssl-keyfile key.pem \
+  --ssl-certfile cert.pem \
+
+  <span class="comment-line"># ─── Logging ────────────────────────────────────────────────</span>
+  --log-level info \          <span class="comment-line"># debug|info|warning|error|critical</span>
+  --access-log \              <span class="comment-line"># Enable access logging</span>
+  --no-access-log \           <span class="comment-line"># Disable access logging</span>
+  --use-colors \              <span class="comment-line"># Force colored output</span>
+  --log-config logging.json \ <span class="comment-line"># Path to logging config file</span>
+
+  <span class="comment-line"># ─── Development ─────────────────────────────────────────────</span>
+  --reload \                  <span class="comment-line"># Auto-reload on file change</span>
+  --reload-dir . \            <span class="comment-line"># Directory to watch for --reload</span>
+
+  <span class="comment-line"># ─── Security ────────────────────────────────────────────────</span>
+  --no-server-header \        <span class="comment-line"># Don't send Server: uvicorn header</span>
+  --limit-concurrency 100 \   <span class="comment-line"># Max concurrent connections before 503</span>
+  --limit-max-requests 1000   <span class="comment-line"># Restart worker after N requests</span></code></pre>
+    </div>
+
+    <h3>Uvicorn Logging Configuration</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>logging.json — structured JSON logging for production</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>{
+  <span class="s">"version"</span>: <span class="m">1</span>,
+  <span class="s">"disable_existing_loggers"</span>: <span class="k">false</span>,
+  <span class="s">"formatters"</span>: {
+    <span class="s">"default"</span>: {
+      <span class="s">"()"</span>: <span class="s">"uvicorn.logging.DefaultFormatter"</span>,
+      <span class="s">"fmt"</span>: <span class="s">"%(asctime)s %(levelprefix)s %(message)s"</span>,
+      <span class="s">"use_colors"</span>: <span class="k">false</span>
+    },
+    <span class="s">"access"</span>: {
+      <span class="s">"()"</span>: <span class="s">"uvicorn.logging.AccessFormatter"</span>,
+      <span class="s">"fmt"</span>: <span class="s">"%(asctime)s %(levelprefix)s %(client_addr)s - \"%(request_line)s\" %(status_code)s"</span>
+    }
+  },
+  <span class="s">"handlers"</span>: {
+    <span class="s">"default"</span>: { <span class="s">"class"</span>: <span class="s">"logging.StreamHandler"</span>, <span class="s">"stream"</span>: <span class="s">"ext://sys.stderr"</span>, <span class="s">"formatter"</span>: <span class="s">"default"</span> },
+    <span class="s">"access"</span>:  { <span class="s">"class"</span>: <span class="s">"logging.StreamHandler"</span>, <span class="s">"stream"</span>: <span class="s">"ext://sys.stdout"</span>, <span class="s">"formatter"</span>: <span class="s">"access"</span>  }
+  },
+  <span class="s">"loggers"</span>: {
+    <span class="s">"uvicorn"</span>:        { <span class="s">"handlers"</span>: [<span class="s">"default"</span>], <span class="s">"level"</span>: <span class="s">"INFO"</span> },
+    <span class="s">"uvicorn.error"</span>:  { <span class="s">"level"</span>: <span class="s">"INFO"</span> },
+    <span class="s">"uvicorn.access"</span>: { <span class="s">"handlers"</span>: [<span class="s">"access"</span>],  <span class="s">"level"</span>: <span class="s">"INFO"</span>, <span class="s">"propagate"</span>: <span class="k">false</span> }
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 4: COMPARISON -->
+  <section id="comparison">
+    <span class="section-label">Section 04</span>
+    <h2>Side-by-Side Comparison</h2>
+    <div class="divider"></div>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="gunicorn">Gunicorn</th>
+          <th class="uvicorn">Uvicorn</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Protocol</td>
+          <td>WSGI (+ ASGI via uvicorn workers)</td>
+          <td>ASGI (+ WSGI compat mode)</td>
+        </tr>
+        <tr>
+          <td>Concurrency model</td>
+          <td>Pre-fork multiprocessing</td>
+          <td>Async event loop (asyncio/uvloop)</td>
+        </tr>
+        <tr>
+          <td>WebSocket support</td>
+          <td><span class="badge no">No</span> (need uvicorn worker)</td>
+          <td><span class="badge yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td>HTTP/2 support</td>
+          <td><span class="badge no">No</span></td>
+          <td><span class="badge partial">Via hypercorn</span></td>
+        </tr>
+        <tr>
+          <td>Process management</td>
+          <td><span class="badge yes">Excellent</span></td>
+          <td><span class="badge partial">Basic (--workers)</span></td>
+        </tr>
+        <tr>
+          <td>Graceful reload</td>
+          <td><span class="badge yes">Yes</span> (USR2 signal)</td>
+          <td><span class="badge partial">Yes (--workers mode)</span></td>
+        </tr>
+        <tr>
+          <td>Worker recycling</td>
+          <td><span class="badge yes">Yes</span> (max-requests)</td>
+          <td><span class="badge yes">Yes</span> (--limit-max-requests)</td>
+        </tr>
+        <tr>
+          <td>Production maturity</td>
+          <td><span class="badge yes">15+ years</span></td>
+          <td><span class="badge partial">~5 years</span></td>
+        </tr>
+        <tr>
+          <td>Django Channels</td>
+          <td><span class="badge no">No</span> (needs ASGI)</td>
+          <td><span class="badge yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td>async/await views</td>
+          <td><span class="badge partial">Sync-wrapped</span></td>
+          <td><span class="badge yes">Native</span></td>
+        </tr>
+        <tr>
+          <td>Memory per worker</td>
+          <td>Higher (full Python process)</td>
+          <td>Lower (event loop, fewer processes)</td>
+        </tr>
+        <tr>
+          <td>CPU-bound performance</td>
+          <td><span class="badge yes">Better</span> (true parallelism)</td>
+          <td><span class="badge partial">GIL limits parallelism</span></td>
+        </tr>
+        <tr>
+          <td>I/O-bound performance</td>
+          <td><span class="badge partial">Good (gevent/gthread)</span></td>
+          <td><span class="badge yes">Excellent (native async)</span></td>
+        </tr>
+        <tr>
+          <td>Hot reload (dev)</td>
+          <td><span class="badge yes">Yes</span> (--reload)</td>
+          <td><span class="badge yes">Yes</span> (--reload)</td>
+        </tr>
+        <tr>
+          <td>Config file</td>
+          <td>Python (.py)</td>
+          <td>None (CLI only)</td>
+        </tr>
+        <tr>
+          <td>Default install</td>
+          <td>Heroku, most PaaS</td>
+          <td>FastAPI ecosystem</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Performance Characteristics</h3>
+
+    <p>Performance varies dramatically by workload type. These relative numbers illustrate the tradeoffs — your actual numbers will differ.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Relative Throughput by Workload Type</div>
+      <div class="perf-bars">
+        <div style="margin-bottom:1.2rem;font-size:0.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace">SYNC I/O-HEAVY (e.g. ORM queries, external APIs)</div>
+        <div class="perf-row">
+          <div class="perf-label">Gunicorn sync</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar amber" style="width:35%">~35%</div>
+          </div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label">Gunicorn gevent</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar amber" style="width:72%">~72%</div>
+          </div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label">Uvicorn (async views)</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar blue" style="width:100%">~100%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="perf-bars" style="margin-top:1.5rem">
+        <div style="margin-bottom:1.2rem;font-size:0.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace">CPU-HEAVY (e.g. image processing, report generation)</div>
+        <div class="perf-row">
+          <div class="perf-label">Gunicorn sync</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar amber" style="width:100%">~100%</div>
+          </div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label">Gunicorn gevent</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar amber" style="width:95%">~95%</div>
+          </div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label">Uvicorn (async views)</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar blue" style="width:65%">~65%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="perf-bars" style="margin-top:1.5rem">
+        <div style="margin-bottom:1.2rem;font-size:0.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace">WEBSOCKETS / LONG-LIVED CONNECTIONS</div>
+        <div class="perf-row">
+          <div class="perf-label">Gunicorn sync</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar amber" style="width:10%">~10%</div>
+          </div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label">Gunicorn gevent</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar amber" style="width:55%">~55%</div>
+          </div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label">Uvicorn (ASGI)</div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar blue" style="width:100%">~100%</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:0.72rem;color:#444;margin-top:1.2rem;margin-bottom:0;font-family:'JetBrains Mono',monospace">Note: Relative figures. Actual performance depends on app code, database, and infrastructure.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 5: ARCHITECTURE -->
+  <section id="architecture">
+    <span class="section-label">Section 05</span>
+    <h2>Architecture Diagrams</h2>
+    <div class="divider"></div>
+
+    <h3>Pattern A — Gunicorn (WSGI, Traditional)</h3>
+
+    <div class="diagram">
+      <div class="diagram-title">Request flow: Nginx → Gunicorn → Django</div>
+      <div class="arch-diagram">
+        <div class="arch-box client">Client Browser / HTTP Client</div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box nginx">Nginx<small>Reverse proxy, SSL termination, static files</small></div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box server">Gunicorn Master Process<small>Manages workers, handles signals</small></div>
+        <div style="height:12px"></div>
+        <div class="arch-row">
+          <div class="arch-box worker">Worker 1<small>sync</small></div>
+          <div class="arch-box worker">Worker 2<small>sync</small></div>
+          <div class="arch-box worker">Worker 3<small>sync</small></div>
+          <div class="arch-box worker">Worker N<small>sync</small></div>
+        </div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box django">Django Application<small>wsgi.py → URLconf → Views → ORM</small></div>
+      </div>
+    </div>
+
+    <h3>Pattern B — Uvicorn (ASGI, Async)</h3>
+
+    <div class="diagram">
+      <div class="diagram-title">Request flow: Nginx → Uvicorn → Django ASGI</div>
+      <div class="arch-diagram">
+        <div class="arch-box client">Client Browser / WebSocket / HTTP Client</div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box nginx">Nginx<small>Reverse proxy, WebSocket upgrade, static files</small></div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box server blue">Uvicorn Process(es)<small>Async event loop — handles 1000s of concurrent connections</small></div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box django">Django Application<small>asgi.py → URLconf → Async Views → Async ORM</small></div>
+      </div>
+    </div>
+
+    <h3>Pattern C — Gunicorn + Uvicorn Workers (Recommended for ASGI)</h3>
+
+    <div class="diagram">
+      <div class="diagram-title">The best of both: Gunicorn's process management + Uvicorn's async performance</div>
+      <div class="arch-diagram">
+        <div class="arch-box client">Client Browser / WebSocket / HTTP Client</div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box nginx">Nginx</div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box server">Gunicorn Master<small>Process manager only — does not handle requests</small></div>
+        <div style="height:12px"></div>
+        <div class="arch-row">
+          <div class="arch-box worker" style="border-color:var(--blue);color:var(--blue)">UvicornWorker 1<small>async loop</small></div>
+          <div class="arch-box worker" style="border-color:var(--blue);color:var(--blue)">UvicornWorker 2<small>async loop</small></div>
+          <div class="arch-box worker" style="border-color:var(--blue);color:var(--blue)">UvicornWorker N<small>async loop</small></div>
+        </div>
+        <div class="arch-arrow"></div>
+        <div class="arch-box django">Django Application<small>asgi.py — sync and async views both work</small></div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <strong>How Pattern C works</strong>
+      <p>Gunicorn forks <code>N</code> child processes. Each child runs a Uvicorn event loop instead of a sync worker. The master process handles signals (SIGHUP for graceful reload, SIGTERM for shutdown), respawns crashed workers, and enforces the timeout. Each Uvicorn worker handles many concurrent requests via its async event loop.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 6: CONFIG FILES -->
+  <section id="config">
+    <span class="section-label">Section 06</span>
+    <h2>Configuration Files</h2>
+    <div class="divider"></div>
+
+    <p>Here are complete, production-ready configuration files for both servers, including environment variable overrides for Docker/12-factor app compatibility.</p>
+
+    <h3>Project File Layout</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>directory structure</span></div>
+      <pre><code>myproject/
+├── manage.py
+├── myproject/
+│   ├── __init__.py
+│   ├── settings/
+│   ├── urls.py
+│   ├── wsgi.py          ← for Gunicorn
+│   └── asgi.py          ← for Uvicorn
+├── gunicorn.conf.py     ← Gunicorn config
+├── requirements.txt
+└── Dockerfile</code></pre>
+    </div>
+
+    <h3>wsgi.py (Django auto-generates this)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>myproject/wsgi.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="k">import</span> os
+<span class="k">from</span> django.core.wsgi <span class="k">import</span> get_wsgi_application
+
+os.environ.setdefault(<span class="s">"DJANGO_SETTINGS_MODULE"</span>, <span class="s">"myproject.settings"</span>)
+
+application = get_wsgi_application()</code></pre>
+    </div>
+
+    <h3>asgi.py (for async/Uvicorn)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>myproject/asgi.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="k">import</span> os
+<span class="k">from</span> django.core.asgi <span class="k">import</span> get_asgi_application
+
+os.environ.setdefault(<span class="s">"DJANGO_SETTINGS_MODULE"</span>, <span class="s">"myproject.settings"</span>)
+
+<span class="comment-line"># Standard ASGI app — works with sync and async Django views.</span>
+application = get_asgi_application()
+
+<span class="comment-line"># If using Django Channels, it looks like this instead:</span>
+<span class="comment-line"># from channels.routing import ProtocolTypeRouter, URLRouter</span>
+<span class="comment-line"># from channels.auth import AuthMiddlewareStack</span>
+<span class="comment-line"># from myapp.routing import websocket_urlpatterns</span>
+<span class="comment-line">#</span>
+<span class="comment-line"># application = ProtocolTypeRouter({</span>
+<span class="comment-line">#     "http": get_asgi_application(),</span>
+<span class="comment-line">#     "websocket": AuthMiddlewareStack(</span>
+<span class="comment-line">#         URLRouter(websocket_urlpatterns)</span>
+<span class="comment-line">#     ),</span>
+<span class="comment-line"># })</span></code></pre>
+    </div>
+
+    <h3>requirements.txt</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>requirements.txt — server dependencies</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># For WSGI / Gunicorn only:</span>
+Django>=4.2
+gunicorn>=21.2.0
+
+<span class="comment-line"># For ASGI / Uvicorn only:</span>
+Django>=4.2
+uvicorn[standard]>=0.27.0
+
+<span class="comment-line"># For Gunicorn + Uvicorn workers (recommended ASGI setup):</span>
+Django>=4.2
+gunicorn>=21.2.0
+uvicorn[standard]>=0.27.0
+
+<span class="comment-line"># Optional — for gevent workers:</span>
+gevent>=23.0.0</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 7: DOCKER -->
+  <section id="docker">
+    <span class="section-label">Section 07</span>
+    <h2>Docker & Docker Compose</h2>
+    <div class="divider"></div>
+
+    <h3>Dockerfile — Gunicorn (WSGI)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>Dockerfile.gunicorn</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># ── Build stage ────────────────────────────────────────────────────────────</span>
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+<span class="comment-line"># ── Runtime stage ──────────────────────────────────────────────────────────</span>
+FROM python:3.12-slim
+
+<span class="comment-line"># Non-root user for security</span>
+RUN groupadd -r django && useradd -r -g django django
+
+WORKDIR /app
+COPY --from=builder /install /usr/local
+COPY --chown=django:django . .
+
+<span class="comment-line"># Collect static files (requires DJANGO_SETTINGS_MODULE to be set)</span>
+ARG DJANGO_SETTINGS_MODULE=myproject.settings
+ENV DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+RUN python manage.py collectstatic --noinput
+
+USER django
+
+EXPOSE 8000
+
+<span class="comment-line"># Gunicorn reads gunicorn.conf.py from current directory</span>
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "myproject.wsgi:application"]</code></pre>
+    </div>
+
+    <h3>Dockerfile — Uvicorn (ASGI)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>Dockerfile.uvicorn</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+FROM python:3.12-slim
+RUN groupadd -r django && useradd -r -g django django
+WORKDIR /app
+COPY --from=builder /install /usr/local
+COPY --chown=django:django . .
+
+ARG DJANGO_SETTINGS_MODULE=myproject.settings
+ENV DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+RUN python manage.py collectstatic --noinput
+
+USER django
+EXPOSE 8000
+
+<span class="comment-line"># Gunicorn managing Uvicorn workers</span>
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "myproject.asgi:application"]</code></pre>
+    </div>
+
+    <h3>docker-compose.yml</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>docker-compose.yml — full stack</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>version: <span class="s">"3.9"</span>
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - DJANGO_SETTINGS_MODULE=myproject.settings.production
+      - DATABASE_URL=postgres://user:pass@db:5432/mydb
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - GUNICORN_WORKERS=4
+      - GUNICORN_WORKER_CLASS=sync  <span class="comment-line"># or uvicorn.workers.UvicornWorker</span>
+      - LOG_LEVEL=info
+    ports:
+      - <span class="s">"8000:8000"</span>
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - static_files:/app/staticfiles
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=mydb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - <span class="s">"80:80"</span>
+      - <span class="s">"443:443"</span>
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_files:/var/www/static:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_files:</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Environment variable override pattern</strong>
+      <p>Notice how <code>GUNICORN_WORKERS</code> and <code>GUNICORN_WORKER_CLASS</code> are passed as environment variables. Our <code>gunicorn.conf.py</code> reads these with <code>os.getenv()</code>. This means the same image can run as a WSGI app in one environment and an ASGI app in another — just by changing environment variables, without rebuilding.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 8: NGINX -->
+  <section id="nginx">
+    <span class="section-label">Section 08</span>
+    <h2>Nginx Reverse Proxy</h2>
+    <div class="divider"></div>
+
+    <p>In production, you always place Nginx in front of Gunicorn or Uvicorn. Nginx handles SSL termination, serves static files, provides connection buffering, and protects your Python server from slow clients and malicious requests.</p>
+
+    <h3>Nginx Config — Gunicorn (WSGI)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>nginx/conf.d/django.conf</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>upstream django_gunicorn {
+    <span class="comment-line"># Unix socket is faster than TCP for local connections</span>
+    server unix:/run/gunicorn/gunicorn.sock fail_timeout=0;
+    <span class="comment-line"># Or use TCP: server 127.0.0.1:8000 fail_timeout=0;</span>
+    <span class="comment-line"># For Docker: server web:8000 fail_timeout=0;</span>
+}
+
+server {
+    listen 80;
+    server_name example.com www.example.com;
+
+    <span class="comment-line"># Redirect all HTTP to HTTPS</span>
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name example.com www.example.com;
+
+    <span class="comment-line"># SSL</span>
+    ssl_certificate     /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_session_cache   shared:SSL:10m;
+
+    <span class="comment-line"># Security headers</span>
+    add_header X-Frame-Options           DENY;
+    add_header X-Content-Type-Options    nosniff;
+    add_header X-XSS-Protection         "1; mode=block";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    add_header Referrer-Policy           "same-origin";
+
+    <span class="comment-line"># Static files — served directly by Nginx, never hits Django</span>
+    location /static/ {
+        alias /var/www/static/;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        access_log off;
+    }
+
+    location /media/ {
+        alias /var/www/media/;
+        expires 7d;
+        access_log off;
+    }
+
+    <span class="comment-line"># Proxy to Gunicorn</span>
+    location / {
+        proxy_pass         http://django_gunicorn;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        <span class="comment-line"># Buffering — protects Gunicorn from slow clients</span>
+        proxy_buffering    on;
+        proxy_buffer_size  128k;
+        proxy_buffers      4 256k;
+
+        <span class="comment-line"># Timeouts — should exceed Gunicorn's timeout</span>
+        proxy_connect_timeout 75s;
+        proxy_read_timeout    300s;
+
+        proxy_redirect     off;
+    }
+
+    <span class="comment-line"># Limit request size</span>
+    client_max_body_size 20M;
+
+    <span class="comment-line"># Gzip compression</span>
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml;
+    gzip_min_length 1024;
+}</code></pre>
+    </div>
+
+    <h3>Nginx Config — Uvicorn with WebSockets</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>nginx/conf.d/django-asgi.conf</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>upstream django_uvicorn {
+    server web:8000 fail_timeout=0;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    ssl_certificate     /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+    <span class="comment-line"># Standard HTTP requests</span>
+    location / {
+        proxy_pass         http://django_uvicorn;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_redirect     off;
+        proxy_buffering    on;
+        proxy_read_timeout 300s;
+    }
+
+    <span class="comment-line"># WebSocket connections — must disable buffering and set upgrade headers</span>
+    location /ws/ {
+        proxy_pass         http://django_uvicorn;
+        proxy_http_version 1.1;
+
+        <span class="comment-line"># Required for WebSocket upgrade</span>
+        proxy_set_header   Upgrade    $http_upgrade;
+        proxy_set_header   Connection "upgrade";
+
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        <span class="comment-line"># No buffering for WebSocket connections</span>
+        proxy_buffering    off;
+        proxy_read_timeout 86400s;  <span class="comment-line"># 24 hours for long-lived WS connections</span>
+    }
+
+    location /static/ {
+        alias /var/www/static/;
+        expires 30d;
+        access_log off;
+    }
+
+    client_max_body_size 20M;
+}</code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Django Settings — Trusted Proxies</strong>
+      <p>When running behind Nginx, you must configure Django to trust the proxy headers. Without this, <code>request.META['REMOTE_ADDR']</code> will always be the Nginx server IP, breaking IP-based rate limiting and logging.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — proxy trust configuration</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Trust X-Forwarded-For from these IPs (your Nginx server's IP or Docker network)</span>
+ALLOWED_HOSTS = [<span class="s">"example.com"</span>, <span class="s">"www.example.com"</span>]
+
+<span class="comment-line"># Tell Django it's behind a proxy sending HTTPS via HTTP internally</span>
+SECURE_PROXY_SSL_HEADER = (<span class="s">"HTTP_X_FORWARDED_PROTO"</span>, <span class="s">"https"</span>)
+
+<span class="comment-line"># Use Django's built-in proxy trust (Django 4.0+)</span>
+<span class="comment-line"># Alternatively use the 'django-ipware' package for more complex setups</span>
+USE_X_FORWARDED_HOST = <span class="k">True</span>
+USE_X_FORWARDED_PORT = <span class="k">True</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 9: DECISION -->
+  <section id="decision">
+    <span class="section-label">Section 09</span>
+    <h2>Which Should You Use?</h2>
+    <div class="divider"></div>
+
+    <p>The honest answer: most Django applications should start with Gunicorn. Move to Uvicorn when you have a clear reason to.</p>
+
+    <div class="choice-matrix">
+      <div class="cm-row header">
+        <div class="cm-cell">Situation</div>
+        <div class="cm-cell g">Gunicorn</div>
+        <div class="cm-cell u">Uvicorn</div>
+        <div class="cm-cell gu">Gunicorn + Uvicorn</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">Traditional Django REST API</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+        <div class="cm-cell" style="color:var(--muted)">Works, no benefit</div>
+        <div class="cm-cell" style="color:var(--muted)">Overkill</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">WebSockets / Django Channels</div>
+        <div class="cm-cell" style="color:var(--red)">Won't work</div>
+        <div class="cm-cell" style="color:var(--muted)">Works (single process)</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">async/await views only</div>
+        <div class="cm-cell" style="color:var(--muted)">Works (sync wrapper)</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">Mixed sync + async views</div>
+        <div class="cm-cell" style="color:var(--amber)">OK for sync</div>
+        <div class="cm-cell" style="color:var(--muted)">Works (slow for sync)</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">Heavy CPU processing</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+        <div class="cm-cell" style="color:var(--red)">Avoid (GIL)</div>
+        <div class="cm-cell" style="color:var(--amber)">OK</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">High I/O concurrency</div>
+        <div class="cm-cell" style="color:var(--amber)">OK (gevent)</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">Memory-constrained server</div>
+        <div class="cm-cell" style="color:var(--amber)">Many processes = RAM</div>
+        <div class="cm-cell" style="color:var(--green)">Fewer processes needed</div>
+        <div class="cm-cell" style="color:var(--amber)">Fewer than pure Gunicorn</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">FastAPI or Starlette</div>
+        <div class="cm-cell" style="color:var(--red)">Wrong tool</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+        <div class="cm-cell" style="color:var(--green)">Best choice</div>
+      </div>
+      <div class="cm-row">
+        <div class="cm-cell">Heroku / Railway / Render</div>
+        <div class="cm-cell" style="color:var(--green)">Native support</div>
+        <div class="cm-cell" style="color:var(--amber)">Manual Procfile</div>
+        <div class="cm-cell" style="color:var(--amber)">Manual Procfile</div>
+      </div>
+    </div>
+
+    <h3>Decision Flowchart</h3>
+
+    <div class="decision-tree">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+
+        <div class="dt-node question">Do you use WebSockets or Django Channels?</div>
+        <div class="dt-row" style="width:100%">
+          <div class="dt-connector">
+            <div class="dt-line"></div>
+            <div class="dt-label">YES</div>
+            <div class="dt-line" style="height:10px"></div>
+            <div class="dt-node answer green" style="max-width:220px">Gunicorn + UvicornWorker<br><small style="font-size:0.72rem;opacity:0.8">pointing at asgi.py</small></div>
+          </div>
+          <div class="dt-connector">
+            <div class="dt-line"></div>
+            <div class="dt-label">NO</div>
+            <div class="dt-line" style="height:10px"></div>
+            <div class="dt-node question" style="max-width:260px">Do you write async def views or need high concurrency?</div>
+          </div>
+        </div>
+
+        <div style="width:100%;display:flex;justify-content:flex-end;padding-right:2rem">
+          <div style="width:260px">
+            <div class="dt-row">
+              <div class="dt-connector">
+                <div class="dt-line"></div>
+                <div class="dt-label">YES</div>
+                <div class="dt-line" style="height:10px"></div>
+                <div class="dt-node answer purple" style="max-width:200px">Gunicorn + UvicornWorker or standalone Uvicorn</div>
+              </div>
+              <div class="dt-connector">
+                <div class="dt-line"></div>
+                <div class="dt-label">NO</div>
+                <div class="dt-line" style="height:10px"></div>
+                <div class="dt-node answer amber" style="max-width:180px">Gunicorn (sync)<br><small style="font-size:0.72rem;opacity:0.8">The default. Simple, battle-tested.</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 10: PRODUCTION CHECKLIST -->
+  <section id="production">
+    <span class="section-label">Section 10</span>
+    <h2>Production Hardening Checklist</h2>
+    <div class="divider"></div>
+
+    <p>Before going live, work through this checklist. These are the most commonly missed production issues when deploying Django with Gunicorn or Uvicorn.</p>
+
+    <h3>Django Settings</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings/production.py — critical settings</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># ── Security ───────────────────────────────────────────────────────────────</span>
+DEBUG = <span class="k">False</span>
+SECRET_KEY = os.environ[<span class="s">"DJANGO_SECRET_KEY"</span>]  <span class="comment-line"># Never hardcode this</span>
+ALLOWED_HOSTS = os.environ.get(<span class="s">"ALLOWED_HOSTS"</span>, <span class="s">""</span>).split(<span class="s">","</span>)
+
+SECURE_SSL_REDIRECT              = <span class="k">True</span>   <span class="comment-line"># Redirect HTTP → HTTPS</span>
+SECURE_HSTS_SECONDS              = <span class="m">31536000</span>
+SECURE_HSTS_INCLUDE_SUBDOMAINS   = <span class="k">True</span>
+SECURE_HSTS_PRELOAD              = <span class="k">True</span>
+SECURE_BROWSER_XSS_FILTER        = <span class="k">True</span>
+SECURE_CONTENT_TYPE_NOSNIFF      = <span class="k">True</span>
+SESSION_COOKIE_SECURE            = <span class="k">True</span>
+CSRF_COOKIE_SECURE               = <span class="k">True</span>
+X_FRAME_OPTIONS                  = <span class="s">"DENY"</span>
+SECURE_PROXY_SSL_HEADER          = (<span class="s">"HTTP_X_FORWARDED_PROTO"</span>, <span class="s">"https"</span>)
+
+<span class="comment-line"># ── Static Files ───────────────────────────────────────────────────────────</span>
+STATIC_ROOT = BASE_DIR / <span class="s">"staticfiles"</span>
+<span class="comment-line"># Run: python manage.py collectstatic --noinput  (in Dockerfile)</span>
+
+<span class="comment-line"># ── Database Connection Pooling ────────────────────────────────────────────</span>
+DATABASES = {
+    <span class="s">"default"</span>: {
+        <span class="s">"ENGINE"</span>: <span class="s">"django.db.backends.postgresql"</span>,
+        <span class="s">"CONN_MAX_AGE"</span>: <span class="m">60</span>,  <span class="comment-line"># Reuse DB connections (seconds)</span>
+        <span class="comment-line"># CONN_HEALTH_CHECKS: True  # Django 4.1+ — validates before reuse</span>
+    }
+}
+
+<span class="comment-line"># ── Logging ────────────────────────────────────────────────────────────────</span>
+LOGGING = {
+    <span class="s">"version"</span>: <span class="m">1</span>,
+    <span class="s">"disable_existing_loggers"</span>: <span class="k">False</span>,
+    <span class="s">"formatters"</span>: {
+        <span class="s">"verbose"</span>: {
+            <span class="s">"format"</span>: <span class="s">"{levelname} {asctime} {module} {process:d} {thread:d} {message}"</span>,
+            <span class="s">"style"</span>: <span class="s">"{"</span>,
+        },
+    },
+    <span class="s">"handlers"</span>: {
+        <span class="s">"console"</span>: {
+            <span class="s">"class"</span>: <span class="s">"logging.StreamHandler"</span>,
+            <span class="s">"formatter"</span>: <span class="s">"verbose"</span>,
+        },
+    },
+    <span class="s">"root"</span>: {<span class="s">"handlers"</span>: [<span class="s">"console"</span>], <span class="s">"level"</span>: <span class="s">"WARNING"</span>},
+    <span class="s">"loggers"</span>: {
+        <span class="s">"django"</span>: {<span class="s">"handlers"</span>: [<span class="s">"console"</span>], <span class="s">"level"</span>: os.getenv(<span class="s">"LOG_LEVEL"</span>, <span class="s">"WARNING"</span>), <span class="s">"propagate"</span>: <span class="k">False</span>},
+    },
+}</code></pre>
+    </div>
+
+    <h3>Systemd Service Unit (non-Docker)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>/etc/systemd/system/django.service</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>[Unit]
+Description=Django via Gunicorn
+After=network.target
+
+[Service]
+Type=notify
+User=django
+Group=django
+WorkingDirectory=/srv/myproject
+Environment="DJANGO_SETTINGS_MODULE=myproject.settings.production"
+Environment="DJANGO_SECRET_KEY=your-secret-key-here"
+EnvironmentFile=/etc/myproject/env  <span class="comment-line"># Store secrets here instead</span>
+
+ExecStart=/srv/myproject/venv/bin/gunicorn \
+    -c /srv/myproject/gunicorn.conf.py \
+    myproject.wsgi:application
+
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>bash — systemd commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="comment-line"># Enable and start</span>
+sudo systemctl enable django
+sudo systemctl start django
+
+<span class="comment-line"># Check status</span>
+sudo systemctl status django
+
+<span class="comment-line"># View logs</span>
+sudo journalctl -u django -f
+
+<span class="comment-line"># Graceful reload (no downtime — sends SIGHUP to Gunicorn master)</span>
+sudo systemctl reload django
+
+<span class="comment-line"># Full restart</span>
+sudo systemctl restart django</code></pre>
+    </div>
+
+    <h3>Health Check Endpoint</h3>
+
+    <p>Always add a lightweight health check endpoint that Nginx, load balancers, and Docker can use to verify your app is alive.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>myapp/views.py — health check</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="k">from</span> django.http <span class="k">import</span> JsonResponse
+<span class="k">from</span> django.db <span class="k">import</span> connection
+
+<span class="k">def</span> <span class="n">health_check</span>(request):
+    <span class="s">"""Lightweight health check — verify app + DB are alive."""</span>
+    <span class="k">try</span>:
+        connection.ensure_connection()
+        db_ok = <span class="k">True</span>
+    <span class="k">except</span> Exception:
+        db_ok = <span class="k">False</span>
+
+    status = <span class="m">200</span> <span class="k">if</span> db_ok <span class="k">else</span> <span class="m">503</span>
+    <span class="k">return</span> JsonResponse({<span class="s">"status"</span>: <span class="s">"ok"</span> <span class="k">if</span> db_ok <span class="k">else</span> <span class="s">"degraded"</span>, <span class="s">"db"</span>: db_ok}, status=status)</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>urls.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="k">from</span> myapp.views <span class="k">import</span> health_check
+
+urlpatterns = [
+    path(<span class="s">"health/"</span>, health_check),
+    <span class="comment-line"># ... other urls</span>
+]</code></pre>
+    </div>
+
+    <h3>Final Checklist</h3>
+
+    <div class="card" style="margin-top:1.5rem">
+      <h4 style="border-bottom:none;padding-bottom:0;margin-bottom:1.2rem">Before Going to Production</h4>
+      <ul>
+        <li><code>DEBUG = False</code> in production settings</li>
+        <li>Secret key loaded from environment variable, not hardcoded</li>
+        <li><code>ALLOWED_HOSTS</code> locked down to your actual domain</li>
+        <li><code>STATIC_ROOT</code> configured and <code>collectstatic</code> run in Dockerfile</li>
+        <li>Nginx serving <code>/static/</code> and <code>/media/</code> directly (not through Django)</li>
+        <li>SSL/TLS configured in Nginx with modern cipher suites</li>
+        <li>Gunicorn <code>timeout</code> ≤ Nginx <code>proxy_read_timeout</code></li>
+        <li><code>max_requests</code> + <code>max_requests_jitter</code> set to prevent memory leaks</li>
+        <li>Worker count tuned to <code>2 × cores + 1</code> and tested under load</li>
+        <li><code>CONN_MAX_AGE</code> set in DATABASES to reuse connections</li>
+        <li>Health check endpoint configured and Nginx/Docker using it</li>
+        <li>Access logs written to stdout/stderr (captured by Docker/systemd)</li>
+        <li>Process manager (systemd or Docker restart policy) set to auto-restart</li>
+        <li>Graceful reload tested: <code>kill -HUP <master_pid></code> or <code>systemctl reload</code></li>
+        <li>Django <code>SECURE_PROXY_SSL_HEADER</code> set if behind Nginx</li>
+        <li>Database password and Django secret key stored in secrets manager or env file, not in version control</li>
+      </ul>
+    </div>
+
+    <div class="callout tip">
+      <strong>Measuring worker count in production</strong>
+      <p>The <code>2N+1</code> formula is a starting point, not a law. Under real load, watch your CPU usage with <code>htop</code> or your monitoring dashboard. If CPUs are consistently &lt;50% utilized and memory is fine, add workers. If you're swapping memory, reduce workers. If you're CPU-bound, adding workers won't help — fix the slow code or add servers.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Ultimate Django Deployment Guides — Guide #3 of 6 — Gunicorn & Uvicorn
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = 'var(--green)';
+      btn.style.borderColor = 'var(--green)';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  // Animate perf bars on scroll
+  const bars = document.querySelectorAll('.perf-bar');
+  const widths = Array.from(bars).map(b => b.style.width);
+  bars.forEach(b => { b.dataset.width = b.style.width; b.style.width = '0'; });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bar = entry.target;
+        setTimeout(() => { bar.style.width = bar.dataset.width; }, 100);
+        observer.unobserve(bar);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  bars.forEach(b => observer.observe(b));
+</script>
+</body>
+</html>

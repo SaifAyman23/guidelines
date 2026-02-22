@@ -1,1 +1,1930 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ultimate Guide: django-unfold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0eb;
+    --border: #e4ddd3;
+    --border-strong: #c8bfb2;
+    --text: #1c1a18;
+    --muted: #7a7068;
+    --muted2: #a09890;
+    --accent: #c2410c;         /* deep orange-red */
+    --accent-light: #fff4ef;
+    --accent-mid: #ea580c;
+    --blue: #1d4ed8;
+    --blue-light: #eff6ff;
+    --green: #15803d;
+    --green-light: #f0fdf4;
+    --amber: #b45309;
+    --amber-light: #fffbeb;
+    --red: #b91c1c;
+    --red-light: #fef2f2;
+    --purple: #7e22ce;
+    --purple-light: #faf5ff;
+    --ink: #1c1a18;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,248,245,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0;
+    height: 52px; overflow-x: auto;
+  }
+
+  nav .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    flex-shrink: 0;
+    margin-right: 2rem;
+    letter-spacing: -0.01em;
+  }
+
+  nav .logo span { color: var(--accent); }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0 1rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    color: #faf8f5;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(255,255,255,0.03) 39px,
+      rgba(255,255,255,0.03) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 79px,
+      rgba(255,255,255,0.03) 79px,
+      rgba(255,255,255,0.03) 80px
+    );
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent-mid);
+  }
+
+  .hero p {
+    font-size: 1.05rem;
+    color: rgba(250,248,245,0.65);
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.8;
+    position: relative;
+    font-style: italic;
+  }
+
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    position: relative;
+  }
+
+  .hero-meta a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(250,248,245,0.45);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+
+  .hero-meta a:hover { color: var(--accent-mid); }
+
+  /* ── CONTENT ── */
+  .content {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 0 2rem 8rem;
+  }
+
+  section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 70px;
+  }
+
+  /* ── HEADINGS ── */
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--ink);
+  }
+
+  h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .divider {
+    width: 32px;
+    height: 2px;
+    background: var(--accent);
+    margin: 0.75rem 0 2rem;
+  }
+
+  p { margin-bottom: 1.25rem; color: #3a3530; }
+  strong { color: var(--ink); font-weight: 500; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: #1e1b18;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+    border: 1px solid #2d2924;
+  }
+
+  .code-header {
+    background: #161310;
+    border-bottom: 1px solid #2d2924;
+    padding: 0.55rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .code-header span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: #6b6560;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid #2d2924;
+    color: #6b6560;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { color: var(--accent-mid); border-color: var(--accent-mid); }
+
+  pre {
+    padding: 1.5rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.84rem;
+    line-height: 1.75;
+    color: #e8e0d5;
+    tab-size: 4;
+  }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.84em;
+    background: #f0ece6;
+    padding: 0.12em 0.4em;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  pre code { background: none; padding: 0; color: #e8e0d5; font-size: 1em; }
+
+  /* syntax */
+  .kw { color: #f08060; }
+  .st { color: #98c379; }
+  .cm { color: #4a4540; font-style: italic; }
+  .fn { color: #61afef; }
+  .nm { color: #e5c07b; }
+  .op { color: #e8e0d5; }
+  .hl { color: #c678dd; }
+  .hl2 { color: #56b6c2; }
+  .num { color: #d19a66; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 4px;
+    padding: 1.1rem 1.4rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    font-size: 0.94rem;
+    font-family: 'Literata', serif;
+  }
+
+  .callout.info    { background: var(--blue-light);   border-color: var(--blue);   }
+  .callout.warning { background: var(--amber-light);  border-color: var(--amber);  }
+  .callout.tip     { background: var(--green-light);  border-color: var(--green);  }
+  .callout.danger  { background: var(--red-light);    border-color: var(--red);    }
+  .callout.note    { background: var(--accent-light); border-color: var(--accent); }
+
+  .callout strong {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+  }
+
+  .callout.info    strong { color: var(--blue);   }
+  .callout.warning strong { color: var(--amber);  }
+  .callout.tip     strong { color: var(--green);  }
+  .callout.danger  strong { color: var(--red);    }
+  .callout.note    strong { color: var(--accent); }
+
+  .callout p { margin: 0; color: #3a3530; font-size: 0.92rem; }
+
+  /* ── TABLES ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: #3a3530;
+    font-size: 0.88rem;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .data-table tr:hover td { background: var(--accent-light); }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.4rem;
+  }
+
+  .card h4 {
+    margin-top: 0;
+    font-size: 0.82rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card ul { list-style: none; }
+  .card ul li {
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+    font-family: 'Literata', serif;
+    color: #3a3530;
+    display: flex;
+    gap: 0.6rem;
+  }
+  .card ul li::before { content: '·'; color: var(--accent); font-size: 1.1rem; line-height: 1.4; flex-shrink: 0; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2rem;
+    margin: 3rem 0 4rem;
+    border-top: 3px solid var(--accent);
+  }
+
+  .toc h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: var(--ink);
+  }
+
+  .toc ol {
+    padding-left: 1.25rem;
+    columns: 2;
+    column-gap: 2.5rem;
+  }
+
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+
+  .toc ol li { margin-bottom: 0.4rem; break-inside: avoid; }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'Literata', serif;
+    font-size: 0.88rem;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* ── BADGE / PILL ── */
+  .pill {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.18rem 0.55rem;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .pill.required { background: var(--red-light); color: var(--red); border: 1px solid #fecaca; }
+  .pill.optional { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+  .pill.important { background: var(--accent-light); color: var(--accent); border: 1px solid #fed7aa; }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; }
+
+  .step {
+    position: relative;
+    padding-left: 3.75rem;
+    margin-bottom: 2.75rem;
+    counter-increment: step;
+  }
+
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--accent);
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step h3 { margin-top: 0.2rem; }
+
+  /* ── ACTION TYPES DIAGRAM ── */
+  .action-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 2rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .ad-page {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ad-page:last-child { border-bottom: none; }
+
+  .ad-page-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .ad-action-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .ad-btn {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 3px;
+    border: 1px solid;
+    font-weight: 500;
+  }
+
+  .ad-btn.list  { background: var(--accent-light); border-color: #fed7aa; color: var(--accent); }
+  .ad-btn.row   { background: var(--blue-light);   border-color: #bfdbfe; color: var(--blue);   }
+  .ad-btn.detail{ background: var(--purple-light); border-color: #e9d5ff; color: var(--purple); }
+  .ad-btn.submit{ background: var(--green-light);  border-color: #bbf7d0; color: var(--green);  }
+
+  .ad-table {
+    width: 100%;
+    font-size: 0.76rem;
+    border-collapse: collapse;
+    color: var(--muted);
+  }
+
+  .ad-table td { padding: 0.35rem 0.5rem; border: 1px solid var(--border); }
+  .ad-table td:first-child { color: var(--ink); font-weight: 500; }
+
+  .ad-row-action { float: right; }
+
+  .ad-form-field {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0.2rem;
+  }
+
+  .ad-save-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .checklist-group h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75rem;
+    margin-top: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Literata', serif;
+    font-size: 0.9rem;
+    color: #3a3530;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist li::before {
+    content: '☐';
+    font-size: 1rem;
+    color: var(--border-strong);
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  /* ── SETTINGS MAP ── */
+  .settings-grid {
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .sg-row {
+    display: grid;
+    grid-template-columns: 220px 80px 1fr;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+
+  .sg-row:last-child { border-bottom: none; }
+  .sg-row.header { background: var(--surface2); }
+
+  .sg-cell {
+    padding: 0.7rem 1rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .sg-cell:last-child { border-right: none; }
+  .sg-row.header .sg-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .sg-cell:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+  }
+
+  .sg-cell:nth-child(2) {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* ── COMPONENT TABLE ── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (max-width: 640px) { .component-grid { grid-template-columns: 1fr; } }
+
+  .comp-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .comp-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+
+  .comp-desc {
+    font-size: 0.84rem;
+    color: var(--muted);
+    font-family: 'Literata', serif;
+    line-height: 1.5;
+  }
+
+  /* ── PITFALL ── */
+  .pitfall {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .pitfall-problem {
+    background: var(--red-light);
+    border-bottom: 1px solid #fecaca;
+    padding: 0.85rem 1.25rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--red);
+    letter-spacing: 0.04em;
+  }
+
+  .pitfall-body {
+    background: var(--surface);
+    padding: 1rem 1.25rem;
+  }
+
+  .pitfall-body p {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #3a3530;
+  }
+
+  .pitfall-body p:last-child { margin-bottom: 0; }
+
+  .pitfall-body .cause {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-style: italic;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(250,248,245,0.4);
+    padding: 2rem;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  footer a { color: rgba(250,248,245,0.5); text-decoration: none; }
+  footer a:hover { color: var(--accent-mid); }
+
+  /* ── MISC ── */
+  @media (max-width: 640px) {
+    h2 { font-size: 1.8rem; }
+    .hero h1 { font-size: 2.6rem; }
+    .hero { padding: 3.5rem 1.5rem 3rem; }
+    .content { padding: 0 1.25rem 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">django-<span>unfold</span></span>
+  <a href="#whatis">What It Is</a>
+  <a href="#howworks">Under the Hood</a>
+  <a href="#install">Install</a>
+  <a href="#settings">Settings</a>
+  <a href="#modeladmin">ModelAdmin</a>
+  <a href="#display">@display</a>
+  <a href="#actions">Actions</a>
+  <a href="#filters">Filters</a>
+  <a href="#tabs">Tabs</a>
+  <a href="#inlines">Inlines</a>
+  <a href="#widgets">Widgets</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#sidebar">Sidebar</a>
+  <a href="#theming">Theming</a>
+  <a href="#pitfalls">Pitfalls</a>
+  <a href="#checklist">Checklist</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Ultimate Guide — #1 of 6</div>
+  <h1>django-<em>unfold</em></h1>
+  <p>The modern Tailwind CSS admin theme for Django. A thorough, example-driven reference covering every feature from installation to custom dashboards.</p>
+  <div class="hero-meta">
+    <a href="https://unfoldadmin.com/docs/" target="_blank">unfoldadmin.com/docs</a>
+    <a href="https://demo.unfoldadmin.com" target="_blank">Live Demo</a>
+    <a href="https://github.com/unfoldadmin/formula" target="_blank">Demo Source</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#whatis">What is django-unfold and Why Use It</a></li>
+      <li><a href="#howworks">How It Works Under the Hood</a></li>
+      <li><a href="#install">Installation</a></li>
+      <li><a href="#settings">The UNFOLD Settings Dictionary</a></li>
+      <li><a href="#modeladmin">Registering Models — ModelAdmin</a></li>
+      <li><a href="#display">The @display Decorator</a></li>
+      <li><a href="#actions">Actions</a></li>
+      <li><a href="#filters">Filters</a></li>
+      <li><a href="#tabs">Tabs — Organizing Complex Forms</a></li>
+      <li><a href="#inlines">Inlines</a></li>
+      <li><a href="#widgets">Widgets</a></li>
+      <li><a href="#dashboard">Building a Custom Dashboard</a></li>
+      <li><a href="#sidebar">Sidebar Navigation</a></li>
+      <li><a href="#theming">Theming and Colors</a></li>
+      <li><a href="#custompages">Custom Pages</a></li>
+      <li><a href="#useradmin">User & Group Admin Setup</a></li>
+      <li><a href="#thirdparty">Third-Party Integrations</a></li>
+      <li><a href="#pitfalls">Common Pitfalls & Troubleshooting</a></li>
+      <li><a href="#checklist">Checklist</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="whatis">
+    <span class="section-label">Section 01</span>
+    <h2>What is django-unfold and Why Use It</h2>
+    <div class="divider"></div>
+
+    <p>Django ships with a built-in admin panel. It works, but it is visually dated and difficult to extend meaningfully. The default admin uses a Bootstrap-era stylesheet that has not fundamentally changed in years, and customizing it beyond surface-level tweaks requires overriding templates in fragile, undocumented ways.</p>
+
+    <p><strong>django-unfold</strong> solves this by sitting on top of <code>django.contrib.admin</code> — not replacing it — and overriding its templates, styles, and some behaviors to deliver a modern, production-grade admin interface built with Tailwind CSS.</p>
+
+    <p>The key distinction from similar libraries like Jazzmin or Django Suit is that Unfold is built natively on Tailwind CSS, uses Alpine.js for interactivity, and HTMX for AJAX behaviors. It ships a prebuilt Tailwind stylesheet that you can extend with your own design tokens.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h4>What Unfold gives you</h4>
+        <ul>
+          <li>Clean, modern UI with light and dark mode</li>
+          <li>Sidebar navigation with grouping, collapsible sections, and badge counts</li>
+          <li>Command palette (Cmd/Ctrl+K) to search across all models</li>
+          <li>Custom dashboard with reusable components (cards, charts, tables)</li>
+          <li>Four action placement types: list, row, detail, submit-line</li>
+          <li>Advanced filter widgets: date ranges, numeric ranges, autocomplete</li>
+          <li>Tabs on change forms and changelists</li>
+          <li>Sortable inlines (drag and drop), paginated inlines, non-related inlines</li>
+          <li>WYSIWYG (Trix) and array field widgets</li>
+          <li>Conditional show/hide fields based on other field values</li>
+          <li>Environment label so you always know which environment you're in</li>
+          <li>Unsaved changes warning before navigating away</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>What Unfold does NOT do</h4>
+        <ul>
+          <li>Does not replace Django's admin architecture — everything you know about <code>ModelAdmin</code>, <code>list_display</code>, <code>search_fields</code>, <code>fieldsets</code> still applies exactly</li>
+          <li>Does not require any database migrations</li>
+          <li>Does not change how your models work</li>
+          <li>Does not fight standard Django admin patterns</li>
+        </ul>
+        <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);font-style:italic">If you know Django admin, the learning curve is minimal. Change one import and get a modern UI immediately.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="howworks">
+    <span class="section-label">Section 02</span>
+    <h2>How It Works Under the Hood</h2>
+    <div class="divider"></div>
+
+    <p>Unfold overrides Django admin's templates by placing its own templates earlier in Django's template loading order. When Django renders the admin, it finds Unfold's <code>admin/base_site.html</code> before Django's own version. Unfold's templates inject Tailwind CSS, Alpine.js, and HTMX, then reconstruct the UI around the same data Django admin already provides.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>request flow</span></div>
+      <pre><code>Request hits /admin/
+    → Django's admin machinery resolves the view (no change)
+    → Django admin renders using its template system
+    → Template engine finds Unfold's templates FIRST
+    → Unfold templates render Tailwind UI + Alpine.js + HTMX
+    → Your ModelAdmin data (list_display, fieldsets…) is unchanged</code></pre>
+    </div>
+
+    <p>Your <code>ModelAdmin</code> classes are still standard Django <code>ModelAdmin</code> subclasses. Unfold simply provides an enhanced base class (<code>unfold.admin.ModelAdmin</code>) that you inherit from instead. If you forget to use Unfold's base class, your admin page works but will be completely unstyled.</p>
+
+    <p>This design means all standard Django admin documentation still applies, third-party apps that extend Django admin can be integrated, and you can migrate incrementally — one model at a time.</p>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="install">
+    <span class="section-label">Section 03</span>
+    <h2>Installation</h2>
+    <div class="divider"></div>
+
+    <div class="steps">
+
+      <div class="step">
+        <h3>Install the package</h3>
+        <div class="code-block">
+          <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code><span class="cm"># pip</span>
+pip install django-unfold
+
+<span class="cm"># uv</span>
+uv add django-unfold
+
+<span class="cm"># poetry</span>
+poetry add django-unfold</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Add to INSTALLED_APPS — order is critical</h3>
+        <div class="callout danger">
+          <strong>Order matters</strong>
+          <p><code>"unfold"</code> must appear <strong>before</strong> <code>"django.contrib.admin"</code>. If it appears after, Django finds the default admin templates first and Unfold's styles never load.</p>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span>settings.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>INSTALLED_APPS = [
+    <span class="st">"unfold"</span>,                          <span class="cm"># MUST be first, before django.contrib.admin</span>
+    <span class="st">"unfold.contrib.filters"</span>,          <span class="cm"># Optional: date, numeric, autocomplete filters</span>
+    <span class="st">"unfold.contrib.forms"</span>,            <span class="cm"># Optional: WYSIWYG, array widgets</span>
+    <span class="st">"unfold.contrib.inlines"</span>,          <span class="cm"># Optional: sortable, paginated inlines</span>
+    <span class="st">"unfold.contrib.import_export"</span>,    <span class="cm"># Optional: django-import-export styling</span>
+    <span class="st">"unfold.contrib.guardian"</span>,         <span class="cm"># Optional: django-guardian integration</span>
+    <span class="st">"unfold.contrib.simple_history"</span>,   <span class="cm"># Optional: django-simple-history integration</span>
+    <span class="st">"django.contrib.admin"</span>,            <span class="cm"># Required: must come AFTER unfold</span>
+    <span class="st">"django.contrib.auth"</span>,
+    <span class="st">"django.contrib.contenttypes"</span>,
+    <span class="st">"django.contrib.sessions"</span>,
+    <span class="st">"django.contrib.messages"</span>,
+    <span class="st">"django.contrib.staticfiles"</span>,
+    <span class="cm"># your apps...</span>
+]</code></pre>
+        </div>
+        <p>Only include <code>unfold.contrib.*</code> sub-apps for features you actually use.</p>
+      </div>
+
+      <div class="step">
+        <h3>urls.py — no change required</h3>
+        <div class="code-block">
+          <div class="code-header"><span>urls.py</span></div>
+          <pre><code><span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+<span class="kw">from</span> django.urls <span class="kw">import</span> path
+
+urlpatterns = [
+    path(<span class="st">"admin/"</span>, admin.site.urls),
+    <span class="cm"># your other URLs...</span>
+]</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Run collectstatic (production)</h3>
+        <div class="code-block">
+          <div class="code-header"><span>bash</span></div>
+          <pre><code>python manage.py collectstatic</code></pre>
+        </div>
+        <div class="callout warning">
+          <strong>Production</strong>
+          <p>In production, styles will be completely missing if you do not run <code>collectstatic</code>. Unfold's stylesheet is a static file like any other.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Update your ModelAdmin classes</h3>
+        <p>Every <code>ModelAdmin</code> must now inherit from <code>unfold.admin.ModelAdmin</code>. This is what loads Unfold's styling and extra features for that model. Everything else stays the same.</p>
+        <div class="code-block">
+          <div class="code-header"><span>admin.py — the only change needed</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code><span class="cm"># Before</span>
+<span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+
+@admin.register(MyModel)
+<span class="kw">class</span> <span class="nm">MyModelAdmin</span>(admin.ModelAdmin):
+    list_display = [<span class="st">"name"</span>, <span class="st">"status"</span>]
+
+<span class="cm"># After — only the import and base class change</span>
+<span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+<span class="kw">from</span> unfold.admin <span class="kw">import</span> ModelAdmin  <span class="cm"># ← change this import</span>
+
+@admin.register(MyModel)
+<span class="kw">class</span> <span class="nm">MyModelAdmin</span>(ModelAdmin):      <span class="cm"># ← and this base class</span>
+    list_display = [<span class="st">"name"</span>, <span class="st">"status"</span>]  <span class="cm"># everything else unchanged</span></code></pre>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="settings">
+    <span class="section-label">Section 04</span>
+    <h2>The UNFOLD Settings Dictionary</h2>
+    <div class="divider"></div>
+
+    <p>All Unfold-specific configuration lives in a single <code>UNFOLD</code> dictionary in <code>settings.py</code>. None of these keys are required — the admin works with no <code>UNFOLD</code> setting at all, just without customization.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — complete annotated reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.templatetags.static <span class="kw">import</span> static
+<span class="kw">from</span> django.urls <span class="kw">import</span> reverse_lazy
+<span class="kw">from</span> django.utils.translation <span class="kw">import</span> gettext_lazy <span class="kw">as</span> _
+
+UNFOLD = {
+    <span class="cm"># ── Site branding ──────────────────────────────────────────────────────</span>
+    <span class="st">"SITE_TITLE"</span>:     <span class="st">"My Company Admin"</span>,   <span class="cm"># Browser &lt;title&gt; tag</span>
+    <span class="st">"SITE_HEADER"</span>:    <span class="st">"My Company"</span>,         <span class="cm"># Large text at top of sidebar</span>
+    <span class="st">"SITE_SUBHEADER"</span>: <span class="st">"Internal Tools"</span>,     <span class="cm"># Smaller text under SITE_HEADER</span>
+    <span class="st">"SITE_URL"</span>:       <span class="st">"/"</span>,                   <span class="cm"># Where clicking the site title goes</span>
+
+    <span class="cm"># Logo — separate images for light and dark mode</span>
+    <span class="st">"SITE_LOGO"</span>: {
+        <span class="st">"light"</span>: <span class="kw">lambda</span> request: static(<span class="st">"img/logo-light.svg"</span>),
+        <span class="st">"dark"</span>:  <span class="kw">lambda</span> request: static(<span class="st">"img/logo-dark.svg"</span>),
+    },
+
+    <span class="st">"SITE_FAVICONS"</span>: [
+        {
+            <span class="st">"rel"</span>:  <span class="st">"icon"</span>,
+            <span class="st">"sizes"</span>: <span class="st">"32x32"</span>,
+            <span class="st">"type"</span>: <span class="st">"image/svg+xml"</span>,
+            <span class="st">"href"</span>: <span class="kw">lambda</span> request: static(<span class="st">"img/favicon.svg"</span>),
+        },
+    ],
+
+    <span class="cm"># ── History and view-on-site ────────────────────────────────────────────</span>
+    <span class="st">"SHOW_HISTORY"</span>:      <span class="hl2">True</span>,
+    <span class="st">"SHOW_VIEW_ON_SITE"</span>: <span class="hl2">True</span>,
+
+    <span class="cm"># ── Environment label ───────────────────────────────────────────────────</span>
+    <span class="cm"># Displays a colored badge in the header top-right corner.</span>
+    <span class="cm"># Callback must return [label_text, color_type]</span>
+    <span class="cm"># color_type: "info" | "danger" | "warning" | "success"</span>
+    <span class="st">"ENVIRONMENT"</span>: <span class="st">"myapp.admin_config.environment_callback"</span>,
+
+    <span class="cm"># ── Dashboard ───────────────────────────────────────────────────────────</span>
+    <span class="st">"DASHBOARD_CALLBACK"</span>: <span class="st">"myapp.admin_config.dashboard_callback"</span>,
+
+    <span class="cm"># ── Login page ──────────────────────────────────────────────────────────</span>
+    <span class="st">"LOGIN"</span>: {
+        <span class="st">"image"</span>:          <span class="kw">lambda</span> request: static(<span class="st">"img/login-bg.jpg"</span>),
+        <span class="st">"redirect_after"</span>: <span class="kw">lambda</span> request: reverse_lazy(<span class="st">"admin:index"</span>),
+    },
+
+    <span class="cm"># ── Border radius ───────────────────────────────────────────────────────</span>
+    <span class="st">"BORDER_RADIUS"</span>: <span class="st">"6px"</span>,
+
+    <span class="cm"># ── Custom CSS / JS ─────────────────────────────────────────────────────</span>
+    <span class="st">"STYLES"</span>:  [<span class="kw">lambda</span> request: static(<span class="st">"css/admin-custom.css"</span>)],
+    <span class="st">"SCRIPTS"</span>: [<span class="kw">lambda</span> request: static(<span class="st">"js/admin-custom.js"</span>)],
+
+    <span class="cm"># ── Colors (OKLCH format — see Section 14) ──────────────────────────────</span>
+    <span class="st">"COLORS"</span>: {
+        <span class="st">"primary"</span>: {
+            <span class="st">"50"</span>:  <span class="st">"oklch(97.7% .014 250)"</span>,
+            <span class="st">"100"</span>: <span class="st">"oklch(94.6% .033 250)"</span>,
+            <span class="st">"200"</span>: <span class="st">"oklch(90.2% .063 250)"</span>,
+            <span class="st">"300"</span>: <span class="st">"oklch(82.7% .119 250)"</span>,
+            <span class="st">"400"</span>: <span class="st">"oklch(71.4% .203 250)"</span>,
+            <span class="st">"500"</span>: <span class="st">"oklch(58.5% .275 250)"</span>,  <span class="cm"># Main brand color</span>
+            <span class="st">"600"</span>: <span class="st">"oklch(52.3% .266 250)"</span>,
+            <span class="st">"700"</span>: <span class="st">"oklch(44.4% .234 250)"</span>,
+            <span class="st">"800"</span>: <span class="st">"oklch(38.8% .197 250)"</span>,
+            <span class="st">"900"</span>: <span class="st">"oklch(33.5% .157 250)"</span>,
+            <span class="st">"950"</span>: <span class="st">"oklch(27.1% .119 250)"</span>,
+        },
+    },
+
+    <span class="cm"># ── Sidebar (see Section 13 for full detail) ────────────────────────────</span>
+    <span class="st">"SIDEBAR"</span>: {
+        <span class="st">"show_search"</span>:           <span class="hl2">True</span>,
+        <span class="st">"show_all_applications"</span>: <span class="hl2">False</span>,
+        <span class="st">"navigation"</span>: [...],  <span class="cm"># See Section 13</span>
+    },
+}</code></pre>
+    </div>
+
+    <h3>Callback Functions</h3>
+    <p>Many settings accept either a static value or a dotted-path string pointing to a callable. This lets you use Python logic while keeping configuration in <code>settings.py</code> clean.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>myapp/admin_config.py — callback examples</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">def</span> <span class="fn">environment_callback</span>(request):
+    <span class="cm">"""Return [label, color_type]. color_type: info|danger|warning|success"""</span>
+    <span class="kw">from</span> django.conf <span class="kw">import</span> settings
+    <span class="kw">if</span> settings.DEBUG:
+        <span class="kw">return</span> [<span class="st">"Development"</span>, <span class="st">"warning"</span>]
+    <span class="kw">return</span> [<span class="st">"Production"</span>, <span class="st">"danger"</span>]
+
+
+<span class="kw">def</span> <span class="fn">dashboard_callback</span>(request, context):
+    <span class="cm">"""Inject data into admin index template. Must return modified context."""</span>
+    <span class="kw">from</span> myapp.models <span class="kw">import</span> Order, User
+    context.update({
+        <span class="st">"total_users"</span>:    User.objects.count(),
+        <span class="st">"pending_orders"</span>: Order.objects.filter(status=<span class="st">"pending"</span>).count(),
+        <span class="st">"recent_orders"</span>:  Order.objects.order_by(<span class="st">"-created_at"</span>)[:<span class="num">5</span>],
+    })
+    <span class="kw">return</span> context
+
+
+<span class="kw">def</span> <span class="fn">pending_orders_count</span>(request):
+    <span class="cm">"""Return an integer for sidebar badge counts."""</span>
+    <span class="kw">from</span> myapp.models <span class="kw">import</span> Order
+    <span class="kw">return</span> Order.objects.filter(status=<span class="st">"pending"</span>).count()</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="modeladmin">
+    <span class="section-label">Section 05</span>
+    <h2>Registering Models — ModelAdmin</h2>
+    <div class="divider"></div>
+
+    <p>Unfold's <code>ModelAdmin</code> is a drop-in replacement for Django's, with additional options layered on top. All standard Django <code>ModelAdmin</code> options still work exactly as documented.</p>
+
+    <h3>All Unfold-Specific ModelAdmin Options</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — unfold-specific options reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+<span class="kw">from</span> unfold.admin <span class="kw">import</span> ModelAdmin
+
+@admin.register(MyModel)
+<span class="kw">class</span> <span class="nm">MyModelAdmin</span>(ModelAdmin):
+
+    <span class="cm"># ── Layout ────────────────────────────────────────────────────────────────</span>
+    compressed_fields = <span class="hl2">True</span>
+    <span class="cm"># Compact single-column field layout. Good for models with many fields.</span>
+
+    warn_unsaved_form = <span class="hl2">True</span>
+    <span class="cm"># Show a dialog when navigating away from a form with unsaved edits.</span>
+
+    list_fullwidth = <span class="hl2">True</span>
+    <span class="cm"># Changelist table spans the full width of the page (no sidebar gutter).</span>
+
+    list_filter_sheet = <span class="hl2">True</span>
+    <span class="cm"># Default True: filters open in a slide-out sheet from the right.</span>
+    <span class="cm"># Set False: filters render in a traditional sidebar column.</span>
+
+    list_filter_submit = <span class="hl2">True</span>
+    <span class="cm"># REQUIRED when using any filter with a text/number input field.</span>
+    <span class="cm"># Without this, users cannot submit the filter.</span>
+
+    list_horizontal_scrollbar_top = <span class="hl2">True</span>
+    <span class="cm"># Move the horizontal scrollbar to the top of wide tables.</span>
+
+    list_disable_select_all = <span class="hl2">False</span>
+    <span class="cm"># Disable the "select all" checkbox in the changelist header.</span>
+
+    <span class="cm"># ── Readonly field preprocessing ─────────────────────────────────────────</span>
+    readonly_preprocess_fields = {
+        <span class="st">"description"</span>: <span class="st">"html.unescape"</span>,
+        <span class="st">"notes"</span>:       <span class="kw">lambda</span> content: content.strip(),
+        <span class="st">"raw_html"</span>:    <span class="st">"django.utils.html.mark_safe"</span>,
+    }
+
+    <span class="cm"># ── Custom action placement ───────────────────────────────────────────────</span>
+    actions_list        = []  <span class="cm"># Above the changelist results table (global)</span>
+    actions_row         = []  <span class="cm"># Inline in each changelist table row</span>
+    actions_detail      = []  <span class="cm"># At the top of the change form</span>
+    actions_submit_line = []  <span class="cm"># Next to the Save button on the change form</span>
+
+    actions_list_hide_default   = <span class="hl2">False</span>
+    actions_detail_hide_default = <span class="hl2">False</span></code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="display">
+    <span class="section-label">Section 06</span>
+    <h2>The @display Decorator</h2>
+    <div class="divider"></div>
+
+    <p>Unfold provides its own <code>@display</code> decorator that extends Django's built-in <code>@admin.display</code>. It adds visual enhancements for list columns — most notably colored status labels.</p>
+
+    <div class="callout note">
+      <strong>Import from unfold</strong>
+      <p>Import <code>display</code> from <code>unfold.decorators</code>, not from <code>django.contrib.admin</code>. Using the wrong import means you will not get the colored labels.</p>
+    </div>
+
+    <h3>Status Labels with Color Mapping</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — colored status badges</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> unfold.decorators <span class="kw">import</span> display  <span class="cm"># NOT from django.contrib.admin</span>
+
+<span class="kw">class</span> <span class="nm">OrderAdmin</span>(ModelAdmin):
+    list_display = [<span class="st">"order_number"</span>, <span class="st">"show_status"</span>, <span class="st">"has_items"</span>]
+
+    @display(
+        description=<span class="st">"Status"</span>,
+        ordering=<span class="st">"status"</span>,
+        label={
+            <span class="cm"># Map each value to a color</span>
+            <span class="cm"># Available: "success" | "info" | "warning" | "danger"</span>
+            Order.Status.PENDING:   <span class="st">"warning"</span>,
+            Order.Status.CONFIRMED: <span class="st">"info"</span>,
+            Order.Status.SHIPPED:   <span class="st">"info"</span>,
+            Order.Status.DELIVERED: <span class="st">"success"</span>,
+            Order.Status.CANCELLED: <span class="st">"danger"</span>,
+        },
+    )
+    <span class="kw">def</span> <span class="fn">show_status</span>(self, obj):
+        <span class="kw">return</span> obj.status  <span class="cm"># Return the raw value; Unfold looks it up in label map</span>
+
+    <span class="cm"># Return a tuple to show a custom display label alongside the color:</span>
+    <span class="cm"># (value_for_color_lookup, display_text)</span>
+    @display(
+        description=<span class="st">"Payment"</span>,
+        label={<span class="st">"paid"</span>: <span class="st">"success"</span>, <span class="st">"failed"</span>: <span class="st">"danger"</span>, <span class="st">"pending"</span>: <span class="st">"warning"</span>},
+    )
+    <span class="kw">def</span> <span class="fn">show_payment_status</span>(self, obj):
+        <span class="kw">return</span> obj.payment_status, obj.get_payment_status_display()
+
+    <span class="cm"># Two-line cell: primary text, secondary text, optional avatar initials</span>
+    @display(description=<span class="st">"Customer"</span>, header=<span class="hl2">True</span>)
+    <span class="kw">def</span> <span class="fn">show_customer</span>(self, obj):
+        <span class="kw">return</span> [obj.user.get_full_name(), obj.user.email, obj.user.first_name[<span class="num">0</span>]]
+
+    <span class="cm"># Boolean column</span>
+    @display(description=<span class="st">"Has Items"</span>, boolean=<span class="hl2">True</span>)
+    <span class="kw">def</span> <span class="fn">has_items</span>(self, obj):
+        <span class="kw">return</span> obj.items.exists()</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="actions">
+    <span class="section-label">Section 07</span>
+    <h2>Actions</h2>
+    <div class="divider"></div>
+
+    <p>Django admin has one type of action: bulk actions on selected rows. Unfold expands this to four distinct placement options, each serving a different UX purpose.</p>
+
+    <h3>The Four Action Types</h3>
+
+    <div class="action-diagram">
+      <!-- Changelist -->
+      <div class="ad-page">
+        <div class="ad-page-label">Changelist Page</div>
+        <div class="ad-action-bar">
+          <span class="ad-btn list">Export All Orders</span>
+          <span class="ad-btn list">Sync with CRM</span>
+          <span style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;align-self:center;margin-left:0.5rem">← actions_list (global, above table)</span>
+        </div>
+        <table class="ad-table">
+          <tr>
+            <td>Order #1001</td>
+            <td>Pending</td>
+            <td>$49.00</td>
+            <td><span class="ad-btn row ad-row-action">Ship</span></td>
+          </tr>
+          <tr>
+            <td>Order #1002</td>
+            <td>Confirmed</td>
+            <td>$120.00</td>
+            <td><span class="ad-btn row ad-row-action">Ship</span></td>
+          </tr>
+        </table>
+        <div style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:0.5rem;text-align:right">actions_row — per-row button →</div>
+      </div>
+      <!-- Change form -->
+      <div class="ad-page">
+        <div class="ad-page-label">Change Form Page</div>
+        <div class="ad-action-bar">
+          <span class="ad-btn detail">Duplicate Order</span>
+          <span class="ad-btn detail">Send to Warehouse</span>
+          <span style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;align-self:center;margin-left:0.5rem">← actions_detail</span>
+        </div>
+        <div style="padding:0.5rem 0">
+          <span class="ad-form-field">Status: Pending</span>
+          <span class="ad-form-field">User: jane@example.com</span>
+          <span class="ad-form-field">Total: $49.00</span>
+        </div>
+        <div class="ad-save-row">
+          <span class="ad-btn submit" style="background:#1c1a18;color:white;border-color:#1c1a18">Save</span>
+          <span class="ad-btn submit" style="background:var(--surface2);color:var(--ink);border-color:var(--border)">Save and continue</span>
+          <span class="ad-btn submit">Save &amp; Notify</span>
+          <span style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-left:0.25rem">← actions_submit_line</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Defining All Four Action Types</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — all four action types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> unfold.decorators <span class="kw">import</span> action
+<span class="kw">from</span> django.http <span class="kw">import</span> HttpRequest
+<span class="kw">from</span> django.shortcuts <span class="kw">import</span> redirect
+
+@admin.register(Order)
+<span class="kw">class</span> <span class="nm">OrderAdmin</span>(ModelAdmin):
+    actions_list        = [<span class="st">"export_all_orders"</span>]
+    actions_row         = [<span class="st">"mark_shipped"</span>]
+    actions_detail      = [<span class="st">"duplicate_order"</span>]
+    actions_submit_line = [<span class="st">"save_and_notify"</span>]
+
+    <span class="cm"># ── actions_list: global button above the table ─────────────────────────</span>
+    <span class="cm"># Signature: (self, request)</span>
+    @action(description=<span class="st">"Export all"</span>, url_path=<span class="st">"export-all"</span>)
+    <span class="kw">def</span> <span class="fn">export_all_orders</span>(self, request: HttpRequest):
+        <span class="cm"># Do work, then return a response or redirect</span>
+        <span class="kw">return</span> redirect(<span class="st">"admin:myapp_order_changelist"</span>)
+
+    <span class="cm"># ── actions_row: per-row button in the changelist ───────────────────────</span>
+    <span class="cm"># Signature: (self, request, object_id)</span>
+    @action(description=<span class="st">"Ship"</span>, url_path=<span class="st">"ship"</span>)
+    <span class="kw">def</span> <span class="fn">mark_shipped</span>(self, request: HttpRequest, object_id: <span class="nm">int</span>):
+        order = Order.objects.get(pk=object_id)
+        order.status = <span class="st">"shipped"</span>
+        order.save()
+        self.message_user(request, <span class="kw">f</span><span class="st">"Order {object_id} marked as shipped."</span>)
+        <span class="kw">return</span> redirect(<span class="st">"admin:myapp_order_changelist"</span>)
+
+    <span class="cm"># ── actions_detail: top of the change form ─────────────────────────────</span>
+    <span class="cm"># Signature: (self, request, object_id)</span>
+    @action(description=<span class="st">"Duplicate"</span>, url_path=<span class="st">"duplicate"</span>)
+    <span class="kw">def</span> <span class="fn">duplicate_order</span>(self, request: HttpRequest, object_id: <span class="nm">int</span>):
+        order = Order.objects.get(pk=object_id)
+        order.pk = <span class="hl2">None</span>
+        order.save()
+        self.message_user(request, <span class="st">"Order duplicated."</span>)
+        <span class="kw">return</span> redirect(<span class="st">"admin:myapp_order_change"</span>, args=[order.pk])
+
+    <span class="cm"># ── actions_submit_line: next to the Save button ────────────────────────</span>
+    <span class="cm"># Signature: (self, request, obj)  ← receives the MODEL INSTANCE, not id</span>
+    @action(description=<span class="st">"Save &amp; Notify"</span>)
+    <span class="kw">def</span> <span class="fn">save_and_notify</span>(self, request: HttpRequest, obj: Order):
+        obj.save()
+        send_notification.delay(obj.id)
+        self.message_user(request, <span class="st">"Order saved and notification sent."</span>)</code></pre>
+    </div>
+
+    <div class="callout danger">
+      <strong>Signature mismatch = silent failure</strong>
+      <p>Each action type has a different method signature. Using the wrong one causes errors or unexpected behavior. <code>actions_list</code> takes only <code>request</code>. <code>actions_row</code> and <code>actions_detail</code> take <code>request, object_id</code>. <code>actions_submit_line</code> takes <code>request, obj</code> (the model instance). Standard bulk actions take <code>request, queryset</code>.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="filters">
+    <span class="section-label">Section 08</span>
+    <h2>Filters</h2>
+    <div class="divider"></div>
+
+    <p>Unfold extends Django's built-in filter system with richer widgets. Make sure <code>"unfold.contrib.filters"</code> is in <code>INSTALLED_APPS</code>.</p>
+
+    <h3>Available Enhanced Filter Types</h3>
+
+    <div class="data-table" style="font-size:0.83rem">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="background:var(--surface2);padding:0.7rem 1rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Class</th>
+            <th style="background:var(--surface2);padding:0.7rem 1rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">RangeDateFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Date range with a date picker widget</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">RangeDateTimeFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Datetime range with datetime picker</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">RangeNumericFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Numeric range with min/max inputs</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">SliderNumericFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Range slider widget</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">DropdownFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Single-select dropdown</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">MultipleDropdownFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Multi-select checkbox dropdown</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">ChoiceDropdownFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">Dropdown based on field.choices</td></tr>
+          <tr><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">RelatedDropdownFilter</td><td style="padding:0.65rem 1rem;border-bottom:1px solid var(--border);color:#3a3530;font-size:0.85rem">FK/M2M with autocomplete dropdown</td></tr>
+          <tr><td style="padding:0.65rem 1rem;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--accent)">AutocompleteFilter</td><td style="padding:0.65rem 1rem;color:#3a3530;font-size:0.85rem">Searchable autocomplete filter</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — combining filter types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> unfold.contrib.filters.admin <span class="kw">import</span> (
+    RangeDateFilter,
+    RangeNumericFilter,
+    ChoiceDropdownFilter,
+    MultipleDropdownFilter,
+    RelatedDropdownFilter,
+)
+
+@admin.register(Order)
+<span class="kw">class</span> <span class="nm">OrderAdmin</span>(ModelAdmin):
+    <span class="cm"># IMPORTANT: set list_filter_submit = True for any input-based filter</span>
+    list_filter_submit = <span class="hl2">True</span>
+
+    list_filter = [
+        (<span class="st">"created_at"</span>,    RangeDateFilter),       <span class="cm"># Date range picker</span>
+        (<span class="st">"total_amount"</span>,  RangeNumericFilter),    <span class="cm"># Numeric min/max</span>
+        (<span class="st">"status"</span>,        ChoiceDropdownFilter),  <span class="cm"># Dropdown from field.choices</span>
+        (<span class="st">"category"</span>,      MultipleDropdownFilter),<span class="cm"># Multi-select</span>
+        (<span class="st">"user"</span>,          RelatedDropdownFilter), <span class="cm"># FK autocomplete</span>
+        <span class="st">"is_active"</span>,  <span class="cm"># Standard boolean — styled automatically by Unfold</span>
+    ]</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 9 -->
+  <section id="tabs">
+    <span class="section-label">Section 09</span>
+    <h2>Tabs — Organizing Complex Forms</h2>
+    <div class="divider"></div>
+
+    <p>Tabs let you split a complex change form into organized sections without making users scroll through a massive page.</p>
+
+    <h3>Fieldset Tabs (Within a Single Change Form)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — fieldset tabs</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>@admin.register(UserProfile)
+<span class="kw">class</span> <span class="nm">UserProfileAdmin</span>(ModelAdmin):
+    fieldsets = (
+        (<span class="st">"Personal Info"</span>, {
+            <span class="st">"fields"</span>: (<span class="st">"first_name"</span>, <span class="st">"last_name"</span>, <span class="st">"email"</span>, <span class="st">"phone"</span>),
+            <span class="st">"classes"</span>: (<span class="st">"tab"</span>,),  <span class="cm"># ← this fieldset becomes a tab</span>
+        }),
+        (<span class="st">"Address"</span>, {
+            <span class="st">"fields"</span>: (<span class="st">"street"</span>, <span class="st">"city"</span>, <span class="st">"country"</span>, <span class="st">"postal_code"</span>),
+            <span class="st">"classes"</span>: (<span class="st">"tab"</span>,),
+        }),
+        (<span class="st">"Settings"</span>, {
+            <span class="st">"fields"</span>: (<span class="st">"notifications_enabled"</span>, <span class="st">"theme_preference"</span>),
+            <span class="st">"classes"</span>: (<span class="st">"tab"</span>,),
+        }),
+    )</code></pre>
+    </div>
+
+    <h3>Inline Tabs</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — inline tabs</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> unfold.contrib.inlines.admin <span class="kw">import</span> TabularInline
+
+<span class="kw">class</span> <span class="nm">OrderItemInline</span>(TabularInline):
+    model = OrderItem
+    tab = <span class="hl2">True</span>   <span class="cm"># ← this inline becomes a tab panel</span>
+
+<span class="kw">class</span> <span class="nm">OrderNoteInline</span>(TabularInline):
+    model = OrderNote
+    tab = <span class="hl2">True</span>
+
+@admin.register(Order)
+<span class="kw">class</span> <span class="nm">OrderAdmin</span>(ModelAdmin):
+    inlines = [OrderItemInline, OrderNoteInline]</code></pre>
+    </div>
+
+    <h3>Global Navigation Tabs (Linking Related Models)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — global tab navigation</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>UNFOLD = {
+    <span class="st">"TABS"</span>: [
+        {
+            <span class="cm"># These models show the tab bar when viewed</span>
+            <span class="st">"models"</span>: [<span class="st">"myapp.order"</span>, <span class="st">"myapp.orderitem"</span>, <span class="st">"myapp.orderreturn"</span>],
+            <span class="st">"items"</span>: [
+                {
+                    <span class="st">"title"</span>: _(<span class="st">"Orders"</span>),
+                    <span class="st">"link"</span>:  reverse_lazy(<span class="st">"admin:myapp_order_changelist"</span>),
+                },
+                {
+                    <span class="st">"title"</span>: _(<span class="st">"Order Items"</span>),
+                    <span class="st">"link"</span>:  reverse_lazy(<span class="st">"admin:myapp_orderitem_changelist"</span>),
+                },
+                {
+                    <span class="st">"title"</span>: _(<span class="st">"Returns"</span>),
+                    <span class="st">"link"</span>:  reverse_lazy(<span class="st">"admin:myapp_orderreturn_changelist"</span>),
+                },
+            ],
+        },
+    ],
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section id="inlines">
+    <span class="section-label">Section 10</span>
+    <h2>Inlines</h2>
+    <div class="divider"></div>
+
+    <p>Unfold provides enhanced inline classes from <code>unfold.contrib.inlines</code>. Add <code>"unfold.contrib.inlines"</code> to <code>INSTALLED_APPS</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — all inline types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> unfold.contrib.inlines.admin <span class="kw">import</span> (
+    TabularInline,
+    StackedInline,
+    NonrelatedTabularInline,   <span class="cm"># Inline showing non-related model rows</span>
+    NonrelatedStackedInline,
+    SortableTabularInline,     <span class="cm"># Drag-and-drop row sorting</span>
+    SortableStackedInline,
+)
+
+<span class="cm"># ── Sortable inline ──────────────────────────────────────────────────────────</span>
+<span class="kw">class</span> <span class="nm">MenuItemInline</span>(SortableTabularInline):
+    model = MenuItem
+    fields = [<span class="st">"name"</span>, <span class="st">"url"</span>, <span class="st">"order"</span>]
+    sortable_field_name = <span class="st">"order"</span>   <span class="cm"># Must match a model field</span>
+
+<span class="cm"># ── Paginated inline ─────────────────────────────────────────────────────────</span>
+<span class="kw">class</span> <span class="nm">OrderItemInline</span>(TabularInline):
+    model = OrderItem
+    per_page = <span class="num">10</span>   <span class="cm"># Show 10 items per page; avoids loading hundreds of rows</span>
+
+<span class="cm"># ── Non-related inline ───────────────────────────────────────────────────────</span>
+<span class="cm"># Display rows from a completely unrelated model on a change form</span>
+<span class="kw">class</span> <span class="nm">UserAuditLogInline</span>(NonrelatedTabularInline):
+    model = AuditLog
+    fields = [<span class="st">"action"</span>, <span class="st">"timestamp"</span>, <span class="st">"ip_address"</span>]
+    readonly_fields = [<span class="st">"action"</span>, <span class="st">"timestamp"</span>, <span class="st">"ip_address"</span>]
+
+    <span class="kw">def</span> <span class="fn">get_form_queryset</span>(self, obj):
+        <span class="cm"># obj is the parent object being viewed</span>
+        <span class="kw">return</span> AuditLog.objects.filter(user=obj).order_by(<span class="st">"-timestamp"</span>)[:<span class="num">20</span>]
+
+    <span class="kw">def</span> <span class="fn">save_new_instance</span>(self, parent, instance):
+        <span class="cm"># Link new inline rows to the parent</span>
+        instance.user = parent
+        instance.save()</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 11 -->
+  <section id="widgets">
+    <span class="section-label">Section 11</span>
+    <h2>Widgets</h2>
+    <div class="divider"></div>
+
+    <p>Unfold provides two extra widgets for special field types. Add <code>"unfold.contrib.forms"</code> to <code>INSTALLED_APPS</code>.</p>
+
+    <h3>WYSIWYG Widget (Trix Editor)</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — WYSIWYG for all TextFields</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.db <span class="kw">import</span> models
+<span class="kw">from</span> unfold.contrib.forms.widgets <span class="kw">import</span> WysiwygWidget
+
+@admin.register(Article)
+<span class="kw">class</span> <span class="nm">ArticleAdmin</span>(ModelAdmin):
+    <span class="cm"># Apply to all TextFields in this model</span>
+    formfield_overrides = {
+        models.TextField: {<span class="st">"widget"</span>: WysiwygWidget},
+    }</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — WYSIWYG for specific fields only</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django <span class="kw">import</span> forms
+<span class="kw">from</span> unfold.contrib.forms.widgets <span class="kw">import</span> WysiwygWidget
+
+<span class="kw">class</span> <span class="nm">ArticleAdminForm</span>(forms.ModelForm):
+    <span class="kw">class</span> <span class="nm">Meta</span>:
+        model = Article
+        fields = <span class="st">"__all__"</span>
+        widgets = {
+            <span class="st">"body"</span>:    WysiwygWidget(),
+            <span class="st">"summary"</span>: WysiwygWidget(),
+        }
+
+@admin.register(Article)
+<span class="kw">class</span> <span class="nm">ArticleAdmin</span>(ModelAdmin):
+    form = ArticleAdminForm</code></pre>
+    </div>
+
+    <h3>Conditional Fields (Show/Hide)</h3>
+
+    <p>Make fields conditionally visible based on the value of another field — no JavaScript to write, configured declaratively:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>admin.py — conditional field visibility</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>@admin.register(Notification)
+<span class="kw">class</span> <span class="nm">NotificationAdmin</span>(ModelAdmin):
+    fieldsets = (
+        (<span class="hl2">None</span>, {
+            <span class="st">"fields"</span>: (
+                <span class="st">"type"</span>,           <span class="cm"># The controlling field</span>
+                <span class="st">"email_address"</span>,  <span class="cm"># Only visible when type == "email"</span>
+                <span class="st">"phone_number"</span>,   <span class="cm"># Only visible when type == "sms"</span>
+                <span class="st">"webhook_url"</span>,    <span class="cm"># Only visible when type == "webhook"</span>
+            )
+        }),
+    )
+
+    <span class="cm"># Format: {"field_name": "controlling_field__exact=value"}</span>
+    conditional_fields = {
+        <span class="st">"email_address"</span>: <span class="st">"type__exact=email"</span>,
+        <span class="st">"phone_number"</span>:  <span class="st">"type__exact=sms"</span>,
+        <span class="st">"webhook_url"</span>:   <span class="st">"type__exact=webhook"</span>,
+    }</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 12 -->
+  <section id="dashboard">
+    <span class="section-label">Section 12</span>
+    <h2>Building a Custom Dashboard</h2>
+    <div class="divider"></div>
+
+    <p>By default, the Django admin index shows a list of registered apps. Unfold makes it easy to replace this with a genuinely useful dashboard showing real business data.</p>
+
+    <h3>Step 1 — Configure the Callback</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py</span></div>
+      <pre><code>UNFOLD = {
+    <span class="st">"DASHBOARD_CALLBACK"</span>: <span class="st">"myapp.admin_config.dashboard_callback"</span>,
+}</code></pre>
+    </div>
+
+    <h3>Step 2 — Write the Callback</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span>myapp/admin_config.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.utils <span class="kw">import</span> timezone
+<span class="kw">from</span> django.db.models <span class="kw">import</span> Sum
+
+<span class="kw">def</span> <span class="fn">dashboard_callback</span>(request, context):
+    <span class="kw">from</span> myapp.models <span class="kw">import</span> Order, User, Product
+
+    today = timezone.now().date()
+    thirty_days_ago = today - timezone.timedelta(days=<span class="num">30</span>)
+
+    context.update({
+        <span class="st">"kpis"</span>: {
+            <span class="st">"total_users"</span>:  User.objects.count(),
+            <span class="st">"active_users"</span>: User.objects.filter(is_active=<span class="hl2">True</span>).count(),
+            <span class="st">"orders_today"</span>: Order.objects.filter(created_at__date=today).count(),
+            <span class="st">"revenue_30d"</span>:  Order.objects
+                               .filter(created_at__date__gte=thirty_days_ago)
+                               .aggregate(total=Sum(<span class="st">"total_amount"</span>))[<span class="st">"total"</span>] <span class="kw">or</span> <span class="num">0</span>,
+        },
+        <span class="st">"recent_orders"</span>:      Order.objects.select_related(<span class="st">"user"</span>).order_by(<span class="st">"-created_at"</span>)[:<span class="num">10</span>],
+        <span class="st">"low_stock_products"</span>: Product.objects.filter(stock__lt=<span class="num">10</span>).order_by(<span class="st">"stock"</span>)[:<span class="num">5</span>],
+    })
+    <span class="kw">return</span> context</code></pre>
+    </div>
+
+    <h3>Step 3 — Create the Template</h3>
+
+    <p>Create <code>templates/admin/index.html</code>. Django (and Unfold) find this before the default admin index template.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>templates/admin/index.html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>{% extends "admin/index.html" %}
+{% load i18n unfold %}
+
+{% block content %}
+
+{# Stat cards row #}
+{% component "unfold/components/flex.html" with class="gap-4 mb-8" %}
+    {% component "unfold/components/card.html" %}
+        {% component "unfold/components/title.html" %}Total Users{% endcomponent %}
+        {% component "unfold/components/text.html" %}{{ kpis.total_users }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" %}
+        {% component "unfold/components/title.html" %}Orders Today{% endcomponent %}
+        {% component "unfold/components/text.html" %}{{ kpis.orders_today }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" %}
+        {% component "unfold/components/title.html" %}30-Day Revenue{% endcomponent %}
+        {% component "unfold/components/text.html" %}${{ kpis.revenue_30d|floatformat:2 }}{% endcomponent %}
+    {% endcomponent %}
+{% endcomponent %}
+
+{# Recent orders table #}
+{% component "unfold/components/card.html" %}
+    {% component "unfold/components/title.html" %}Recent Orders{% endcomponent %}
+
+    {% component "unfold/components/table.html" with card_included=1 %}
+        {% component "unfold/components/table_header.html" %}
+            {% component "unfold/components/table_row.html" %}
+                {% for label in "Order,Customer,Status,Amount,Date"|split:"," %}
+                    {% component "unfold/components/table_header_cell.html" %}
+                        {{ label }}
+                    {% endcomponent %}
+                {% endfor %}
+            {% endcomponent %}
+        {% endcomponent %}
+
+        {% component "unfold/components/table_body.html" %}
+            {% for order in recent_orders %}
+                {% component "unfold/components/table_row.html" %}
+                    {% component "unfold/components/table_cell.html" %}{{ order.id }}{% endcomponent %}
+                    {% component "unfold/components/table_cell.html" %}{{ order.user.email }}{% endcomponent %}
+                    {% component "unfold/components/table_cell.html" %}{{ order.get_status_display }}{% endcomponent %}
+                    {% component "unfold/components/table_cell.html" %}${{ order.total_amount }}{% endcomponent %}
+                    {% component "unfold/components/table_cell.html" %}{{ order.created_at|date:"M d, Y" }}{% endcomponent %}
+                {% endcomponent %}
+            {% endfor %}
+        {% endcomponent %}
+    {% endcomponent %}
+{% endcomponent %}
+
+{% endblock %}</code></pre>
+    </div>
+
+    <h3>Available Components</h3>
+
+    <div class="component-grid">
+      <div class="comp-item"><span class="comp-name">card.html</span><span class="comp-desc">White rounded card container</span></div>
+      <div class="comp-item"><span class="comp-name">flex.html</span><span class="comp-desc">Flexbox row container with gap support</span></div>
+      <div class="comp-item"><span class="comp-name">title.html</span><span class="comp-desc">Section title text</span></div>
+      <div class="comp-item"><span class="comp-name">text.html</span><span class="comp-desc">Body / metric value text</span></div>
+      <div class="comp-item"><span class="comp-name">table.html</span><span class="comp-desc">Data table wrapper</span></div>
+      <div class="comp-item"><span class="comp-name">table_header.html</span><span class="comp-desc">Table &lt;thead&gt;</span></div>
+      <div class="comp-item"><span class="comp-name">table_body.html</span><span class="comp-desc">Table &lt;tbody&gt;</span></div>
+      <div class="comp-item"><span class="comp-name">table_row.html</span><span class="comp-desc">A &lt;tr&gt; element</span></div>
+      <div class="comp-item"><span class="comp-name">table_header_cell.html</span><span class="comp-desc">A &lt;th&gt; element</span></div>
+      <div class="comp-item"><span class="comp-name">table_cell.html</span><span class="comp-desc">A &lt;td&gt; element</span></div>
+      <div class="comp-item"><span class="comp-name">chart.html</span><span class="comp-desc">Chart.js chart wrapper</span></div>
+      <div class="comp-item"><span class="comp-name">progress.html</span><span class="comp-desc">Progress bar</span></div>
+      <div class="comp-item"><span class="comp-name">button.html</span><span class="comp-desc">Styled button element</span></div>
+      <div class="comp-item"><span class="comp-name">layer.html</span><span class="comp-desc">Section layer with padding</span></div>
+    </div>
+  </section>
+
+  <!-- SECTION 13 -->
+  <section id="sidebar">
+    <span class="section-label">Section 13</span>
+    <h2>Sidebar Navigation</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — full sidebar configuration</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>UNFOLD = {
+    <span class="st">"SIDEBAR"</span>: {
+        <span class="st">"show_search"</span>:           <span class="hl2">True</span>,   <span class="cm"># Search input in sidebar</span>
+        <span class="st">"show_all_applications"</span>: <span class="hl2">False</span>,  <span class="cm"># If True, auto-list all apps (ignores navigation)</span>
+        <span class="st">"navigation"</span>: [
+            {
+                <span class="st">"title"</span>:       _(<span class="st">"Dashboard"</span>),
+                <span class="st">"separator"</span>:   <span class="hl2">False</span>,  <span class="cm"># Draw a horizontal line above this group</span>
+                <span class="st">"collapsible"</span>: <span class="hl2">False</span>,  <span class="cm"># Whether this group can be collapsed</span>
+                <span class="st">"items"</span>: [
+                    {
+                        <span class="st">"title"</span>:      _(<span class="st">"Overview"</span>),
+                        <span class="st">"link"</span>:       reverse_lazy(<span class="st">"admin:index"</span>),
+                        <span class="st">"badge"</span>:      <span class="st">"myapp.admin_config.pending_orders_count"</span>,
+                        <span class="st">"permission"</span>: <span class="st">"myapp.admin_config.can_view_dashboard"</span>,
+                    },
+                ],
+            },
+            {
+                <span class="st">"title"</span>:       _(<span class="st">"Orders"</span>),
+                <span class="st">"separator"</span>:   <span class="hl2">True</span>,
+                <span class="st">"collapsible"</span>: <span class="hl2">True</span>,
+                <span class="st">"items"</span>: [
+                    {
+                        <span class="st">"title"</span>: _(<span class="st">"All Orders"</span>),
+                        <span class="st">"link"</span>:  reverse_lazy(<span class="st">"admin:myapp_order_changelist"</span>),
+                        <span class="st">"badge"</span>: <span class="st">"myapp.admin_config.pending_orders_count"</span>,
+                    },
+                    {
+                        <span class="st">"title"</span>: _(<span class="st">"Returns"</span>),
+                        <span class="st">"link"</span>:  reverse_lazy(<span class="st">"admin:myapp_orderreturn_changelist"</span>),
+                    },
+                ],
+            },
+            {
+                <span class="st">"title"</span>: _(<span class="st">"External Links"</span>),
+                <span class="st">"separator"</span>: <span class="hl2">True</span>,
+                <span class="st">"items"</span>: [
+                    {
+                        <span class="st">"title"</span>: _(<span class="st">"API Docs"</span>),
+                        <span class="st">"link"</span>:  <span class="st">"https://api.mysite.com/docs/"</span>,
+                        <span class="cm"># External links open in a new tab automatically</span>
+                    },
+                ],
+            },
+        ],
+    },
+
+    <span class="cm"># Site dropdown — appears when clicking the site title in the sidebar</span>
+    <span class="st">"SITE_DROPDOWN"</span>: [
+        {<span class="st">"title"</span>: _(<span class="st">"Main Site"</span>),   <span class="st">"link"</span>: <span class="st">"https://mysite.com"</span>},
+        {<span class="st">"title"</span>: _(<span class="st">"Staging"</span>),     <span class="st">"link"</span>: <span class="st">"https://staging.mysite.com/admin/"</span>},
+        {<span class="st">"title"</span>: _(<span class="st">"Docs"</span>),        <span class="st">"link"</span>: <span class="st">"https://docs.mysite.com"</span>},
+    ],
+}</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Always use reverse_lazy()</strong>
+      <p>Use <code>reverse_lazy()</code> (not <code>reverse()</code>) for all <code>"link"</code> values in the sidebar. The settings dict is evaluated at import time, before Django's URL patterns are fully loaded. <code>reverse()</code> will fail; <code>reverse_lazy()</code> defers the lookup.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 14 -->
+  <section id="theming">
+    <span class="section-label">Section 14</span>
+    <h2>Theming and Colors</h2>
+    <div class="divider"></div>
+
+    <p>The primary color drives buttons, links, active states, and highlighted elements. Define it using OKLCH color notation — the same format Tailwind CSS v4 uses.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>settings.py — colors in OKLCH format</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>UNFOLD = {
+    <span class="st">"COLORS"</span>: {
+        <span class="st">"primary"</span>: {
+            <span class="cm"># Format: oklch(lightness% chroma hue)</span>
+            <span class="cm"># Generate all 11 shades at https://oklch.com/</span>
+            <span class="st">"50"</span>:  <span class="st">"oklch(97.7% .014 250)"</span>,   <span class="cm"># Very light tint</span>
+            <span class="st">"100"</span>: <span class="st">"oklch(94.6% .033 250)"</span>,
+            <span class="st">"200"</span>: <span class="st">"oklch(90.2% .063 250)"</span>,
+            <span class="st">"300"</span>: <span class="st">"oklch(82.7% .119 250)"</span>,
+            <span class="st">"400"</span>: <span class="st">"oklch(71.4% .203 250)"</span>,
+            <span class="st">"500"</span>: <span class="st">"oklch(58.5% .275 250)"</span>,   <span class="cm"># Main brand color</span>
+            <span class="st">"600"</span>: <span class="st">"oklch(52.3% .266 250)"</span>,
+            <span class="st">"700"</span>: <span class="st">"oklch(44.4% .234 250)"</span>,
+            <span class="st">"800"</span>: <span class="st">"oklch(38.8% .197 250)"</span>,
+            <span class="st">"900"</span>: <span class="st">"oklch(33.5% .157 250)"</span>,
+            <span class="st">"950"</span>: <span class="st">"oklch(27.1% .119 250)"</span>,   <span class="cm"># Very dark shade</span>
+        },
+    },
+    <span class="st">"BORDER_RADIUS"</span>: <span class="st">"4px"</span>,  <span class="cm"># "0px" = sharp corners. Applied globally.</span>
+}</code></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>Converting your brand color</strong>
+      <p>Visit <a href="https://oklch.com/" target="_blank">oklch.com</a> and paste your hex color to get the OKLCH value. Then generate all 11 shades (50 through 950) by keeping the same chroma and hue but varying lightness from ~97% down to ~27%.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 15 -->
+  <section id="custompages">
+    <span class="section-label">Section 15</span>
+    <h2>Custom Pages</h2>
+    <div class="divider"></div>
+
+    <div class="code-block">
+      <div class="code-header"><span>myapp/admin_views.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.shortcuts <span class="kw">import</span> render
+<span class="kw">from</span> django.contrib.admin.views.decorators <span class="kw">import</span> staff_member_required
+<span class="kw">from</span> django.utils.decorators <span class="kw">import</span> method_decorator
+<span class="kw">from</span> django.views <span class="kw">import</span> View
+
+@method_decorator(staff_member_required, name=<span class="st">"dispatch"</span>)
+<span class="kw">class</span> <span class="nm">RevenueReportView</span>(View):
+    <span class="kw">def</span> <span class="fn">get</span>(self, request):
+        <span class="kw">from</span> myapp.models <span class="kw">import</span> Order
+        <span class="kw">from</span> django.db.models <span class="kw">import</span> Sum
+
+        monthly_revenue = (
+            Order.objects
+            .values(<span class="st">"created_at__year"</span>, <span class="st">"created_at__month"</span>)
+            .annotate(total=Sum(<span class="st">"total_amount"</span>))
+            .order_by(<span class="st">"created_at__year"</span>, <span class="st">"created_at__month"</span>)
+        )
+
+        <span class="kw">return</span> render(request, <span class="st">"admin/revenue_report.html"</span>, {
+            <span class="st">"monthly_revenue"</span>: monthly_revenue,
+            <span class="st">"title"</span>:           <span class="st">"Revenue Report"</span>,
+            <span class="st">"has_permission"</span>:  <span class="hl2">True</span>,
+        })</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>templates/admin/revenue_report.html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code>{% extends "admin/base_site.html" %}
+{% load i18n unfold %}
+
+{% block content %}
+{% component "unfold/components/card.html" %}
+    {% component "unfold/components/title.html" %}
+        Monthly Revenue
+    {% endcomponent %}
+    {% for row in monthly_revenue %}
+        &lt;p&gt;{{ row.created_at__year }}/{{ row.created_at__month }}: ${{ row.total }}&lt;/p&gt;
+    {% endfor %}
+{% endcomponent %}
+{% endblock %}</code></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 16 -->
+  <section id="useradmin">
+    <span class="section-label">Section 16</span>
+    <h2>User & Group Admin Setup</h2>
+    <div class="divider"></div>
+
+    <p>The default Django User and Group admin pages need special handling. If you simply inherit from Unfold's <code>ModelAdmin</code>, the password change forms will be unstyled. Unregister the defaults and re-register with Unfold's form classes:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>myapp/admin.py — user and group admin</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><code><span class="kw">from</span> django.contrib <span class="kw">import</span> admin
+<span class="kw">from</span> django.contrib.auth.admin <span class="kw">import</span> UserAdmin <span class="kw">as</span> BaseUserAdmin, GroupAdmin <span class="kw">as</span> BaseGroupAdmin
+<span class="kw">from</span> django.contrib.auth.models <span class="kw">import</span> User, Group
+<span class="kw">from</span> unfold.admin <span class="kw">import</span> ModelAdmin
+<span class="kw">from</span> unfold.forms <span class="kw">import</span> AdminPasswordChangeForm, UserChangeForm, UserCreationForm
+
+<span class="cm"># Unregister the defaults</span>
+admin.site.unregister(User)
+admin.site.unregister(Group)
+
+@admin.register(User)
+<span class="kw">class</span> <span class="nm">UserAdmin</span>(BaseUserAdmin, ModelAdmin):
+    form = UserChangeForm
+    add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
+    <span class="cm"># You can add all the normal ModelAdmin options on top</span>
+    list_display    = [<span class="st"></span>

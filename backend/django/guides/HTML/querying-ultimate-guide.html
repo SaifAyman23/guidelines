@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>django-prometheus — The Complete Guide</title>
+<title>The Ultimate Django Querying Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -42,11 +42,10 @@
     line-height: 1.75;
   }
 
-  /* ── MASTHEAD ───────────────────────────────────────────────────── */
+  /* ── MASTHEAD ── */
   .masthead {
     background: var(--ink);
     color: var(--paper);
-    padding: 0;
     position: relative;
     overflow: hidden;
   }
@@ -59,7 +58,7 @@
       repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
   }
   .masthead-inner {
-    max-width: 1100px;
+    max-width: 1140px;
     margin: 0 auto;
     padding: 3rem 3rem 0;
     position: relative;
@@ -100,7 +99,7 @@
   }
   .masthead-title h1 {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(3rem, 7vw, 6rem);
+    font-size: clamp(2.6rem, 6vw, 5.2rem);
     font-weight: 900;
     line-height: 0.92;
     letter-spacing: -0.02em;
@@ -112,7 +111,7 @@
     display: block;
   }
   .masthead-subtitle {
-    max-width: 320px;
+    max-width: 340px;
     padding-bottom: 0.5rem;
   }
   .masthead-subtitle p {
@@ -122,15 +121,13 @@
     color: rgba(250,247,242,0.6);
     margin: 0;
   }
-  .masthead-subtitle p + p {
-    margin-top: 0.75rem;
-  }
+  .masthead-subtitle p + p { margin-top: 0.75rem; }
   .masthead-rule {
     height: 6px;
     background: linear-gradient(90deg, var(--gold) 0%, var(--orange) 50%, var(--red) 100%);
   }
 
-  /* ── NAV STRIP ─────────────────────────────────────────────────── */
+  /* ── NAV ── */
   nav {
     background: var(--paper-warm);
     border-bottom: 2px solid var(--ink);
@@ -140,37 +137,33 @@
     padding: 0 3rem;
   }
   .nav-inner {
-    max-width: 1100px;
+    max-width: 1140px;
     margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: 0;
     overflow-x: auto;
     scrollbar-width: none;
   }
   .nav-inner::-webkit-scrollbar { display: none; }
   nav a {
     font-family: 'Syne', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink-faint);
     text-decoration: none;
-    padding: 0.85rem 1rem;
+    padding: 0.85rem 0.9rem;
     white-space: nowrap;
     border-bottom: 3px solid transparent;
     transition: all 0.15s;
     margin-bottom: -2px;
   }
-  nav a:hover {
-    color: var(--ink);
-    border-bottom-color: var(--gold);
-  }
+  nav a:hover { color: var(--ink); border-bottom-color: var(--gold); }
 
-  /* ── LAYOUT ─────────────────────────────────────────────────────── */
+  /* ── LAYOUT ── */
   .page {
-    max-width: 1100px;
+    max-width: 1140px;
     margin: 0 auto;
     padding: 4rem 3rem 8rem;
     display: grid;
@@ -179,7 +172,7 @@
     align-items: start;
   }
 
-  /* ── SIDEBAR ─────────────────────────────────────────────────────── */
+  /* ── SIDEBAR ── */
   .sidebar {
     position: sticky;
     top: 52px;
@@ -196,14 +189,8 @@
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
   }
-  .sidebar ol {
-    list-style: none;
-    counter-reset: toc;
-  }
-  .sidebar ol li {
-    counter-increment: toc;
-    margin-bottom: 0.1rem;
-  }
+  .sidebar ol { list-style: none; counter-reset: toc; }
+  .sidebar ol li { counter-increment: toc; margin-bottom: 0.1rem; }
   .sidebar ol li a {
     font-family: 'Syne', sans-serif;
     font-size: 0.72rem;
@@ -226,16 +213,8 @@
     color: var(--rule-dark);
     flex-shrink: 0;
   }
-  .sidebar ol li a:hover {
-    color: var(--ink);
-    border-left-color: var(--gold);
-    padding-left: 0.9rem;
-  }
-  .sidebar-divider {
-    height: 1px;
-    background: var(--rule);
-    margin: 1.5rem 0;
-  }
+  .sidebar ol li a:hover { color: var(--ink); border-left-color: var(--gold); padding-left: 0.9rem; }
+  .sidebar-divider { height: 1px; background: var(--rule); margin: 1.5rem 0; }
   .sidebar-note {
     font-family: 'Crimson Pro', serif;
     font-size: 0.85rem;
@@ -244,20 +223,11 @@
     line-height: 1.5;
   }
 
-  /* ── MAIN CONTENT ─────────────────────────────────────────────────── */
+  /* ── MAIN CONTENT ── */
   main { min-width: 0; }
+  section { margin-bottom: 5rem; scroll-margin-top: 60px; }
 
-  section {
-    margin-bottom: 5rem;
-    scroll-margin-top: 60px;
-  }
-
-  .section-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-  }
+  .section-eyebrow { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
   .section-num {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.65rem;
@@ -294,17 +264,8 @@
     gap: 1rem;
     margin: 1rem 0 2rem;
   }
-  .section-rule .line {
-    height: 2px;
-    background: var(--ink);
-    flex: 1;
-  }
-  .section-rule .dot {
-    width: 6px;
-    height: 6px;
-    background: var(--gold);
-    border-radius: 50%;
-  }
+  .section-rule .line { height: 2px; background: var(--ink); flex: 1; }
+  .section-rule .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
 
   h3 {
     font-family: 'Syne', sans-serif;
@@ -328,12 +289,7 @@
     margin-bottom: 0.5rem;
   }
 
-  p {
-    color: var(--ink-light);
-    margin-bottom: 1.2rem;
-    font-size: 1rem;
-  }
-
+  p { color: var(--ink-light); margin-bottom: 1.2rem; font-size: 1rem; }
   strong { color: var(--ink); font-weight: 600; }
 
   code {
@@ -346,7 +302,7 @@
     color: var(--red);
   }
 
-  /* ── CODE BLOCKS ─────────────────────────────────────────────────── */
+  /* ── CODE BLOCKS ── */
   .code-block {
     margin: 1.75rem 0;
     border: 1px solid var(--rule-dark);
@@ -394,23 +350,18 @@
   }
   pre code { background: none; border: none; padding: 0; color: inherit; font-size: 1em; }
 
-  .k  { color: #e8956d; }
-  .s  { color: #98c379; }
-  .n  { color: #7ec8e3; }
-  .m  { color: #e5c07b; }
-  .c  { color: #4a4035; font-style: italic; }
-  .hl { color: var(--gold); }
-  .hl2{ color: #7ec8e3; }
-  .hl3{ color: #98c379; }
-  .hl4{ color: #e8956d; }
-  .comment-line { color: #4a4035; font-style: italic; }
-  .pq { color: #c678dd; }
-  .fn { color: #c678dd; }
-  .label-sel { color: #98c379; }
-  .op { color: var(--gold); }
-  .num { color: #e5c07b; }
+  /* Syntax highlight classes */
+  .kw  { color: #e8956d; }   /* keyword */
+  .st  { color: #98c379; }   /* string */
+  .cm  { color: #4a4035; font-style: italic; }  /* comment */
+  .fn  { color: #c678dd; }   /* function/class name */
+  .nm  { color: #e5c07b; }   /* number */
+  .op  { color: #c9a227; }   /* operator */
+  .at  { color: #7ec8e3; }   /* attribute / variable */
+  .dc  { color: #98c379; }   /* decorator / string value */
+  .tp  { color: #e8956d; }   /* type */
 
-  /* ── CALLOUTS ─────────────────────────────────────────────────────── */
+  /* ── CALLOUTS ── */
   .callout {
     border: 1px solid;
     border-left: 4px solid;
@@ -439,7 +390,7 @@
   .callout.purple  { background: var(--purple-light); border-color: var(--purple); }
   .callout.purple strong { color: var(--purple); }
 
-  /* ── TABLES ─────────────────────────────────────────────────────── */
+  /* ── TABLES ── */
   .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -473,12 +424,9 @@
     color: var(--red);
     white-space: nowrap;
   }
-  .data-table td:nth-child(2) {
-    color: var(--purple);
-    font-size: 0.82rem;
-  }
+  .data-table td code { font-size: 0.75rem; }
 
-  /* ── PULL QUOTE ─────────────────────────────────────────────────── */
+  /* ── PULL QUOTE ── */
   .pull-quote {
     border-left: 4px solid var(--gold);
     border-right: 4px solid var(--gold);
@@ -489,296 +437,34 @@
   }
   .pull-quote p {
     font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     font-style: italic;
     line-height: 1.4;
     color: var(--ink);
     margin: 0;
   }
 
-  /* ── METRIC CARDS ─────────────────────────────────────────────────── */
-  .metric-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-    margin: 2rem 0;
-  }
-  .metric-card {
-    border: 1px solid var(--rule-dark);
-    padding: 1.5rem;
-    position: relative;
-    background: white;
-    box-shadow: 2px 2px 0 var(--rule);
-  }
-  .metric-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
-  .metric-card.counter::before { background: var(--amber); }
-  .metric-card.gauge::before   { background: var(--blue); }
-  .metric-card.histo::before   { background: var(--green); }
-  .metric-card.summ::before    { background: var(--purple); }
-  .metric-card h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: 0;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    color: var(--ink);
-  }
-  .metric-card.counter h4 { color: var(--amber); }
-  .metric-card.gauge   h4 { color: var(--blue); }
-  .metric-card.histo   h4 { color: var(--green); }
-  .metric-card.summ    h4 { color: var(--purple); }
-  .metric-card p { font-size: 0.9rem; color: var(--ink-faint); margin-bottom: 0.75rem; }
-  .metric-card .use { font-size: 0.83rem; color: var(--ink-light); }
-  .metric-card .use strong { font-size: 0.83rem; color: var(--ink); }
-  .metric-card .use + .use { margin-top: 0.35rem; }
-
-  /* ── TWO COL ─────────────────────────────────────────────────────── */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.75rem 0; }
-  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } .metric-grid { grid-template-columns: 1fr; } }
-
-  .card {
-    border: 1px solid var(--rule-dark);
-    padding: 1.5rem;
-    background: white;
-    box-shadow: 2px 2px 0 var(--rule);
-  }
-  .card h4 {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--rule);
-    margin-bottom: 1rem;
-    margin-top: 0;
-  }
-  .card ul { list-style: none; }
-  .card ul li {
-    padding: 0.3rem 0;
-    font-size: 0.88rem;
-    color: var(--ink-faint);
-    display: flex;
-    gap: 0.6rem;
-  }
-  .card ul li::before { content: '→'; color: var(--rule-dark); flex-shrink: 0; }
-
-  /* ── ARCH DIAGRAM ─────────────────────────────────────────────────── */
-  .arch {
-    background: var(--paper-warm);
-    border: 1px solid var(--rule-dark);
-    padding: 2rem;
-    margin: 2rem 0;
-    box-shadow: 3px 3px 0 var(--rule);
-  }
-  .arch-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    margin-bottom: 1.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--rule);
-  }
-  .pull-diagram {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    flex-wrap: wrap;
-  }
-  .arch-node {
-    border: 2px solid;
-    padding: 0.8rem 1.25rem;
-    text-align: center;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 700;
-    min-width: 160px;
-    background: white;
-    box-shadow: 2px 2px 0;
-  }
-  .arch-node small {
-    display: block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.62rem;
-    font-weight: 400;
-    opacity: 0.65;
-    margin-top: 0.2rem;
-  }
-  .arch-node.django  { border-color: var(--red);  color: var(--red);  box-shadow-color: var(--red-light);  }
-  .arch-node.prom    { border-color: var(--orange); color: var(--orange); box-shadow: 2px 2px 0 var(--orange-light); }
-  .arch-node.grafana { border-color: var(--amber); color: var(--amber); box-shadow: 2px 2px 0 var(--amber-light); }
-  .arch-arrow-h {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 0.5rem;
-  }
-  .arch-arrow-h .line { width: 40px; height: 2px; background: var(--rule-dark); }
-  .arch-arrow-h .arrow-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--ink-faint);
-    margin-top: 0.3rem;
-    white-space: nowrap;
-  }
-  .arch-arrow-h .arrowhead { color: var(--rule-dark); font-size: 10px; }
-
-  .layer-diagram { display: flex; flex-direction: column; gap: 2px; }
-  .layer {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--rule);
-    background: white;
-  }
-  .layer:first-child { border-left: 4px solid var(--red); }
-  .layer:nth-child(2) { border-left: 4px solid var(--orange); }
-  .layer:nth-child(3) { border-left: 4px solid var(--amber); }
-  .layer-num {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    flex-shrink: 0;
-    background: var(--paper-mid);
-    color: var(--ink-faint);
-    border-radius: 2px;
-  }
-  .layer-content h5 { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.15rem; color: var(--ink); }
-  .layer-content p { font-size: 0.83rem; color: var(--ink-faint); margin: 0; }
-
-  /* ── MP DIAGRAM ─────────────────────────────────────────────────── */
-  .mp-diagram { display: flex; flex-direction: column; align-items: center; }
-  .mp-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-  .mp-box {
-    border: 1px solid var(--rule-dark);
-    padding: 0.5rem 0.9rem;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    text-align: center;
-    background: white;
-  }
-  .mp-box small { display: block; font-size: 0.6rem; opacity: 0.6; margin-top: 0.1rem; }
-  .mp-box.worker { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
-  .mp-box.dir { border-color: var(--green); color: var(--green); background: var(--green-light); min-width: 240px; }
-  .mp-box.prom { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
-  .mp-arrow-v { width: 1px; height: 24px; background: var(--rule-dark); margin: 0 auto; position: relative; }
-  .mp-arrow-v::after { content: '▼'; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--rule-dark); }
-  .mp-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--ink-faint); text-align: center; margin: 4px 0; }
-
-  /* ── STEPS ─────────────────────────────────────────────────────── */
-  .steps { counter-reset: step; }
-  .step { position: relative; padding-left: 3.25rem; margin-bottom: 2.5rem; }
-  .step::before {
-    counter-increment: step;
-    content: counter(step);
-    position: absolute;
-    left: 0; top: 0.05rem;
-    width: 2rem; height: 2rem;
-    background: var(--ink);
-    color: var(--paper);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 600;
-    border-radius: 2px;
-  }
-  .step h3 { margin-top: 0; }
-
-  /* ── PROMQL BOXES ─────────────────────────────────────────────────── */
-  .promql-box {
-    background: #f0f4f8;
-    border: 1px solid #9db5cc;
-    border-left: 4px solid var(--blue);
-    margin: 1.25rem 0;
-    overflow: hidden;
-    box-shadow: 2px 2px 0 #c5d8e8;
-  }
-  .promql-header {
-    background: var(--blue);
-    padding: 0.45rem 1rem;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    color: white;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .promql-box pre {
-    padding: 1.25rem;
-    color: var(--blue);
-    background: #f0f4f8;
-    font-size: 0.82rem;
-  }
-  .promql-box .comment-line { color: #9db5cc; font-style: italic; }
-  .promql-box .fn { color: var(--purple); }
-  .promql-box .label-sel { color: var(--green); }
-  .promql-box .op { color: var(--red); }
-  .promql-box .num { color: var(--orange); }
-
-  /* ── METHOD CARDS ─────────────────────────────────────────────────── */
-  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.75rem 0; }
-  @media (max-width: 640px) { .method-grid { grid-template-columns: 1fr; } }
-  .method-card {
-    border: 1px solid var(--rule-dark);
-    padding: 1.25rem;
-    background: white;
-    box-shadow: 2px 2px 0 var(--rule);
-  }
-  .method-card.red { border-top: 3px solid var(--red); }
-  .method-card.use-card { border-top: 3px solid var(--blue); }
-  .method-card h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: 0;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    border-bottom: none;
-    padding-bottom: 0;
-    color: var(--ink);
-  }
-  .method-card.red h4 { color: var(--red); }
-  .method-card.use-card h4 { color: var(--blue); }
-  .method-card ul { list-style: none; }
-  .method-card ul li { font-size: 0.88rem; color: var(--ink-faint); padding: 0.25rem 0; }
-  .method-card ul li strong { color: var(--ink); }
-
-  /* ── BADGE ─────────────────────────────────────────────────────── */
-  .badge {
+  /* ── LEVEL BADGES ── */
+  .level-badge {
     display: inline-block;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.65rem;
     font-weight: 600;
-    padding: 0.1rem 0.45rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 2px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     border: 1px solid;
+    margin-left: 0.5rem;
+    vertical-align: middle;
   }
-  .badge.counter { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
-  .badge.gauge   { background: var(--blue-light);  color: var(--blue);  border-color: var(--blue); }
-  .badge.histo   { background: var(--green-light); color: var(--green); border-color: var(--green); }
-  .badge.summary { background: var(--purple-light);color: var(--purple);border-color: var(--purple); }
+  .level-badge.l1 { background: var(--green-light); color: var(--green); border-color: var(--green); }
+  .level-badge.l2 { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+  .level-badge.l3 { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
+  .level-badge.l4 { background: var(--orange-light); color: var(--orange); border-color: var(--orange); }
+  .level-badge.l5 { background: var(--red-light); color: var(--red); border-color: var(--red); }
 
-  /* ── CHECKLIST ─────────────────────────────────────────────────── */
+  /* ── CHECKLIST ── */
   .checklist-group {
     border: 1px solid var(--rule-dark);
     padding: 1.25rem 1.5rem;
@@ -807,17 +493,13 @@
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
   }
   .checklist li:last-child { border-bottom: none; }
-  .checklist li::before {
-    content: '□';
-    font-size: 1rem;
-    line-height: 1.25;
-    flex-shrink: 0;
-    color: var(--rule-dark);
-  }
+  .checklist li::before { content: '→'; color: var(--gold); flex-shrink: 0; }
 
-  /* ── FOOTER ─────────────────────────────────────────────────────── */
+  /* ── FOOTER ── */
   footer {
     background: var(--ink);
     color: var(--paper-warm);
@@ -833,7 +515,7 @@
   }
   footer p + p { margin-top: 0.4rem; }
 
-  /* ── RESPONSIVE ─────────────────────────────────────────────────── */
+  /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     .page { grid-template-columns: 1fr; padding: 2rem 1.5rem 6rem; }
     .sidebar { position: static; display: none; }
@@ -842,14 +524,13 @@
     nav { padding: 0 1.5rem; }
   }
 
-  /* ── ANIMATIONS ─────────────────────────────────────────────────── */
+  /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
   }
   .masthead-title h1 { animation: fadeUp 0.6s ease both; }
   .masthead-subtitle { animation: fadeUp 0.6s 0.1s ease both; }
-  .masthead-rule { animation: fadeUp 0.4s 0.2s ease both; }
   section { animation: fadeUp 0.5s ease both; }
 </style>
 </head>
@@ -859,15 +540,15 @@
 <div class="masthead">
   <div class="masthead-inner">
     <div class="masthead-meta">
-      <span>Complete Reference · Production Guide</span>
-      <span class="issue-badge">Guide No. 2 of 6</span>
-      <span>django-prometheus</span>
+      <span>Complete Reference · Production Grade</span>
+      <span class="issue-badge">Beginner → Legend</span>
+      <span>Django ORM</span>
     </div>
     <div class="masthead-title">
-      <h1>django-<em>prometheus</em></h1>
+      <h1>The Ultimate<br>Django<em>Querying Guide</em></h1>
       <div class="masthead-subtitle">
-        <p>A complete, production-focused reference for instrumenting Django with Prometheus.</p>
-        <p>Covers every metric type, PromQL, Grafana dashboards, the multi-process problem, and production hardening.</p>
+        <p>Dense, comprehensive, production-grade. Every ORM pattern you will encounter — from beginner CRUD to window functions, locking, and the heavily nested dashboard query.</p>
+        <p>Built around a realistic accounting system schema used throughout every example.</p>
       </div>
     </div>
   </div>
@@ -877,23 +558,26 @@
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a href="#bigpicture">Architecture</a>
-    <a href="#install">Install</a>
-    <a href="#settings">Settings</a>
-    <a href="#metrics">Built-in</a>
-    <a href="#database">Database</a>
-    <a href="#cache">Cache</a>
-    <a href="#models">Models</a>
-    <a href="#types">Metric Types</a>
-    <a href="#custom">Custom</a>
-    <a href="#labels">Labels</a>
-    <a href="#multiproc">Multi-Process</a>
-    <a href="#security">Security</a>
-    <a href="#promql">PromQL</a>
-    <a href="#alerting">Alerting</a>
-    <a href="#grafana">Grafana</a>
-    <a href="#docker">Docker</a>
+    <a href="#schema">Schema</a>
+    <a href="#basics">Basics</a>
+    <a href="#filtering">Filtering</a>
+    <a href="#ordering">Ordering</a>
+    <a href="#relationships">Relationships</a>
+    <a href="#qobjects">Q Objects</a>
+    <a href="#managers">Managers</a>
+    <a href="#aggregations">Aggregations</a>
+    <a href="#annotations">Annotations</a>
+    <a href="#subqueries">Subqueries</a>
+    <a href="#bulk">Bulk Ops</a>
+    <a href="#windows">Windows</a>
+    <a href="#rawsql">Raw SQL</a>
+    <a href="#optimization">Optimization</a>
+    <a href="#locking">Locking</a>
+    <a href="#transactions">Transactions</a>
+    <a href="#indexes">Indexes</a>
+    <a href="#nested">Nested Example</a>
     <a href="#checklist">Checklist</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
   </div>
 </nav>
 
@@ -904,1157 +588,1339 @@
   <aside class="sidebar">
     <div class="sidebar-title">Contents</div>
     <ol>
-      <li><a href="#bigpicture">The Big Picture</a></li>
-      <li><a href="#install">Installation</a></li>
-      <li><a href="#settings">Settings & Middleware</a></li>
-      <li><a href="#endpoint">The /metrics Endpoint</a></li>
-      <li><a href="#metrics">Built-in Metrics</a></li>
-      <li><a href="#database">Database Monitoring</a></li>
-      <li><a href="#cache">Cache Monitoring</a></li>
-      <li><a href="#models">Model Monitoring</a></li>
-      <li><a href="#types">The Four Metric Types</a></li>
-      <li><a href="#custom">Custom Metrics</a></li>
-      <li><a href="#labels">Labels & Cardinality</a></li>
-      <li><a href="#multiproc">The Multi-Process Problem</a></li>
-      <li><a href="#security">Securing /metrics</a></li>
-      <li><a href="#prometheus">Prometheus Server</a></li>
-      <li><a href="#promql">PromQL Queries</a></li>
-      <li><a href="#alerting">Alerting Rules</a></li>
-      <li><a href="#grafana">Grafana Dashboards</a></li>
-      <li><a href="#custom-labels">Custom Middleware Labels</a></li>
-      <li><a href="#docker">Docker & Kubernetes</a></li>
-      <li><a href="#naming">Naming Best Practices</a></li>
-      <li><a href="#checklist">Production Checklist</a></li>
+      <li><a href="#schema">The Data Model</a></li>
+      <li><a href="#basics">QuerySet Basics & CRUD</a></li>
+      <li><a href="#filtering">Filtering Lookups</a></li>
+      <li><a href="#ordering">Ordering & Slicing</a></li>
+      <li><a href="#relationships">select_related</a></li>
+      <li><a href="#prefetch">prefetch_related</a></li>
+      <li><a href="#joins">Filtering Across Joins</a></li>
+      <li><a href="#qobjects">Q Objects</a></li>
+      <li><a href="#managers">Custom QuerySets</a></li>
+      <li><a href="#aggregations">aggregate()</a></li>
+      <li><a href="#annotations">annotate()</a></li>
+      <li><a href="#groupby">values() + GROUP BY</a></li>
+      <li><a href="#casewhen">Case / When</a></li>
+      <li><a href="#subqueries">Subqueries & OuterRef</a></li>
+      <li><a href="#bulk">Bulk Operations</a></li>
+      <li><a href="#windows">Window Functions</a></li>
+      <li><a href="#rawsql">Raw SQL</a></li>
+      <li><a href="#inspecting">Inspecting Queries</a></li>
+      <li><a href="#optimization">only() & defer()</a></li>
+      <li><a href="#iterator">iterator()</a></li>
+      <li><a href="#locking">select_for_update()</a></li>
+      <li><a href="#transactions">Transactions</a></li>
+      <li><a href="#indexes">Indexes</a></li>
+      <li><a href="#nested">The Nested Example</a></li>
+      <li><a href="#checklist">N+1 Checklist</a></li>
+      <li><a href="#cheatsheet">Cheat Sheet</a></li>
     </ol>
     <div class="sidebar-divider"></div>
-    <p class="sidebar-note">django-prometheus only handles instrumentation. You still need to run Prometheus and Grafana separately.</p>
+    <p class="sidebar-note">Every example uses the accounting schema defined in §1. Master select_related and prefetch_related first — they account for 80% of real performance problems.</p>
   </aside>
 
   <!-- MAIN -->
   <main>
 
-    <!-- §1 BIG PICTURE -->
-    <section id="bigpicture">
-      <div class="section-eyebrow">
-        <span class="section-num">§ 01</span>
-        <span class="section-tag">Foundation</span>
-      </div>
-      <h2>The Big <em>Picture</em></h2>
+    <!-- §1 SCHEMA -->
+    <section id="schema">
+      <div class="section-eyebrow"><span class="section-num">§ 01</span><span class="section-tag">Foundation</span></div>
+      <h2>The Data <em>Model</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
-      <p>Before touching any code, you need to understand the architecture — it is fundamentally different from logging or traditional push-based monitoring.</p>
-
-      <h3>The Pull Model</h3>
-      <p>Most monitoring systems work by pushing data: your app sends metrics to a central server. Prometheus inverts this completely. Prometheus <strong>pulls</strong> — it periodically sends an HTTP GET to a <code>/metrics</code> endpoint on your app, reads the current values, and stores them in its time-series database.</p>
-
-      <div class="arch">
-        <div class="arch-title">Request flow — Prometheus pulls from your Django app</div>
-        <div class="pull-diagram">
-          <div class="arch-node django">Django App<small>/metrics endpoint</small></div>
-          <div class="arch-arrow-h">
-            <div class="line"></div>
-            <div class="arrowhead">◀</div>
-            <div class="arrow-label">GET /metrics every 15s</div>
-          </div>
-          <div class="arch-node prom">Prometheus<small>scrapes & stores</small></div>
-          <div class="arch-arrow-h">
-            <div class="line"></div>
-            <div class="arrowhead">◀</div>
-            <div class="arrow-label">PromQL queries</div>
-          </div>
-          <div class="arch-node grafana">Grafana<small>dashboards & alerts</small></div>
-        </div>
-      </div>
-
-      <p>This means your app does not need to know where Prometheus is — it just exposes <code>/metrics</code>. Prometheus decides the scrape interval. If Prometheus goes down, your app keeps running. When it comes back, scraping resumes.</p>
-
-      <h3>The Three-Layer Stack</h3>
-      <div class="arch">
-        <div class="arch-title">A complete monitoring setup</div>
-        <div class="layer-diagram">
-          <div class="layer">
-            <span class="layer-num">Layer 1</span>
-            <div class="layer-content">
-              <h5>Instrumentation — Your Django App</h5>
-              <p>django-prometheus handles this layer. Exposes /metrics with all your metric data.</p>
-            </div>
-          </div>
-          <div class="layer">
-            <span class="layer-num">Layer 2</span>
-            <div class="layer-content">
-              <h5>Collection — Prometheus Server</h5>
-              <p>Scrapes /metrics every 15s, stores time-series data, evaluates alerting rules.</p>
-            </div>
-          </div>
-          <div class="layer">
-            <span class="layer-num">Layer 3</span>
-            <div class="layer-content">
-              <h5>Visualization — Grafana</h5>
-              <p>Reads from Prometheus via PromQL queries, renders dashboards and sends alerts.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="callout info">
-        <strong>Scope of this guide</strong>
-        <p><code>django-prometheus</code> only handles Layer 1. You still need to run Prometheus and Grafana separately. This guide covers all three layers.</p>
-      </div>
-
-      <h3>What /metrics Returns</h3>
-      <p>When Prometheus scrapes your app, it gets a plain-text response. Each line is a metric name, labels, and a value:</p>
+      <p>Everything in this guide is grounded in a realistic accounting system. Understanding the schema first makes every example below immediately applicable to real work.</p>
 
       <div class="code-block">
-        <div class="code-header"><span>example /metrics output</span></div>
-        <pre><code><span class="comment-line"># HELP django_http_requests_total_by_method_total Number of requests by method</span>
-<span class="comment-line"># TYPE django_http_requests_total_by_method_total counter</span>
-django_http_requests_total_by_method_total{method="GET"} 4521.0
-django_http_requests_total_by_method_total{method="POST"} 832.0
+        <div class="code-header"><span>models.py — full schema</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db <span class="kw">import</span> models
+<span class="kw">from</span> django.contrib.auth <span class="kw">import</span> get_user_model
 
-<span class="comment-line"># HELP django_http_responses_total_by_status_total Responses by status code</span>
-<span class="comment-line"># TYPE django_http_responses_total_by_status_total counter</span>
-django_http_responses_total_by_status_total{status="200"} 4200.0
-django_http_responses_total_by_status_total{status="404"} 102.0
-django_http_responses_total_by_status_total{status="500"} 21.0
+<span class="at">User</span> = get_user_model()
 
-<span class="comment-line"># HELP django_db_execute_total Total number of DB execute calls</span>
-<span class="comment-line"># TYPE django_db_execute_total counter</span>
-django_db_execute_total{alias="default",vendor="postgresql"} 89432.0</code></pre>
+
+<span class="kw">class</span> <span class="fn">TimestampedModel</span>(models.Model):
+    <span class="st">"""Abstract base — every model gets created_at / updated_at automatically."""</span>
+    <span class="at">created_at</span> = models.DateTimeField(auto_now_add=<span class="kw">True</span>)
+    <span class="at">updated_at</span> = models.DateTimeField(auto_now=<span class="kw">True</span>)
+
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">abstract</span> = <span class="kw">True</span>
+
+
+<span class="kw">class</span> <span class="fn">Company</span>(<span class="fn">TimestampedModel</span>):
+    <span class="at">name</span> = models.CharField(max_length=<span class="nm">255</span>)
+    <span class="at">tax_id</span> = models.CharField(max_length=<span class="nm">50</span>, unique=<span class="kw">True</span>)
+    <span class="at">fiscal_year_start</span> = models.IntegerField(default=<span class="nm">1</span>)
+    <span class="at">currency</span> = models.CharField(max_length=<span class="nm">3</span>, default=<span class="st">"USD"</span>)
+    <span class="at">is_active</span> = models.BooleanField(default=<span class="kw">True</span>)
+
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">verbose_name_plural</span> = <span class="st">"companies"</span>
+
+
+<span class="kw">class</span> <span class="fn">CostCenter</span>(<span class="fn">TimestampedModel</span>):
+    <span class="at">company</span> = models.ForeignKey(<span class="fn">Company</span>, on_delete=models.CASCADE, related_name=<span class="st">"cost_centers"</span>)
+    <span class="at">name</span> = models.CharField(max_length=<span class="nm">100</span>)
+    <span class="at">code</span> = models.CharField(max_length=<span class="nm">20</span>)
+    <span class="at">parent</span> = models.ForeignKey(
+        <span class="st">"self"</span>, null=<span class="kw">True</span>, blank=<span class="kw">True</span>, on_delete=models.SET_NULL, related_name=<span class="st">"children"</span>
+    )
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">unique_together</span> = [(<span class="st">"company"</span>, <span class="st">"code"</span>)]
+
+
+<span class="kw">class</span> <span class="fn">ChartOfAccount</span>(<span class="fn">TimestampedModel</span>):
+    <span class="at">ACCOUNT_TYPES</span> = [(<span class="st">"asset"</span>,<span class="st">"Asset"</span>),(<span class="st">"liability"</span>,<span class="st">"Liability"</span>),(<span class="st">"equity"</span>,<span class="st">"Equity"</span>),(<span class="st">"revenue"</span>,<span class="st">"Revenue"</span>),(<span class="st">"expense"</span>,<span class="st">"Expense"</span>)]
+    <span class="at">company</span> = models.ForeignKey(<span class="fn">Company</span>, on_delete=models.CASCADE, related_name=<span class="st">"accounts"</span>)
+    <span class="at">code</span> = models.CharField(max_length=<span class="nm">20</span>)
+    <span class="at">name</span> = models.CharField(max_length=<span class="nm">255</span>)
+    <span class="at">account_type</span> = models.CharField(max_length=<span class="nm">20</span>, choices=<span class="at">ACCOUNT_TYPES</span>)
+    <span class="at">parent</span> = models.ForeignKey(<span class="st">"self"</span>, null=<span class="kw">True</span>, blank=<span class="kw">True</span>, on_delete=models.SET_NULL, related_name=<span class="st">"children"</span>)
+    <span class="at">is_active</span> = models.BooleanField(default=<span class="kw">True</span>)
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">unique_together</span> = [(<span class="st">"company"</span>, <span class="st">"code"</span>)]
+        <span class="at">indexes</span> = [models.Index(fields=[<span class="st">"company"</span>, <span class="st">"account_type"</span>], name=<span class="st">"coa_company_type_idx"</span>)]
+
+
+<span class="kw">class</span> <span class="fn">JournalEntry</span>(<span class="fn">TimestampedModel</span>):
+    <span class="at">STATUS_CHOICES</span> = [(<span class="st">"draft"</span>,<span class="st">"Draft"</span>),(<span class="st">"posted"</span>,<span class="st">"Posted"</span>),(<span class="st">"voided"</span>,<span class="st">"Voided"</span>)]
+    <span class="at">company</span> = models.ForeignKey(<span class="fn">Company</span>, on_delete=models.PROTECT, related_name=<span class="st">"journal_entries"</span>)
+    <span class="at">date</span> = models.DateField()
+    <span class="at">reference</span> = models.CharField(max_length=<span class="nm">100</span>, blank=<span class="kw">True</span>)
+    <span class="at">description</span> = models.TextField(blank=<span class="kw">True</span>)
+    <span class="at">status</span> = models.CharField(max_length=<span class="nm">20</span>, choices=<span class="at">STATUS_CHOICES</span>, default=<span class="st">"draft"</span>)
+    <span class="at">created_by</span> = models.ForeignKey(<span class="fn">User</span>, on_delete=models.PROTECT, related_name=<span class="st">"created_entries"</span>)
+    <span class="at">approved_by</span> = models.ForeignKey(<span class="fn">User</span>, null=<span class="kw">True</span>, blank=<span class="kw">True</span>, on_delete=models.SET_NULL, related_name=<span class="st">"approved_entries"</span>)
+    <span class="at">approved_at</span> = models.DateTimeField(null=<span class="kw">True</span>, blank=<span class="kw">True</span>)
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">indexes</span> = [
+            models.Index(fields=[<span class="st">"company"</span>, <span class="st">"date"</span>], name=<span class="st">"je_company_date_idx"</span>),
+            models.Index(fields=[<span class="st">"company"</span>, <span class="st">"date"</span>], condition=models.Q(status=<span class="st">"posted"</span>), name=<span class="st">"je_company_date_posted_idx"</span>),
+            models.Index(fields=[<span class="st">"company"</span>, <span class="st">"status"</span>], name=<span class="st">"je_company_status_idx"</span>),
+        ]
+
+
+<span class="kw">class</span> <span class="fn">JournalEntryLine</span>(<span class="fn">TimestampedModel</span>):
+    <span class="at">journal_entry</span> = models.ForeignKey(<span class="fn">JournalEntry</span>, on_delete=models.CASCADE, related_name=<span class="st">"lines"</span>)
+    <span class="at">coa_account</span> = models.ForeignKey(<span class="fn">ChartOfAccount</span>, on_delete=models.PROTECT, related_name=<span class="st">"entry_lines"</span>)
+    <span class="at">debit</span> = models.DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>, default=<span class="nm">0</span>)
+    <span class="at">credit</span> = models.DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>, default=<span class="nm">0</span>)
+    <span class="at">cost_center</span> = models.ForeignKey(<span class="fn">CostCenter</span>, on_delete=models.PROTECT, null=<span class="kw">True</span>, blank=<span class="kw">True</span>, related_name=<span class="st">"lines"</span>)
+    <span class="at">description</span> = models.TextField(blank=<span class="kw">True</span>)
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">constraints</span> = [
+            models.CheckConstraint(check=<span class="op">~</span>(models.Q(debit__gt=<span class="nm">0</span>) <span class="op">&</span> models.Q(credit__gt=<span class="nm">0</span>)), name=<span class="st">"no_simultaneous_debit_and_credit"</span>),
+            models.CheckConstraint(check=models.Q(debit__gte=<span class="nm">0</span>) <span class="op">&</span> models.Q(credit__gte=<span class="nm">0</span>), name=<span class="st">"non_negative_amounts"</span>),
+        ]
+
+
+<span class="kw">class</span> <span class="fn">Budget</span>(<span class="fn">TimestampedModel</span>):
+    <span class="at">company</span> = models.ForeignKey(<span class="fn">Company</span>, on_delete=models.CASCADE, related_name=<span class="st">"budgets"</span>)
+    <span class="at">coa_account</span> = models.ForeignKey(<span class="fn">ChartOfAccount</span>, on_delete=models.PROTECT)
+    <span class="at">cost_center</span> = models.ForeignKey(<span class="fn">CostCenter</span>, null=<span class="kw">True</span>, blank=<span class="kw">True</span>, on_delete=models.SET_NULL)
+    <span class="at">year</span> = models.IntegerField()
+    <span class="at">month</span> = models.IntegerField()
+    <span class="at">amount</span> = models.DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>)
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">unique_together</span> = [(<span class="st">"company"</span>, <span class="st">"coa_account"</span>, <span class="st">"cost_center"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>)]</code></pre>
       </div>
     </section>
 
-    <!-- §2 INSTALL -->
-    <section id="install">
-      <div class="section-eyebrow"><span class="section-num">§ 02</span><span class="section-tag">Setup</span></div>
-      <h2><em>Installation</em></h2>
+    <!-- §2 BASICS -->
+    <section id="basics">
+      <div class="section-eyebrow"><span class="section-num">§ 02</span><span class="section-tag">Level 1 — Beginner</span></div>
+      <h2>QuerySet Basics <em>&amp; CRUD</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
+      <p>A QuerySet is <strong>lazy</strong> — it does not hit the database until you force evaluation. Django builds up a SQL query in Python and only executes it when you iterate, slice, call <code>list()</code>, <code>bool()</code>, <code>len()</code>, or <code>repr()</code> on it.</p>
+
       <div class="code-block">
-        <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="comment-line"># pip</span>
-pip install django-prometheus
+        <div class="code-header"><span>Python — lazy evaluation</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># This does NOT hit the database — just builds a query object</span>
+<span class="at">qs</span> = JournalEntry.objects.filter(status=<span class="st">"posted"</span>)
 
-<span class="comment-line"># uv</span>
-uv add django-prometheus
+<span class="cm"># Still no DB hit — another filter is appended to the SQL</span>
+<span class="at">qs</span> = qs.filter(company=company)
 
-<span class="comment-line"># poetry</span>
-poetry add django-prometheus</code></pre>
+<span class="cm"># THIS hits the database — evaluation is forced</span>
+<span class="at">entries</span> = list(qs)
+
+<span class="cm"># These also force evaluation:</span>
+<span class="kw">for</span> entry <span class="kw">in</span> qs: ...    <span class="cm"># iteration</span>
+<span class="kw">if</span> qs.exists(): ...       <span class="cm"># exists()</span>
+<span class="at">count</span> = qs.count()        <span class="cm"># count()</span></code></pre>
       </div>
 
-      <div class="callout tip">
-        <strong>What gets installed</strong>
-        <p>This automatically installs <code>prometheus_client</code> (the official Python Prometheus client) as a dependency. You will use both packages: <code>django_prometheus</code> for Django-specific instrumentation, and <code>prometheus_client</code> directly for your own custom metrics.</p>
+      <h3>Basic CRUD</h3>
+      <div class="code-block">
+        <div class="code-header"><span>Python — CRUD operations</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># CREATE — one INSERT</span>
+<span class="at">entry</span> = JournalEntry.objects.create(
+    company=company, date=<span class="st">"2024-01-15"</span>, description=<span class="st">"Opening balance"</span>,
+    status=<span class="st">"draft"</span>, created_by=request.user,
+)
+
+<span class="cm"># Alternative: instantiate then save (runs validation before saving)</span>
+<span class="at">entry</span> = JournalEntry(company=company, date=<span class="st">"2024-01-15"</span>, created_by=request.user)
+entry.full_clean()
+entry.save()
+
+<span class="cm"># READ ONE — raises DoesNotExist if not found, MultipleObjectsReturned if >1</span>
+JournalEntry.objects.get(id=<span class="nm">1</span>)
+
+<span class="cm"># READ ONE SAFELY — returns None instead of raising</span>
+JournalEntry.objects.filter(id=<span class="nm">1</span>).first()
+
+<span class="cm"># get_or_create — returns (instance, created_bool)</span>
+<span class="at">entry</span>, <span class="at">created</span> = JournalEntry.objects.get_or_create(
+    company=company, reference=<span class="st">"INV-2024-001"</span>,
+    defaults={<span class="st">"date"</span>: <span class="st">"2024-01-15"</span>, <span class="st">"created_by"</span>: request.user},
+)
+
+<span class="cm"># UPDATE — one UPDATE statement. Does NOT call .save() or trigger signals</span>
+JournalEntry.objects.filter(id=<span class="nm">1</span>).update(description=<span class="st">"Updated"</span>, status=<span class="st">"posted"</span>)
+
+<span class="cm"># DELETE — one DELETE statement</span>
+JournalEntry.objects.filter(status=<span class="st">"voided"</span>).delete()
+
+<span class="cm"># Existence & counting — use these, never len(qs)</span>
+JournalEntry.objects.filter(status=<span class="st">"posted"</span>).exists()   <span class="cm"># → True/False, SELECT 1 LIMIT 1</span>
+JournalEntry.objects.filter(status=<span class="st">"posted"</span>).count()    <span class="cm"># → int, SELECT COUNT(*)</span></code></pre>
       </div>
     </section>
 
-    <!-- §3 SETTINGS -->
-    <section id="settings">
-      <div class="section-eyebrow"><span class="section-num">§ 03</span><span class="section-tag">Configuration</span></div>
-      <h2>Settings &amp; <em>Middleware</em></h2>
+    <!-- §3 FILTERING -->
+    <section id="filtering">
+      <div class="section-eyebrow"><span class="section-num">§ 03</span><span class="section-tag">Level 1 — Beginner</span></div>
+      <h2>Filtering — Every <em>Lookup Type</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Django lookup types are appended to field names with double underscores. They translate directly to SQL operators.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — all lookup types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># Exact (default — __exact is implicit)</span>
+JournalEntry.objects.filter(status=<span class="st">"posted"</span>)
+
+<span class="cm"># String lookups</span>
+JournalEntry.objects.filter(description__contains=<span class="st">"rent"</span>)       <span class="cm"># LIKE '%rent%'</span>
+JournalEntry.objects.filter(description__icontains=<span class="st">"rent"</span>)      <span class="cm"># ILIKE (case-insensitive)</span>
+JournalEntry.objects.filter(reference__startswith=<span class="st">"INV"</span>)        <span class="cm"># LIKE 'INV%'</span>
+JournalEntry.objects.filter(reference__endswith=<span class="st">"2024"</span>)         <span class="cm"># LIKE '%2024'</span>
+JournalEntry.objects.filter(description__regex=<span class="st">r"^[A-Z]{3}"</span>)   <span class="cm"># regex</span>
+JournalEntry.objects.filter(description__iregex=<span class="st">r"^[a-z]{3}"</span>)  <span class="cm"># case-insensitive regex</span>
+
+<span class="cm"># Numeric comparisons</span>
+JournalEntryLine.objects.filter(debit__gt=<span class="nm">0</span>)         <span class="cm"># ></span>
+JournalEntryLine.objects.filter(debit__gte=<span class="nm">1000</span>)     <span class="cm"># >=</span>
+JournalEntryLine.objects.filter(credit__lt=<span class="nm">5000</span>)     <span class="cm"># <</span>
+JournalEntryLine.objects.filter(credit__lte=<span class="nm">4999.99</span>) <span class="cm"># <=</span>
+
+<span class="cm"># Range (inclusive on both ends → BETWEEN)</span>
+JournalEntry.objects.filter(date__range=(<span class="st">"2024-01-01"</span>, <span class="st">"2024-12-31"</span>))
+
+<span class="cm"># In a list</span>
+JournalEntry.objects.filter(status__in=[<span class="st">"posted"</span>, <span class="st">"draft"</span>])
+
+<span class="cm"># Null checks</span>
+JournalEntry.objects.filter(approved_by__isnull=<span class="kw">True</span>)
+JournalEntry.objects.filter(approved_by__isnull=<span class="kw">False</span>)
+
+<span class="cm"># Date/time component extraction</span>
+JournalEntry.objects.filter(date__year=<span class="nm">2024</span>)
+JournalEntry.objects.filter(date__month=<span class="nm">3</span>)
+JournalEntry.objects.filter(date__quarter=<span class="nm">1</span>)
+JournalEntry.objects.filter(date__week=<span class="nm">12</span>)
+JournalEntry.objects.filter(created_at__hour=<span class="nm">9</span>)
+JournalEntry.objects.filter(created_at__date=<span class="st">"2024-01-15"</span>)
+
+<span class="cm"># Exclude — NOT (inverts the filter)</span>
+JournalEntry.objects.exclude(status=<span class="st">"voided"</span>)
+
+<span class="cm"># Chaining (each .filter() is an AND)</span>
+JournalEntry.objects.filter(status=<span class="st">"posted"</span>, company=company, date__year=<span class="nm">2024</span>)</code></pre>
+      </div>
+    </section>
+
+    <!-- §4 ORDERING -->
+    <section id="ordering">
+      <div class="section-eyebrow"><span class="section-num">§ 04</span><span class="section-tag">Level 1 — Beginner</span></div>
+      <h2>Ordering <em>&amp; Slicing</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
       <div class="code-block">
-        <div class="code-header"><span>settings/base.py — INSTALLED_APPS</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>INSTALLED_APPS = [
-    ...
-    <span class="hl3">"django_prometheus"</span>,
-    ...
-]</code></pre>
-      </div>
+        <div class="code-header"><span>Python — ordering & slicing</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>JournalEntry.objects.order_by(<span class="st">"date"</span>)              <span class="cm"># ascending</span>
+JournalEntry.objects.order_by(<span class="st">"-date"</span>)             <span class="cm"># descending</span>
+JournalEntry.objects.order_by(<span class="st">"-date"</span>, <span class="st">"reference"</span>) <span class="cm"># secondary sort on tie</span>
+JournalEntry.objects.order_by(<span class="st">"company__name"</span>, <span class="st">"-date"</span>)  <span class="cm"># related field</span>
+JournalEntry.objects.all().order_by()              <span class="cm"># clear inherited ordering</span>
 
-      <h3>Middleware — Position is Critical</h3>
-      <p>The two Prometheus middlewares must be the <strong>outermost pair</strong> in your stack. <code>PrometheusBeforeMiddleware</code> must be first and <code>PrometheusAfterMiddleware</code> must be last. Every middleware between them is timed, and measurements are correct even when inner middlewares raise exceptions.</p>
+<span class="cm"># Slicing → LIMIT/OFFSET. Negative indexing NOT supported.</span>
+JournalEntry.objects.all()[:<span class="nm">10</span>]       <span class="cm"># LIMIT 10</span>
+JournalEntry.objects.all()[<span class="nm">10</span>:<span class="nm">20</span>]     <span class="cm"># LIMIT 10 OFFSET 10</span>
+
+<span class="cm"># You cannot filter after slicing — raises TypeError</span>
+<span class="cm"># JournalEntry.objects.all()[:10].filter(status="posted")  ← WRONG</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §5 RELATIONSHIPS -->
+    <section id="relationships">
+      <div class="section-eyebrow"><span class="section-num">§ 05</span><span class="section-tag">Level 2 — Intermediate</span></div>
+      <h2>select_related — <em>Eliminating N+1</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>select_related</code> works by performing a SQL JOIN and selecting the related object's columns in the same query. Use it for <code>ForeignKey</code> and <code>OneToOneField</code>. Without it, accessing <code>entry.company</code> on each object in a loop causes one extra query per row — the N+1 problem.</p>
 
       <div class="callout danger">
-        <strong>Wrong position = wrong data</strong>
-        <p>If you place these middlewares anywhere other than absolute first and last, latency measurements will be wrong. You will miss time spent in middlewares outside the pair.</p>
+        <strong>The N+1 Problem</strong>
+        <p>1 query to get entries, then 1 per entry to get company = N+1 queries total. With 500 entries, that's 501 database hits. Always use <code>select_related</code> for FK fields you'll access in a loop.</p>
       </div>
 
       <div class="code-block">
-        <div class="code-header"><span>settings/base.py — middleware</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>MIDDLEWARE = [
-    <span class="hl3">"django_prometheus.middleware.PrometheusBeforeMiddleware"</span>,  <span class="comment-line"># MUST be first</span>
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    <span class="hl3">"django_prometheus.middleware.PrometheusAfterMiddleware"</span>,   <span class="comment-line"># MUST be last</span>
-]</code></pre>
-      </div>
+        <div class="code-header"><span>Python — select_related</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># BAD — N+1 problem</span>
+<span class="at">entries</span> = JournalEntry.objects.filter(status=<span class="st">"posted"</span>)
+<span class="kw">for</span> entry <span class="kw">in</span> entries:
+    print(entry.company.name)   <span class="cm"># hits DB every iteration</span>
 
-      <h3>Optional Settings</h3>
-      <div class="code-block">
-        <div class="code-header"><span>settings/base.py — optional configuration</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="comment-line"># Namespace prefix — all auto-generated metrics become myproject_django_*</span>
-PROMETHEUS_METRIC_NAMESPACE = <span class="hl3">"myproject"</span>
+<span class="cm"># GOOD — 1 query with JOIN</span>
+<span class="at">entries</span> = JournalEntry.objects.select_related(<span class="st">"company"</span>).filter(status=<span class="st">"posted"</span>)
+<span class="kw">for</span> entry <span class="kw">in</span> entries:
+    print(entry.company.name)   <span class="cm"># no extra query</span>
 
-<span class="comment-line"># Latency histogram buckets (seconds) — tune to your app's profile</span>
-PROMETHEUS_LATENCY_BUCKETS = (
-    <span class="m">0.010</span>,  <span class="m">0.025</span>,  <span class="m">0.050</span>,  <span class="m">0.100</span>,  <span class="m">0.250</span>,
-    <span class="m">0.500</span>,  <span class="m">1.000</span>,  <span class="m">2.500</span>,  <span class="m">5.000</span>,  <span class="m">10.00</span>,
-    float(<span class="hl3">"inf"</span>),
-)
+<span class="cm"># Multiple FK relationships</span>
+JournalEntry.objects.select_related(<span class="st">"company"</span>, <span class="st">"created_by"</span>, <span class="st">"approved_by"</span>)
 
-PROMETHEUS_EXPORT_MIGRATIONS = <span class="k">True</span>  <span class="comment-line"># default</span></code></pre>
-      </div>
-    </section>
+<span class="cm"># Traverse deeper — follow FKs on FKs</span>
+JournalEntry.objects.select_related(<span class="st">"company"</span>, <span class="st">"created_by__profile"</span>)
 
-    <!-- §4 ENDPOINT -->
-    <section id="endpoint">
-      <div class="section-eyebrow"><span class="section-num">§ 04</span><span class="section-tag">Routing</span></div>
-      <h2>The <em>/metrics</em> Endpoint</h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <div class="code-block">
-        <div class="code-header"><span>config/urls.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> django.urls <span class="k">import</span> path, include
-
-urlpatterns = [
-    path(<span class="hl3">"admin/"</span>, admin.site.urls),
-    path(<span class="hl3">"api/v1/"</span>, include(<span class="hl3">"apps.api.urls"</span>)),
-
-    <span class="comment-line"># Exposes /metrics — the endpoint Prometheus will scrape</span>
-    path(<span class="hl3">""</span>, include(<span class="hl3">"django_prometheus.urls"</span>)),
-]</code></pre>
-      </div>
-    </section>
-
-    <!-- §5 BUILT-IN METRICS -->
-    <section id="metrics">
-      <div class="section-eyebrow"><span class="section-num">§ 05</span><span class="section-tag">Out of the box</span></div>
-      <h2>Built-in <em>Metrics</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <p>Once the middleware and <code>INSTALLED_APPS</code> entry are in place, you get all of the following without writing a single line of code.</p>
-
-      <h3>HTTP Request Metrics</h3>
-      <table class="data-table">
-        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td>django_http_requests_total_by_method</td><td><span class="badge counter">Counter</span></td><td>Request count by HTTP method</td></tr>
-          <tr><td>django_http_requests_total_by_transport</td><td><span class="badge counter">Counter</span></td><td>HTTP vs HTTPS breakdown</td></tr>
-          <tr><td>django_http_requests_total_by_view_transport_method</td><td><span class="badge counter">Counter</span></td><td>Per view name, transport, and method</td></tr>
-          <tr><td>django_http_responses_total_by_status</td><td><span class="badge counter">Counter</span></td><td>Response count by HTTP status code</td></tr>
-          <tr><td>django_http_responses_total_by_status_view_method</td><td><span class="badge counter">Counter</span></td><td>Per status code, view name, and method</td></tr>
-          <tr><td>django_http_responses_body_total_bytes</td><td><span class="badge counter">Counter</span></td><td>Total bytes sent in response bodies</td></tr>
-          <tr><td>django_http_requests_latency_including_middlewares_seconds</td><td><span class="badge histo">Histogram</span></td><td>End-to-end request latency</td></tr>
-          <tr><td>django_http_requests_latency_seconds_by_view_method</td><td><span class="badge histo">Histogram</span></td><td>Latency per view name and method</td></tr>
-        </tbody>
-      </table>
-
-      <h3>Migration Metrics</h3>
-      <table class="data-table">
-        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td>django_migrations_applied_by_connection</td><td><span class="badge gauge">Gauge</span></td><td>Applied migrations per database alias</td></tr>
-          <tr><td>django_migrations_unapplied_by_connection</td><td><span class="badge gauge">Gauge</span></td><td>Pending migrations — alert on this &gt; 0</td></tr>
-        </tbody>
-      </table>
-
-      <div class="callout tip">
-        <strong>Free alert: unapplied migrations</strong>
-        <p><code>django_migrations_unapplied_by_connection &gt; 0</code> is one of the most valuable free alerts you get. It catches deployments that forgot to run <code>manage.py migrate</code>.</p>
-      </div>
-
-      <h3>Python Runtime Metrics</h3>
-      <table class="data-table">
-        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td>process_virtual_memory_bytes</td><td><span class="badge gauge">Gauge</span></td><td>Virtual memory size</td></tr>
-          <tr><td>process_resident_memory_bytes</td><td><span class="badge gauge">Gauge</span></td><td>RSS memory (what the OS actually allocated)</td></tr>
-          <tr><td>process_cpu_seconds_total</td><td><span class="badge counter">Counter</span></td><td>CPU time used</td></tr>
-          <tr><td>process_open_fds</td><td><span class="badge gauge">Gauge</span></td><td>Open file descriptors</td></tr>
-          <tr><td>python_gc_objects_collected_total</td><td><span class="badge counter">Counter</span></td><td>GC objects collected per generation</td></tr>
-          <tr><td>python_info</td><td><span class="badge gauge">Gauge</span></td><td>Python version info label set</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- §6 DATABASE -->
-    <section id="database">
-      <div class="section-eyebrow"><span class="section-num">§ 06</span><span class="section-tag">Data Layer</span></div>
-      <h2>Database <em>Monitoring</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <p>By default, Django's database backend does not emit metrics. Swap Django's backend with django-prometheus's instrumented version. The only change is the <code>ENGINE</code> value.</p>
-
-      <div class="code-block">
-        <div class="code-header"><span>settings/base.py — PostgreSQL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>DATABASES = {
-    <span class="hl3">"default"</span>: {
-        <span class="comment-line"># Change: django.db.backends.postgresql</span>
-        <span class="comment-line"># To:     django_prometheus.db.backends.postgresql</span>
-        <span class="hl3">"ENGINE"</span>: <span class="hl3">"django_prometheus.db.backends.postgresql"</span>,
-        <span class="hl3">"NAME"</span>: env(<span class="hl3">"POSTGRES_DB"</span>),
-        <span class="hl3">"USER"</span>: env(<span class="hl3">"POSTGRES_USER"</span>),
-        <span class="hl3">"PASSWORD"</span>: env(<span class="hl3">"POSTGRES_PASSWORD"</span>),
-        <span class="hl3">"HOST"</span>: env(<span class="hl3">"POSTGRES_HOST"</span>, default=<span class="hl3">"localhost"</span>),
-        <span class="hl3">"PORT"</span>: env(<span class="hl3">"POSTGRES_PORT"</span>, default=<span class="hl3">"5432"</span>),
-        <span class="hl3">"CONN_MAX_AGE"</span>: <span class="m">60</span>,
-    }
-}
-
-<span class="comment-line"># MySQL:  "django_prometheus.db.backends.mysql"</span>
-<span class="comment-line"># SQLite: "django_prometheus.db.backends.sqlite3"</span></code></pre>
-      </div>
-
-      <table class="data-table">
-        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td>django_db_query_duration_seconds</td><td><span class="badge histo">Histogram</span></td><td>Query execution time per alias and vendor</td></tr>
-          <tr><td>django_db_execute_total</td><td><span class="badge counter">Counter</span></td><td>Total execute() calls</td></tr>
-          <tr><td>django_db_execute_many_total</td><td><span class="badge counter">Counter</span></td><td>Total executemany() calls</td></tr>
-          <tr><td>django_db_errors_total</td><td><span class="badge counter">Counter</span></td><td>Database errors by error type</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- §7 CACHE -->
-    <section id="cache">
-      <div class="section-eyebrow"><span class="section-num">§ 07</span><span class="section-tag">Caching Layer</span></div>
-      <h2>Cache <em>Monitoring</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <div class="code-block">
-        <div class="code-header"><span>settings/base.py — Redis cache</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>CACHES = {
-    <span class="hl3">"default"</span>: {
-        <span class="comment-line"># Change: django.core.cache.backends.redis.RedisCache</span>
-        <span class="comment-line"># To:     django_prometheus.cache.backends.redis.RedisCache</span>
-        <span class="hl3">"BACKEND"</span>: <span class="hl3">"django_prometheus.cache.backends.redis.RedisCache"</span>,
-        <span class="hl3">"LOCATION"</span>: env(<span class="hl3">"REDIS_URL"</span>),
-    }
-}
-
-<span class="comment-line"># Memcached: "django_prometheus.cache.backends.memcached.PyMemcacheCache"</span>
-<span class="comment-line"># File-based: "django_prometheus.cache.backends.filebased.FileBasedCache"</span></code></pre>
-      </div>
-
-      <table class="data-table">
-        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td>django_cache_get_total</td><td><span class="badge counter">Counter</span></td><td>Total GET operations</td></tr>
-          <tr><td>django_cache_get_hits_total</td><td><span class="badge counter">Counter</span></td><td>Cache hits (value was found)</td></tr>
-          <tr><td>django_cache_get_misses_total</td><td><span class="badge counter">Counter</span></td><td>Cache misses (value not found)</td></tr>
-          <tr><td>django_cache_set_total</td><td><span class="badge counter">Counter</span></td><td>Total SET operations</td></tr>
-          <tr><td>django_cache_delete_total</td><td><span class="badge counter">Counter</span></td><td>Total DELETE operations</td></tr>
-        </tbody>
-      </table>
-
-      <div class="callout tip">
-        <strong>Cache hit rate</strong>
-        <p>The most important derived cache metric is hit rate: <code>django_cache_get_hits_total / django_cache_get_total</code>. A dropping hit rate means keys are expiring too fast, memory is full, or your code changed and cached keys are no longer being hit.</p>
-      </div>
-    </section>
-
-    <!-- §8 MODELS -->
-    <section id="models">
-      <div class="section-eyebrow"><span class="section-num">§ 08</span><span class="section-tag">ORM</span></div>
-      <h2>Model <em>Monitoring</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <p>Track create, update, and delete rates per model by adding a mixin. This requires no database migration — the mixin hooks into Django model signals.</p>
-
-      <div class="code-block">
-        <div class="code-header"><span>apps/orders/models.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> django.db <span class="k">import</span> models
-<span class="k">from</span> django_prometheus.models <span class="k">import</span> ExportModelOperationsMixin
-
-<span class="k">class</span> <span class="n">Order</span>(ExportModelOperationsMixin(<span class="hl3">"order"</span>), models.Model):
-    status = models.CharField(max_length=<span class="m">20</span>)
-    total_amount = models.DecimalField(max_digits=<span class="m">10</span>, decimal_places=<span class="m">2</span>)
-
-<span class="k">class</span> <span class="n">OrderItem</span>(ExportModelOperationsMixin(<span class="hl3">"order_item"</span>), models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-
-<span class="k">class</span> <span class="n">Product</span>(ExportModelOperationsMixin(<span class="hl3">"product"</span>), models.Model):
-    name = models.CharField(max_length=<span class="m">200</span>)
-    stock = models.PositiveIntegerField(default=<span class="m">0</span>)</code></pre>
-      </div>
-
-      <p>This exports three metrics per model:</p>
-
-      <div class="code-block">
-        <div class="code-header"><span>exported model metrics</span></div>
-        <pre><code>django_model_inserts_total{model="order"} 1204.0
-django_model_updates_total{model="order"} 982.0
-django_model_deletes_total{model="order"} 11.0</code></pre>
-      </div>
-
-      <div class="callout warning">
-        <strong>Operation counts, not record counts</strong>
-        <p>These counters count operations (inserts, updates, deletes) that happened in the current process — not how many records exist in the database. To count records, use a Gauge that queries the database periodically (see the Custom Metrics section).</p>
-      </div>
-    </section>
-
-    <!-- §9 METRIC TYPES -->
-    <section id="types">
-      <div class="section-eyebrow"><span class="section-num">§ 09</span><span class="section-tag">Core Concepts</span></div>
-      <h2>The Four <em>Metric Types</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <div class="pull-quote">
-        <p>Using the wrong metric type leads to incorrect data and misleading dashboards. There are exactly four. Learn them before writing any custom metrics.</p>
-      </div>
-
-      <div class="metric-grid">
-        <div class="metric-card counter">
-          <h4>Counter</h4>
-          <p>A number that only ever increases. Resets to 0 on process restart. Never decrement a counter.</p>
-          <div class="use"><strong>Use for:</strong> events — requests, emails sent, errors raised, jobs completed.</div>
-          <div class="use"><strong>Never for:</strong> anything that can go down (queue depth, active connections).</div>
-          <div class="use"><strong>PromQL:</strong> always use <code>rate()</code> or <code>increase()</code>, never the raw value.</div>
-        </div>
-        <div class="metric-card gauge">
-          <h4>Gauge</h4>
-          <p>A number that can go up and down. Represents current state at this moment.</p>
-          <div class="use"><strong>Use for:</strong> active sessions, queue depth, memory usage, open connections.</div>
-          <div class="use"><strong>Never for:</strong> cumulative event counts (use Counter instead).</div>
-          <div class="use"><strong>PromQL:</strong> raw value is meaningful. Use <code>avg_over_time()</code> for smoothing.</div>
-        </div>
-        <div class="metric-card histo">
-          <h4>Histogram</h4>
-          <p>Tracks distribution of values by sorting observations into pre-defined buckets. Exports <code>_bucket</code>, <code>_sum</code>, and <code>_count</code>.</p>
-          <div class="use"><strong>Use for:</strong> response latency, request size, payment amounts.</div>
-          <div class="use"><strong>Key decision:</strong> configure bucket boundaries to match your expected value range.</div>
-          <div class="use"><strong>PromQL:</strong> <code>histogram_quantile(0.95, rate(metric_bucket[5m]))</code></div>
-        </div>
-        <div class="metric-card summ">
-          <h4>Summary</h4>
-          <p>Like Histogram, but pre-computes quantiles client-side. Cannot be aggregated across processes.</p>
-          <div class="use"><strong>Use for:</strong> single-process apps where you need precise quantile accuracy.</div>
-          <div class="use"><strong>Avoid for:</strong> multi-process setups (Gunicorn workers).</div>
-          <div class="use"><strong>In practice:</strong> prefer Histogram in virtually all Django production setups.</div>
-        </div>
-      </div>
-
-      <h3>Counter — Full Code Reference</h3>
-      <div class="code-block">
-        <div class="code-header"><span>python — Counter</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Counter
-
-<span class="comment-line"># Define at MODULE LEVEL — not inside a function or class</span>
-orders_created = Counter(
-    <span class="hl3">"myapp_orders_created_total"</span>,   <span class="comment-line"># counters must end in _total</span>
-    <span class="hl3">"Total number of orders created"</span>,
-)
-payments_failed = Counter(
-    <span class="hl3">"myapp_payments_failed_total"</span>,
-    <span class="hl3">"Total failed payment attempts"</span>,
-    [<span class="hl3">"payment_provider"</span>],
-)
-
-orders_created.inc()                                       <span class="comment-line"># +1</span>
-orders_created.inc(<span class="m">5</span>)                                    <span class="comment-line"># +5</span>
-payments_failed.labels(payment_provider=<span class="hl3">"stripe"</span>).inc()</code></pre>
-      </div>
-
-      <h3>Gauge — Full Code Reference</h3>
-      <div class="code-block">
-        <div class="code-header"><span>python — Gauge</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Gauge
-
-active_sessions = Gauge(<span class="hl3">"myapp_active_sessions"</span>, <span class="hl3">"Currently active user sessions"</span>)
-queue_depth = Gauge(<span class="hl3">"myapp_task_queue_depth"</span>, <span class="hl3">"Tasks in Celery queue"</span>, [<span class="hl3">"queue_name"</span>])
-
-active_sessions.set(<span class="m">42</span>)
-active_sessions.inc()
-active_sessions.dec()
-queue_depth.labels(queue_name=<span class="hl3">"default"</span>).set(depth)
-
-<span class="comment-line"># Context manager: auto inc on enter, auto dec on exit</span>
-<span class="k">with</span> active_sessions.track_inprogress():
-    process_request()</code></pre>
-      </div>
-
-      <h3>Histogram — Full Code Reference</h3>
-      <div class="code-block">
-        <div class="code-header"><span>python — Histogram</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Histogram
-
-request_latency = Histogram(
-    <span class="hl3">"myapp_request_duration_seconds"</span>,
-    <span class="hl3">"Time spent processing a request"</span>,
-    [<span class="hl3">"endpoint"</span>, <span class="hl3">"method"</span>],
-    buckets=(<span class="m">0.005</span>, <span class="m">0.01</span>, <span class="m">0.025</span>, <span class="m">0.05</span>, <span class="m">0.1</span>, <span class="m">0.25</span>, <span class="m">0.5</span>, <span class="m">1.0</span>, <span class="m">2.5</span>, float(<span class="hl3">"inf"</span>)),
-)
-
-<span class="comment-line"># Manual observe</span>
-<span class="k">import</span> time
-start = time.time()
-process_order()
-request_latency.labels(endpoint=<span class="hl3">"/api/orders/"</span>, method=<span class="hl3">"POST"</span>).observe(time.time() - start)
-
-<span class="comment-line"># Context manager (cleaner)</span>
-<span class="k">with</span> request_latency.labels(endpoint=<span class="hl3">"/api/orders/"</span>, method=<span class="hl3">"POST"</span>).time():
-    process_order()
-
-<span class="comment-line"># Decorator</span>
-@request_latency.labels(endpoint=<span class="hl3">"/api/products/"</span>, method=<span class="hl3">"GET"</span>).time()
-<span class="k">def</span> <span class="n">list_products</span>():
-    ...</code></pre>
-      </div>
-    </section>
-
-    <!-- §10 CUSTOM METRICS -->
-    <section id="custom">
-      <div class="section-eyebrow"><span class="section-num">§ 10</span><span class="section-tag">Instrumentation</span></div>
-      <h2>Custom <em>Metrics</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <p>Custom metrics are where django-prometheus becomes truly powerful. The built-in metrics tell you <em>how Django is performing</em>; custom metrics tell you <em>what your business is doing</em>.</p>
-
-      <div class="callout danger">
-        <strong>Define metrics at module level</strong>
-        <p>Prometheus metrics are global singletons. Define them at the top of a module — never inside a function, view, or class method. Instantiating them inside a function creates duplicate registration errors on every request.</p>
-      </div>
-
-      <div class="code-block">
-        <div class="code-header"><span>apps/orders/metrics.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Counter, Gauge, Histogram
-
-orders_created = Counter(
-    <span class="hl3">"myapp_orders_created_total"</span>,
-    <span class="hl3">"Total orders created"</span>,
-    [<span class="hl3">"payment_provider"</span>, <span class="hl3">"user_type"</span>],
-)
-
-order_processing_duration = Histogram(
-    <span class="hl3">"myapp_order_processing_duration_seconds"</span>,
-    <span class="hl3">"Time taken to process an order from creation to confirmation"</span>,
-    [<span class="hl3">"order_type"</span>],
-    buckets=(<span class="m">0.1</span>, <span class="m">0.5</span>, <span class="m">1.0</span>, <span class="m">2.5</span>, <span class="m">5.0</span>, <span class="m">10.0</span>, <span class="m">30.0</span>, <span class="m">60.0</span>, float(<span class="hl3">"inf"</span>)),
-)
-
-orders_pending = Gauge(
-    <span class="hl3">"myapp_orders_pending"</span>,
-    <span class="hl3">"Number of orders currently in pending status"</span>,
-)
-
-payments_failed = Counter(
-    <span class="hl3">"myapp_payments_failed_total"</span>,
-    <span class="hl3">"Total failed payment attempts"</span>,
-    [<span class="hl3">"payment_provider"</span>, <span class="hl3">"failure_reason"</span>],
-)
-
-user_logins = Counter(
-    <span class="hl3">"myapp_user_logins_total"</span>,
-    <span class="hl3">"Total successful user logins"</span>,
-    [<span class="hl3">"auth_method"</span>],  <span class="comment-line"># password, oauth, sso</span>
-)
-
-user_login_failures = Counter(
-    <span class="hl3">"myapp_user_login_failures_total"</span>,
-    <span class="hl3">"Total failed login attempts"</span>,
-    [<span class="hl3">"failure_reason"</span>],
+<span class="cm"># Nested deeper — CostCenter has self-referential parent FK</span>
+JournalEntryLine.objects.select_related(
+    <span class="st">"journal_entry__company"</span>,
+    <span class="st">"coa_account"</span>,
+    <span class="st">"cost_center__parent"</span>,
 )</code></pre>
       </div>
-
-      <div class="code-block">
-        <div class="code-header"><span>apps/orders/services.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> django.db <span class="k">import</span> transaction
-<span class="k">from</span> .metrics <span class="k">import</span> orders_created, order_processing_duration, orders_pending, payments_failed
-
-<span class="k">def</span> <span class="n">create_order</span>(*, user, items, payment_provider):
-    <span class="k">with</span> order_processing_duration.labels(order_type=<span class="hl3">"standard"</span>).time():
-        <span class="k">with</span> transaction.atomic():
-            order = Order.objects.create(user=user)
-            <span class="k">for</span> item <span class="k">in</span> items:
-                OrderItem.objects.create(order=order, **item)
-
-        user_type = <span class="hl3">"premium"</span> <span class="k">if</span> user.is_premium <span class="k">else</span> <span class="hl3">"standard"</span>
-        orders_created.labels(payment_provider=payment_provider, user_type=user_type).inc()
-        orders_pending.inc()
-    <span class="k">return</span> order
-
-
-<span class="k">def</span> <span class="n">process_payment</span>(order, payment_provider):
-    <span class="k">try</span>:
-        charge_card(order)
-        orders_pending.dec()
-    <span class="k">except</span> PaymentDeclined:
-        payments_failed.labels(payment_provider=payment_provider, failure_reason=<span class="hl3">"card_declined"</span>).inc()
-        <span class="k">raise</span>
-    <span class="k">except</span> InsufficientFunds:
-        payments_failed.labels(payment_provider=payment_provider, failure_reason=<span class="hl3">"insufficient_funds"</span>).inc()
-        <span class="k">raise</span></code></pre>
-      </div>
-
-      <h3>Periodic Gauge Updates via Celery</h3>
-      <div class="code-block">
-        <div class="code-header"><span>apps/orders/tasks.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> celery <span class="k">import</span> shared_task
-<span class="k">from</span> .models <span class="k">import</span> Order
-<span class="k">from</span> .metrics <span class="k">import</span> orders_pending
-
-@shared_task
-<span class="k">def</span> <span class="n">update_order_metrics</span>():
-    <span class="hl3">"""Sync gauge with actual DB state. Run every minute via Celery Beat."""</span>
-    pending_count = Order.objects.filter(status=<span class="hl3">"pending"</span>).count()
-    orders_pending.set(pending_count)</code></pre>
-      </div>
     </section>
 
-    <!-- §11 LABELS -->
-    <section id="labels">
-      <div class="section-eyebrow"><span class="section-num">§ 11</span><span class="section-tag">Data Modeling</span></div>
-      <h2>Labels &amp; <em>Cardinality</em></h2>
+    <!-- §6 PREFETCH -->
+    <section id="prefetch">
+      <div class="section-eyebrow"><span class="section-num">§ 06</span><span class="section-tag">Level 2 — Intermediate</span></div>
+      <h2>prefetch_related — <em>Reverse FK &amp; M2M</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
-      <p>Labels are key-value pairs that let you slice and group data when querying. They are the most powerful feature of Prometheus and the most common source of serious production problems.</p>
+      <p><code>prefetch_related</code> executes a <strong>separate</strong> query for the related objects and stitches the results together in Python. Use it for reverse FK (one-to-many) and M2M. It avoids N+1 with 2 queries total instead of a JOIN.</p>
 
-      <div class="two-col">
-        <div class="card" style="border-top: 3px solid var(--red);">
-          <h4 style="color: var(--red);">Never use these as labels</h4>
-          <ul>
-            <li>User IDs — millions of users = millions of series</li>
-            <li>Request IDs / session IDs — unbounded</li>
-            <li>IP addresses — unbounded</li>
-            <li>Raw URL paths — /orders/123 creates a series per order</li>
-            <li>Timestamps</li>
-            <li>Email addresses</li>
-          </ul>
-        </div>
-        <div class="card" style="border-top: 3px solid var(--green);">
-          <h4 style="color: var(--green);">Good label candidates</h4>
-          <ul>
-            <li>HTTP method (GET, POST — 5–7 values)</li>
-            <li>Status code (200, 404, 500 — small set)</li>
-            <li>View name (bounded by code)</li>
-            <li>Payment provider (stripe, paypal — small)</li>
-            <li>Queue name</li>
-            <li>User type (anonymous, authenticated, premium)</li>
-            <li>Error type / failure reason</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="callout info">
-        <strong>Cardinality rule of thumb</strong>
-        <p>Keep each label to under ~100 distinct values. The total time series for a metric equals the product of all label cardinalities: labels [status (5), view_name (50), method (5)] creates 1,250 time series — fine. A user_id label with 1 million users creates 1 million time series — that will break Prometheus.</p>
-      </div>
-    </section>
-
-    <!-- §12 MULTI-PROCESS -->
-    <section id="multiproc">
-      <div class="section-eyebrow"><span class="section-num">§ 12</span><span class="section-tag">Critical</span></div>
-      <h2>The Multi-Process <em>Problem</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <p>This is the most commonly misunderstood aspect of running Prometheus with Python. If you skip this section and run multiple Gunicorn workers, your metrics will be incorrect.</p>
-
-      <div class="arch">
-        <div class="arch-title">Solution — shared directory aggregation</div>
-        <div class="mp-diagram">
-          <div class="mp-row">
-            <div class="mp-box worker">Worker 1<small>writes metrics file</small></div>
-            <div class="mp-box worker">Worker 2<small>writes metrics file</small></div>
-            <div class="mp-box worker">Worker N<small>writes metrics file</small></div>
-          </div>
-          <div class="mp-arrow-v"></div>
-          <div class="mp-box dir">PROMETHEUS_MULTIPROC_DIR<small>/tmp/prometheus_multiproc/</small></div>
-          <div class="mp-arrow-v"></div>
-          <div class="mp-label">Any worker handling /metrics reads + aggregates all files</div>
-          <div class="mp-arrow-v"></div>
-          <div class="mp-box prom">Prometheus<small>sees complete, correct metrics</small></div>
-        </div>
-      </div>
-
-      <div class="steps">
-        <div class="step">
-          <h3>Create the directory</h3>
-          <div class="code-block">
-            <div class="code-header"><span>bash</span></div>
-            <pre><code>mkdir -p /tmp/prometheus_multiproc
-<span class="comment-line"># In production, use tmpfs: /run/prometheus_multiproc</span></code></pre>
-          </div>
-        </div>
-
-        <div class="step">
-          <h3>Set the environment variable before Django starts</h3>
-          <div class="code-block">
-            <div class="code-header"><span>entrypoint.sh</span></div>
-            <pre><code>export PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
-gunicorn config.wsgi:application --workers 4</code></pre>
-          </div>
-          <div class="code-block">
-            <div class="code-header"><span>Dockerfile</span></div>
-            <pre><code>ENV PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
-RUN mkdir -p /tmp/prometheus_multiproc</code></pre>
-          </div>
-        </div>
-
-        <div class="step">
-          <h3>Add child_exit hook to gunicorn.conf.py</h3>
-          <div class="code-block">
-            <div class="code-header"><span>gunicorn.conf.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> multiprocess
-
-<span class="k">def</span> <span class="n">child_exit</span>(server, worker):
-    multiprocess.mark_process_dead(worker.pid)</code></pre>
-          </div>
-        </div>
-
-        <div class="step">
-          <h3>Clear the directory on startup</h3>
-          <div class="code-block">
-            <div class="code-header"><span>entrypoint.sh</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <pre><code>rm -rf /tmp/prometheus_multiproc/*
-python manage.py migrate
-exec gunicorn config.wsgi:application --workers 4 --config gunicorn.conf.py</code></pre>
-          </div>
-        </div>
-
-        <div class="step">
-          <h3>Disable preload_app in Gunicorn</h3>
-          <div class="code-block">
-            <div class="code-header"><span>gunicorn.conf.py</span></div>
-            <pre><code>preload_app = <span class="k">False</span>  <span class="comment-line"># REQUIRED for multiprocess mode</span></code></pre>
-          </div>
-        </div>
-      </div>
-
-      <h3>Gauge Modes in Multiprocess</h3>
       <div class="code-block">
-        <div class="code-header"><span>python — multiprocess_mode for Gauges</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Gauge
+        <div class="code-header"><span>Python — prefetch_related</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Prefetch
 
-active_requests = Gauge(
-    <span class="hl3">"myapp_active_requests"</span>,
-    <span class="hl3">"Requests currently being processed"</span>,
-    multiprocess_mode=<span class="hl3">"livesum"</span>,   <span class="comment-line"># Sum all LIVE workers</span>
+<span class="cm"># Basic — fetches all lines in a single separate query</span>
+JournalEntry.objects.prefetch_related(<span class="st">"lines"</span>)
+
+<span class="cm"># With Prefetch() — customize the queryset for the related objects</span>
+JournalEntry.objects.prefetch_related(
+    Prefetch(
+        <span class="st">"lines"</span>,
+        queryset=JournalEntryLine.objects.select_related(<span class="st">"coa_account"</span>, <span class="st">"cost_center"</span>)
+    )
+)
+<span class="cm"># Result: exactly 2 DB queries regardless of how many JournalEntries are returned</span>
+
+<span class="cm"># Prefetch with filtering + to_attr (stores as a plain list on the instance)</span>
+JournalEntry.objects.prefetch_related(
+    Prefetch(
+        <span class="st">"lines"</span>,
+        queryset=JournalEntryLine.objects.filter(debit__gt=<span class="nm">0</span>).select_related(<span class="st">"coa_account"</span>),
+        to_attr=<span class="st">"debit_lines"</span>,  <span class="cm"># access as entry.debit_lines (list, not queryset)</span>
+    )
 )
 
-<span class="comment-line"># "all"         — one series per process, labeled by pid (default)
-# "livesum"     — sum of all LIVE processes only
-# "liveall"     — all series, only for LIVE processes
-# "min"         — minimum value across all processes
-# "max"         — maximum value across all processes
-# "sum"         — sum of all processes (alive and dead)
-# "mostrecent"  — most recently set value</span></code></pre>
+<span class="cm"># Prefetch on self-referential FK (active children of each account)</span>
+ChartOfAccount.objects.prefetch_related(
+    Prefetch(<span class="st">"children"</span>, queryset=ChartOfAccount.objects.filter(is_active=<span class="kw">True</span>))
+)</code></pre>
       </div>
     </section>
 
-    <!-- §13 SECURITY -->
-    <section id="security">
-      <div class="section-eyebrow"><span class="section-num">§ 13</span><span class="section-tag">Hardening</span></div>
-      <h2>Securing <em>/metrics</em></h2>
+    <!-- §7 JOINS -->
+    <section id="joins">
+      <div class="section-eyebrow"><span class="section-num">§ 07</span><span class="section-tag">Level 2 — Intermediate</span></div>
+      <h2>Filtering Across <em>Relationships</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
-      <h3>Option 1 — Network-Level Restriction (Recommended)</h3>
-      <div class="code-block">
-        <div class="code-header"><span>nginx.conf</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>location /metrics {
-    allow <span class="hl3">10.0.1.50</span>;   <span class="comment-line"># Your Prometheus server's internal IP</span>
-    deny all;
-    proxy_pass http://django:8000;
-}</code></pre>
+      <div class="callout warning">
+        <strong>The chained .filter() subtlety — one of the most common query bugs</strong>
+        <p>For multi-valued relations (reverse FK, M2M), chaining two <code>.filter()</code> calls vs putting both conditions in the same <code>.filter()</code> produces <strong>different SQL</strong>.</p>
       </div>
-
-      <h3>Option 2 — Token Authentication</h3>
-      <div class="code-block">
-        <div class="code-header"><span>config/urls.py — protected metrics view</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>@require_GET
-<span class="k">def</span> <span class="n">metrics_view</span>(request):
-    token = request.headers.get(<span class="hl3">"Authorization"</span>, <span class="hl3">""</span>)
-    <span class="k">if</span> token != <span class="k">f</span><span class="hl3">"Bearer {settings.PROMETHEUS_TOKEN}"</span>:
-        <span class="k">return</span> HttpResponse(status=<span class="m">403</span>)
-
-    <span class="k">from</span> prometheus_client <span class="k">import</span> generate_latest, CONTENT_TYPE_LATEST
-    <span class="k">return</span> HttpResponse(generate_latest(), content_type=CONTENT_TYPE_LATEST)</code></pre>
-      </div>
-    </section>
-
-    <!-- §14 PROMETHEUS SERVER -->
-    <section id="prometheus">
-      <div class="section-eyebrow"><span class="section-num">§ 14</span><span class="section-tag">Infrastructure</span></div>
-      <h2>Prometheus Server <em>Configuration</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
       <div class="code-block">
-        <div class="code-header"><span>prometheus.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>global:
-  scrape_interval: <span class="hl3">15s</span>
-  evaluation_interval: <span class="hl3">15s</span>
+        <div class="code-header"><span>Python — filter across relationships</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># Forward FK — implicit JOIN</span>
+JournalEntry.objects.filter(company__name__icontains=<span class="st">"Acme"</span>)
 
-rule_files:
-  - <span class="hl3">"alerts.yml"</span>
+<span class="cm"># Multi-level traversal</span>
+JournalEntry.objects.filter(lines__coa_account__account_type=<span class="st">"expense"</span>)
 
-scrape_configs:
-  - job_name: <span class="hl3">"django"</span>
-    static_configs:
-      - targets: [<span class="hl3">"web:8000"</span>]
-    metrics_path: <span class="hl3">"/metrics"</span>
+<span class="cm"># Without distinct(), an entry with 3 qualifying lines appears 3 times</span>
+JournalEntry.objects.filter(lines__debit__gt=<span class="nm">0</span>).distinct()
 
-  - job_name: <span class="hl3">"prometheus"</span>
-    static_configs:
-      - targets: [<span class="hl3">"localhost:9090"</span>]</code></pre>
+<span class="cm"># Version A: finds entries where a SINGLE line has debit > 0 AND credit == 0</span>
+JournalEntry.objects.filter(lines__debit__gt=<span class="nm">0</span>, lines__credit=<span class="nm">0</span>)
+
+<span class="cm"># Version B: finds entries where (some line has debit > 0) AND (some other line has credit == 0)</span>
+JournalEntry.objects.filter(lines__debit__gt=<span class="nm">0</span>).filter(lines__credit=<span class="nm">0</span>)</code></pre>
       </div>
     </section>
 
-    <!-- §15 PROMQL -->
-    <section id="promql">
-      <div class="section-eyebrow"><span class="section-num">§ 15</span><span class="section-tag">Querying</span></div>
-      <h2>PromQL <em>Queries</em></h2>
+    <!-- §8 Q OBJECTS -->
+    <section id="qobjects">
+      <div class="section-eyebrow"><span class="section-num">§ 08</span><span class="section-tag">Level 2 — Intermediate</span></div>
+      <h2>Q Objects — <em>Arbitrary Boolean Logic</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
-      <h3>rate() — How fast is a counter increasing?</h3>
-      <div class="promql-box">
-        <div class="promql-header"><span>PromQL — rate()</span></div>
-        <pre><code><span class="comment-line"># Requests per second (last 5 minutes)</span>
-<span class="fn">rate</span>(django_http_requests_total_by_method_total[<span class="num">5m</span>])
-
-<span class="comment-line"># 500 errors per second</span>
-<span class="fn">rate</span>(django_http_responses_total_by_status_total{<span class="label-sel">status="500"</span>}[<span class="num">5m</span>])
-
-<span class="comment-line"># DB queries per second</span>
-<span class="fn">rate</span>(django_db_execute_total{<span class="label-sel">alias="default"</span>}[<span class="num">5m</span>])</code></pre>
-      </div>
-
-      <h3>histogram_quantile() — Percentile latency</h3>
-      <div class="promql-box">
-        <div class="promql-header"><span>PromQL — percentiles</span></div>
-        <pre><code><span class="comment-line"># p95 request latency</span>
-<span class="fn">histogram_quantile</span>(<span class="num">0.95</span>,
-  <span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket[<span class="num">5m</span>])
-)
-
-<span class="comment-line"># p99 latency per view</span>
-<span class="fn">histogram_quantile</span>(<span class="num">0.99</span>,
-  <span class="fn">sum</span> by (<span class="label-sel">view, le</span>) (
-    <span class="fn">rate</span>(django_http_requests_latency_seconds_by_view_method_bucket[<span class="num">5m</span>])
-  )
-)
-
-<span class="comment-line"># Median latency in milliseconds</span>
-<span class="fn">histogram_quantile</span>(<span class="num">0.50</span>,
-  <span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket[<span class="num">5m</span>])
-) <span class="op">*</span> <span class="num">1000</span></code></pre>
-      </div>
-
-      <h3>Production Query Cookbook</h3>
-      <div class="promql-box">
-        <div class="promql-header"><span>HTTP performance</span></div>
-        <pre><code><span class="comment-line"># Error rate — percentage of 5xx responses</span>
-<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_responses_total_by_status_total{<span class="label-sel">status=~"5.."</span>}[<span class="num">5m</span>]))
-<span class="op">/</span>
-<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_total_by_method_total[<span class="num">5m</span>]))
-<span class="op">*</span> <span class="num">100</span>
-
-<span class="comment-line"># Apdex score — ratio of requests under 500ms</span>
-<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket{<span class="label-sel">le="0.5"</span>}[<span class="num">5m</span>]))
-<span class="op">/</span>
-<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_count[<span class="num">5m</span>]))</code></pre>
-      </div>
-
-      <div class="promql-box">
-        <div class="promql-header"><span>Database & Cache</span></div>
-        <pre><code><span class="comment-line"># Average DB query duration</span>
-<span class="fn">rate</span>(django_db_query_duration_seconds_sum[<span class="num">5m</span>])
-<span class="op">/</span>
-<span class="fn">rate</span>(django_db_query_duration_seconds_count[<span class="num">5m</span>])
-
-<span class="comment-line"># Cache hit rate (0–1, higher is better)</span>
-<span class="fn">rate</span>(django_cache_get_hits_total[<span class="num">5m</span>])
-<span class="op">/</span>
-<span class="fn">rate</span>(django_cache_get_total[<span class="num">5m</span>])</code></pre>
-      </div>
-
-      <div class="promql-box">
-        <div class="promql-header"><span>Business metrics</span></div>
-        <pre><code><span class="comment-line"># Payment failure rate</span>
-<span class="fn">rate</span>(myapp_payments_failed_total[<span class="num">5m</span>])
-<span class="op">/</span>
-(<span class="fn">rate</span>(myapp_payments_failed_total[<span class="num">5m</span>]) <span class="op">+</span> <span class="fn">rate</span>(myapp_orders_created_total[<span class="num">5m</span>]))
-<span class="op">*</span> <span class="num">100</span>
-
-<span class="comment-line"># Unapplied migrations — alert when > 0</span>
-django_migrations_unapplied_by_connection <span class="op">></span> <span class="num">0</span></code></pre>
-      </div>
-    </section>
-
-    <!-- §16 ALERTING -->
-    <section id="alerting">
-      <div class="section-eyebrow"><span class="section-num">§ 16</span><span class="section-tag">Operations</span></div>
-      <h2>Alerting <em>Rules</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+      <p><code>Q</code> objects wrap filter conditions and can be composed with <code>|</code> (OR), <code>&amp;</code> (AND), and <code>~</code> (NOT). Without Q objects you're limited to AND-only filters.</p>
 
       <div class="code-block">
-        <div class="code-header"><span>alerts.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>groups:
-  - name: django_application
-    rules:
-      - alert: HighErrorRate
-        expr: |
-          <span class="fn">sum</span>(<span class="fn">rate</span>(django_http_responses_total_by_status_total{status=~"5.."}[5m]))
-          /
-          <span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_total_by_method_total[5m]))
-          > 0.01
-        for: <span class="hl3">2m</span>
-        labels:
-          severity: critical
-        annotations:
-          summary: <span class="hl3">"High HTTP error rate on {{ $labels.instance }}"</span>
-          description: <span class="hl3">"{{ $value | humanizePercentage }} of requests are 5xx."</span>
+        <div class="code-header"><span>Python — Q objects</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Q
 
-      - alert: HighLatency
-        expr: |
-          <span class="fn">histogram_quantile</span>(0.95,
-            <span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket[5m])
-          ) > 2.0
-        for: <span class="hl3">5m</span>
-        labels:
-          severity: warning
-        annotations:
-          summary: <span class="hl3">"High request latency"</span>
-          description: <span class="hl3">"p95 latency is {{ $value }}s"</span>
+<span class="cm"># OR</span>
+JournalEntry.objects.filter(Q(status=<span class="st">"posted"</span>) | Q(reference__startswith=<span class="st">"INV"</span>))
 
-      - alert: UnappliedMigrations
-        expr: django_migrations_unapplied_by_connection > 0
-        for: <span class="hl3">1m</span>
-        labels:
-          severity: warning
-        annotations:
-          summary: <span class="hl3">"Unapplied database migrations detected"</span>
+<span class="cm"># NOT</span>
+JournalEntry.objects.filter(<span class="op">~</span>Q(status=<span class="st">"voided"</span>))
 
-      - alert: LowCacheHitRate
-        expr: |
-          <span class="fn">rate</span>(django_cache_get_hits_total[10m])
-          /
-          <span class="fn">rate</span>(django_cache_get_total[10m]) < 0.5
-        for: <span class="hl3">10m</span>
-        labels:
-          severity: warning
-        annotations:
-          summary: <span class="hl3">"Cache hit rate below 50%"</span>
+<span class="cm"># Combine NOT with OR</span>
+JournalEntry.objects.filter(<span class="op">~</span>Q(status=<span class="st">"voided"</span>) <span class="op">&</span> (Q(company=company) | Q(reference__startswith=<span class="st">"INV"</span>)))
 
-      - alert: PaymentFailureSpike
-        expr: rate(myapp_payments_failed_total[5m]) > 0.5
-        for: <span class="hl3">2m</span>
-        labels:
-          severity: critical
-        annotations:
-          summary: <span class="hl3">"Payment failures spiking"</span></code></pre>
-      </div>
-    </section>
+<span class="cm"># Dynamic filter construction — build up Q objects programmatically</span>
+<span class="kw">def</span> <span class="fn">search_entries</span>(company, status=<span class="kw">None</span>, date_from=<span class="kw">None</span>, date_to=<span class="kw">None</span>, search_term=<span class="kw">None</span>):
+    <span class="at">filters</span> = Q(company=company)
 
-    <!-- §17 GRAFANA -->
-    <section id="grafana">
-      <div class="section-eyebrow"><span class="section-num">§ 17</span><span class="section-tag">Visualization</span></div>
-      <h2>Grafana <em>Dashboards</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <h3>Essential Dashboard Panels</h3>
-      <table class="data-table">
-        <thead><tr><th>Panel</th><th>Visualization</th><th>PromQL Query</th></tr></thead>
-        <tbody>
-          <tr><td>Request Rate</td><td>Time Series</td><td><code style="font-size:0.72rem">sum(rate(django_http_requests_total_by_method_total[5m]))</code></td></tr>
-          <tr><td>Error Rate (%)</td><td>Gauge + Time Series</td><td><code style="font-size:0.72rem">sum(rate(...{status=~"5.."}[5m])) / sum(rate(...[5m])) * 100</code></td></tr>
-          <tr><td>p95 Latency (ms)</td><td>Time Series</td><td><code style="font-size:0.72rem">histogram_quantile(0.95, rate(..._bucket[5m])) * 1000</code></td></tr>
-          <tr><td>DB Query Rate</td><td>Time Series</td><td><code style="font-size:0.72rem">rate(django_db_execute_total{alias="default"}[5m])</code></td></tr>
-          <tr><td>Cache Hit Rate (%)</td><td>Gauge</td><td><code style="font-size:0.72rem">rate(django_cache_get_hits_total[5m]) / rate(django_cache_get_total[5m]) * 100</code></td></tr>
-          <tr><td>Memory (MB)</td><td>Time Series</td><td><code style="font-size:0.72rem">process_resident_memory_bytes / 1024 / 1024</code></td></tr>
-          <tr><td>Unapplied Migrations</td><td>Stat (red &gt; 1)</td><td><code style="font-size:0.72rem">django_migrations_unapplied_by_connection</code></td></tr>
-          <tr><td>Pending Orders</td><td>Stat</td><td><code style="font-size:0.72rem">myapp_orders_pending</code></td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- §18 CUSTOM LABELS -->
-    <section id="custom-labels">
-      <div class="section-eyebrow"><span class="section-num">§ 18</span><span class="section-tag">Advanced</span></div>
-      <h2>Custom Middleware <em>Labels</em></h2>
-      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
-
-      <div class="code-block">
-        <div class="code-header"><span>myapp/prometheus_middleware.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code><span class="k">from</span> django_prometheus.middleware <span class="k">import</span> Metrics, PrometheusBeforeMiddleware, PrometheusAfterMiddleware
-
-<span class="k">class</span> <span class="n">CustomMetrics</span>(Metrics):
-    <span class="k">def</span> <span class="n">register_metric</span>(self, metric_cls, name, documentation, labelnames=(), **kwargs):
-        <span class="k">return</span> super().register_metric(
-            metric_cls, name, documentation,
-            labelnames=list(labelnames) + [<span class="hl3">"api_version"</span>, <span class="hl3">"user_type"</span>],
-            **kwargs,
+    <span class="kw">if</span> status:
+        <span class="at">filters</span> <span class="op">&=</span> Q(status=status)
+    <span class="kw">if</span> date_from:
+        <span class="at">filters</span> <span class="op">&=</span> Q(date__gte=date_from)
+    <span class="kw">if</span> date_to:
+        <span class="at">filters</span> <span class="op">&=</span> Q(date__lte=date_to)
+    <span class="kw">if</span> search_term:
+        <span class="at">filters</span> <span class="op">&=</span> (
+            Q(description__icontains=search_term) |
+            Q(reference__icontains=search_term) |
+            Q(lines__description__icontains=search_term)
         )
 
-<span class="k">class</span> <span class="n">CustomPrometheusBeforeMiddleware</span>(PrometheusBeforeMiddleware):
-    metrics_cls = CustomMetrics
-
-<span class="k">class</span> <span class="n">CustomPrometheusAfterMiddleware</span>(PrometheusAfterMiddleware):
-    metrics_cls = CustomMetrics
-
-    <span class="k">def</span> <span class="n">label_metric</span>(self, metric, request, response=<span class="k">None</span>, **labels):
-        api_version = getattr(request, <span class="hl3">"version"</span>, <span class="hl3">"v1"</span>) <span class="k">or</span> <span class="hl3">"v1"</span>
-        user_type = <span class="hl3">"authenticated"</span> <span class="k">if</span> request.user.is_authenticated <span class="k">else</span> <span class="hl3">"anonymous"</span>
-        <span class="k">return</span> super().label_metric(metric, request, response, api_version=api_version, user_type=user_type, **labels)</code></pre>
+    <span class="kw">return</span> JournalEntry.objects.filter(filters).distinct()</code></pre>
       </div>
     </section>
 
-    <!-- §19 DOCKER -->
-    <section id="docker">
-      <div class="section-eyebrow"><span class="section-num">§ 19</span><span class="section-tag">Deployment</span></div>
-      <h2>Docker &amp; <em>Kubernetes</em></h2>
+    <!-- §9 MANAGERS -->
+    <section id="managers">
+      <div class="section-eyebrow"><span class="section-num">§ 09</span><span class="section-tag">Level 2 — Intermediate</span></div>
+      <h2>Custom QuerySets <em>&amp; Managers</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Scattering <code>.filter(status="posted")</code> across 20 views is a maintenance nightmare. Custom QuerySets centralize this logic, make it reusable, and make your code read like English.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — custom QuerySet & Manager</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Prefetch, Sum, Count, Q
+
+
+<span class="kw">class</span> <span class="fn">JournalEntryQuerySet</span>(models.QuerySet):
+    <span class="kw">def</span> <span class="fn">posted</span>(self): <span class="kw">return</span> self.filter(status=<span class="st">"posted"</span>)
+    <span class="kw">def</span> <span class="fn">draft</span>(self): <span class="kw">return</span> self.filter(status=<span class="st">"draft"</span>)
+    <span class="kw">def</span> <span class="fn">for_company</span>(self, company): <span class="kw">return</span> self.filter(company=company)
+    <span class="kw">def</span> <span class="fn">in_period</span>(self, date_from, date_to): <span class="kw">return</span> self.filter(date__range=(date_from, date_to))
+    <span class="kw">def</span> <span class="fn">in_year</span>(self, year): <span class="kw">return</span> self.filter(date__year=year)
+
+    <span class="kw">def</span> <span class="fn">unbalanced</span>(self):
+        <span class="st">"""Entries where total debits != total credits."""</span>
+        <span class="kw">return</span> self.annotate(
+            total_debit=Sum(<span class="st">"lines__debit"</span>),
+            total_credit=Sum(<span class="st">"lines__credit"</span>),
+        ).exclude(total_debit=models.F(<span class="st">"total_credit"</span>))
+
+    <span class="kw">def</span> <span class="fn">with_lines</span>(self):
+        <span class="st">"""Eagerly load lines and their FKs — use whenever serializing."""</span>
+        <span class="kw">return</span> self.prefetch_related(
+            Prefetch(<span class="st">"lines"</span>, queryset=JournalEntryLine.objects.select_related(
+                <span class="st">"coa_account"</span>, <span class="st">"cost_center"</span>
+            ).order_by(<span class="st">"id"</span>))
+        )
+
+    <span class="kw">def</span> <span class="fn">with_totals</span>(self):
+        <span class="kw">return</span> self.annotate(
+            total_debit=Sum(<span class="st">"lines__debit"</span>),
+            total_credit=Sum(<span class="st">"lines__credit"</span>),
+            line_count=Count(<span class="st">"lines"</span>),
+        )
+
+    <span class="kw">def</span> <span class="fn">search</span>(self, term):
+        <span class="kw">return</span> self.filter(Q(description__icontains=term) | Q(reference__icontains=term))
+
+
+<span class="kw">class</span> <span class="fn">JournalEntryManager</span>(models.Manager):
+    <span class="kw">def</span> <span class="fn">get_queryset</span>(self): <span class="kw">return</span> JournalEntryQuerySet(self.model, using=self._db)
+    <span class="kw">def</span> <span class="fn">posted</span>(self): <span class="kw">return</span> self.get_queryset().posted()
+    <span class="kw">def</span> <span class="fn">for_company</span>(self, company): <span class="kw">return</span> self.get_queryset().for_company(company)
+
+
+<span class="cm"># The payoff — reads like English, one DB hit:</span>
+<span class="at">entries</span> = (
+    JournalEntry.objects
+    .for_company(company).posted().in_year(<span class="nm">2024</span>)
+    .with_lines().with_totals().search(<span class="st">"payroll"</span>)
+    .order_by(<span class="st">"-date"</span>)
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §10 AGGREGATIONS -->
+    <section id="aggregations">
+      <div class="section-eyebrow"><span class="section-num">§ 10</span><span class="section-tag">Level 3 — Advanced</span></div>
+      <h2>aggregate() — <em>Collapse to One Dict</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>aggregate()</code> terminates the queryset and returns a Python dict. It maps to <code>SELECT SUM(...), COUNT(...) FROM ...</code> — one row returned, no GROUP BY.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — aggregate()</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Sum, Avg, Max, Min, Count, StdDev
+<span class="kw">from</span> django.db.models.functions <span class="kw">import</span> Coalesce
+<span class="kw">from</span> django.db.models <span class="kw">import</span> DecimalField, Value
+
+<span class="at">result</span> = JournalEntryLine.objects.filter(
+    journal_entry__company=company,
+    journal_entry__status=<span class="st">"posted"</span>,
+    journal_entry__date__year=<span class="nm">2024</span>,
+).aggregate(
+    total_debit=Sum(<span class="st">"debit"</span>),
+    total_credit=Sum(<span class="st">"credit"</span>),
+    avg_debit=Avg(<span class="st">"debit"</span>),
+    max_debit=Max(<span class="st">"debit"</span>),
+    line_count=Count(<span class="st">"id"</span>),
+    distinct_accounts=Count(<span class="st">"coa_account"</span>, distinct=<span class="kw">True</span>),
+)
+<span class="cm"># → {"total_debit": Decimal("1500000.00"), "line_count": 590, ...}</span>
+
+<span class="cm"># Null handling — Sum returns None if no rows; coalesce with 0</span>
+<span class="at">result</span> = JournalEntryLine.objects.filter(...).aggregate(
+    total=Coalesce(Sum(<span class="st">"debit"</span>), Value(<span class="nm">0</span>), output_field=DecimalField())
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §11 ANNOTATIONS -->
+    <section id="annotations">
+      <div class="section-eyebrow"><span class="section-num">§ 11</span><span class="section-tag">Level 3 — Advanced</span></div>
+      <h2>annotate() — <em>Computed Column Per Row</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>annotate()</code> is <code>aggregate()</code> applied per row. Each object in the resulting queryset gets the computed attribute attached. Maps to <code>SELECT ..., SUM(...) FROM ... GROUP BY (primary key)</code>.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — annotate()</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Sum, Count, F, ExpressionWrapper, DecimalField, Q
+
+<span class="cm"># Each JournalEntry gets total_debit, total_credit, line_count attached</span>
+<span class="at">entries</span> = JournalEntry.objects.annotate(
+    total_debit=Sum(<span class="st">"lines__debit"</span>),
+    total_credit=Sum(<span class="st">"lines__credit"</span>),
+    line_count=Count(<span class="st">"lines"</span>),
+)
+print(entries.first().total_debit)  <span class="cm"># Decimal — no extra query</span>
+
+<span class="cm"># Filter on annotations — uses HAVING under the hood</span>
+JournalEntry.objects.annotate(
+    total_debit=Sum(<span class="st">"lines__debit"</span>)
+).filter(total_debit__gte=<span class="nm">100000</span>)
+
+<span class="cm"># F() expressions — compute at the DB level, no Python roundtrip</span>
+JournalEntryLine.objects.annotate(
+    net=ExpressionWrapper(
+        F(<span class="st">"debit"</span>) <span class="op">-</span> F(<span class="st">"credit"</span>),
+        output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>)
+    )
+)
+
+<span class="cm"># Field-to-field comparison with F()</span>
+JournalEntryLine.objects.filter(debit=F(<span class="st">"credit"</span>))
+
+<span class="cm"># Conditional aggregation — one query, multiple conditional counts/sums</span>
+JournalEntry.objects.annotate(
+    debit_line_count=Count(<span class="st">"lines"</span>, filter=Q(lines__debit__gt=<span class="nm">0</span>)),
+    credit_line_count=Count(<span class="st">"lines"</span>, filter=Q(lines__credit__gt=<span class="nm">0</span>)),
+    expense_line_total=Sum(<span class="st">"lines__debit"</span>, filter=Q(lines__coa_account__account_type=<span class="st">"expense"</span>)),
+    revenue_line_total=Sum(<span class="st">"lines__credit"</span>, filter=Q(lines__coa_account__account_type=<span class="st">"revenue"</span>)),
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §12 GROUP BY -->
+    <section id="groupby">
+      <div class="section-eyebrow"><span class="section-num">§ 12</span><span class="section-tag">Level 3 — Advanced</span></div>
+      <h2>values() + annotate() — <em>GROUP BY</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>When you put <code>values()</code> <strong>before</strong> <code>annotate()</code>, Django generates a <code>GROUP BY</code> on the values fields.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — values() + annotate() = GROUP BY</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># Total debit and credit per account type</span>
+ChartOfAccount.objects.values(<span class="st">"account_type"</span>).annotate(
+    total_debit=Sum(<span class="st">"entry_lines__debit"</span>),
+    total_credit=Sum(<span class="st">"entry_lines__credit"</span>),
+    account_count=Count(<span class="st">"id"</span>),
+).order_by(<span class="st">"account_type"</span>)
+
+<span class="cm"># Monthly totals per cost center</span>
+JournalEntryLine.objects.filter(
+    journal_entry__status=<span class="st">"posted"</span>, journal_entry__company=company,
+).values(
+    <span class="st">"journal_entry__date__year"</span>,
+    <span class="st">"journal_entry__date__month"</span>,
+    <span class="st">"cost_center__name"</span>,
+).annotate(
+    total_debit=Sum(<span class="st">"debit"</span>),
+    total_credit=Sum(<span class="st">"credit"</span>),
+).order_by(<span class="st">"journal_entry__date__year"</span>, <span class="st">"journal_entry__date__month"</span>)
+
+<span class="cm"># values_list with flat=True — great for id__in= filters</span>
+<span class="at">posted_ids</span> = JournalEntry.objects.filter(status=<span class="st">"posted"</span>).values_list(<span class="st">"id"</span>, flat=<span class="kw">True</span>)
+JournalEntryLine.objects.filter(journal_entry_id__in=posted_ids)</code></pre>
+      </div>
+    </section>
+
+    <!-- §13 CASE/WHEN -->
+    <section id="casewhen">
+      <div class="section-eyebrow"><span class="section-num">§ 13</span><span class="section-tag">Level 3 — Advanced</span></div>
+      <h2>Case / When — <em>Conditional Expressions</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
       <div class="code-block">
-        <div class="code-header"><span>docker-compose.yml — full monitoring stack</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-        <pre><code>services:
-  web:
-    build: .
-    environment:
-      PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus_multiproc
-    volumes:
-      - prometheus_multiproc:/tmp/prometheus_multiproc
-    command: >
-      sh -c "rm -rf /tmp/prometheus_multiproc/* &&
-             python manage.py migrate &&
-             gunicorn config.wsgi:application --workers 4 --config gunicorn.conf.py"
+        <div class="code-header"><span>Python — Case/When</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Case, When, Value, IntegerField, CharField, DecimalField, F
 
-  prometheus:
-    image: prom/prometheus:latest
-    ports: [<span class="hl3">"9090:9090"</span>]
-    volumes:
-      - ./provisioning/prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    command:
-      - <span class="hl3">"--config.file=/etc/prometheus/prometheus.yml"</span>
-      - <span class="hl3">"--storage.tsdb.retention.time=15d"</span>
+<span class="cm"># Annotate each entry with a numeric sort priority</span>
+JournalEntry.objects.annotate(
+    priority=Case(
+        When(status=<span class="st">"posted"</span>, then=Value(<span class="nm">3</span>)),
+        When(status=<span class="st">"draft"</span>, then=Value(<span class="nm">2</span>)),
+        When(status=<span class="st">"voided"</span>, then=Value(<span class="nm">1</span>)),
+        default=Value(<span class="nm">0</span>),
+        output_field=IntegerField(),
+    )
+).order_by(<span class="st">"-priority"</span>, <span class="st">"-date"</span>)
 
-  grafana:
-    image: grafana/grafana:latest
-    ports: [<span class="hl3">"3000:3000"</span>]
-    volumes: [grafana_data:/var/lib/grafana]
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: changeme
+<span class="cm"># Conditional Sum — pivot into columns in ONE query</span>
+JournalEntryLine.objects.filter(
+    journal_entry__company=company, journal_entry__status=<span class="st">"posted"</span>,
+).aggregate(
+    expense_total=Sum(Case(
+        When(coa_account__account_type=<span class="st">"expense"</span>, then=F(<span class="st">"debit"</span>)),
+        default=Value(<span class="nm">0</span>),
+        output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>),
+    )),
+    revenue_total=Sum(Case(
+        When(coa_account__account_type=<span class="st">"revenue"</span>, then=F(<span class="st">"credit"</span>)),
+        default=Value(<span class="nm">0</span>),
+        output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>),
+    )),
+)
 
-volumes:
-  prometheus_data:
-  grafana_data:
-  prometheus_multiproc:</code></pre>
+<span class="cm"># Conditional update per row in one statement</span>
+JournalEntry.objects.filter(company=company).update(
+    status=Case(
+        When(approved_by__isnull=<span class="kw">False</span>, then=Value(<span class="st">"posted"</span>)),
+        default=F(<span class="st">"status"</span>),
+        output_field=models.CharField(),
+    )
+)</code></pre>
       </div>
     </section>
 
-    <!-- §20 NAMING -->
-    <section id="naming">
-      <div class="section-eyebrow"><span class="section-num">§ 20</span><span class="section-tag">Standards</span></div>
-      <h2>Naming &amp; <em>Best Practices</em></h2>
+    <!-- §14 SUBQUERIES -->
+    <section id="subqueries">
+      <div class="section-eyebrow"><span class="section-num">§ 14</span><span class="section-tag">Level 3 — Advanced</span></div>
+      <h2>Subqueries <em>&amp; OuterRef</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>Subquery</code> embeds a queryset as a SQL subquery. <code>OuterRef</code> references a field from the outer query — the Django equivalent of a correlated subquery. This avoids JOIN row multiplication.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — Subquery, OuterRef, Exists</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> OuterRef, Subquery, Exists
+
+<span class="cm"># Annotate each JournalEntry with its latest line's description</span>
+<span class="at">latest_line</span> = JournalEntryLine.objects.filter(
+    journal_entry=OuterRef(<span class="st">"pk"</span>)
+).order_by(<span class="st">"-id"</span>).values(<span class="st">"description"</span>)[:<span class="nm">1</span>]
+
+JournalEntry.objects.annotate(
+    latest_line_desc=Subquery(latest_line, output_field=models.TextField())
+)
+
+<span class="cm"># Annotate each ChartOfAccount with its most recent debit amount</span>
+<span class="at">last_debit</span> = JournalEntryLine.objects.filter(
+    coa_account=OuterRef(<span class="st">"pk"</span>), journal_entry__status=<span class="st">"posted"</span>,
+).order_by(<span class="st">"-journal_entry__date"</span>, <span class="st">"-id"</span>).values(<span class="st">"debit"</span>)[:<span class="nm">1</span>]
+
+ChartOfAccount.objects.annotate(
+    last_debit_amount=Subquery(last_debit, output_field=models.DecimalField())
+)
+
+<span class="cm"># Exists() — very efficient "does a related row exist?" check</span>
+<span class="at">has_expense_lines</span> = JournalEntryLine.objects.filter(
+    journal_entry=OuterRef(<span class="st">"pk"</span>),
+    coa_account__account_type=<span class="st">"expense"</span>,
+)
+JournalEntry.objects.annotate(has_expenses=Exists(has_expense_lines)).filter(has_expenses=<span class="kw">True</span>)
+
+<span class="cm"># Multi-level OuterRef — reference the outer outer query</span>
+<span class="at">latest_entry_for_account</span> = JournalEntry.objects.filter(
+    company=OuterRef(OuterRef(<span class="st">"company"</span>)),   <span class="cm"># two levels up</span>
+    lines__coa_account=OuterRef(<span class="st">"pk"</span>),
+    status=<span class="st">"posted"</span>,
+).order_by(<span class="st">"-date"</span>).values(<span class="st">"date"</span>)[:<span class="nm">1</span>]
+
+ChartOfAccount.objects.annotate(
+    last_used=Subquery(latest_entry_for_account, output_field=models.DateField())
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §15 BULK -->
+    <section id="bulk">
+      <div class="section-eyebrow"><span class="section-num">§ 15</span><span class="section-tag">Level 3 — Advanced</span></div>
+      <h2>Bulk Operations — <em>Replace Python Loops</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="callout info">
+        <strong>bulk_create / bulk_update do NOT call .save()</strong>
+        <p>Neither method triggers model signals or calls <code>.save()</code>. Do not rely on them for side effects. On PostgreSQL, <code>bulk_create</code> does populate IDs on returned instances.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — bulk operations</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># BULK CREATE — single INSERT (or batched)</span>
+<span class="at">lines</span> = [
+    JournalEntryLine(journal_entry=entry, coa_account=acc, debit=amount, description=desc)
+    <span class="kw">for</span> acc, amount, desc <span class="kw">in</span> line_data
+]
+<span class="at">created</span> = JournalEntryLine.objects.bulk_create(lines, batch_size=<span class="nm">500</span>)
+
+<span class="cm"># Upsert on PostgreSQL (Django 4.2+)</span>
+JournalEntryLine.objects.bulk_create(
+    lines, update_conflicts=<span class="kw">True</span>,
+    unique_fields=[<span class="st">"journal_entry"</span>, <span class="st">"coa_account"</span>],
+    update_fields=[<span class="st">"debit"</span>, <span class="st">"credit"</span>, <span class="st">"description"</span>],
+)
+
+<span class="cm"># BULK UPDATE — single UPDATE statement</span>
+JournalEntryLine.objects.bulk_update(lines, fields=[<span class="st">"debit"</span>], batch_size=<span class="nm">500</span>)
+
+<span class="cm"># UPDATE with F() expressions — the most efficient; no Python loop at all</span>
+JournalEntryLine.objects.filter(
+    journal_entry__company=company, journal_entry__status=<span class="st">"draft"</span>,
+).update(debit=F(<span class="st">"debit"</span>) <span class="op">*</span> Decimal(<span class="st">"1.1"</span>))
+<span class="cm"># → UPDATE ... SET debit = debit * 1.1 WHERE ...</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §16 WINDOWS -->
+    <section id="windows">
+      <div class="section-eyebrow"><span class="section-num">§ 16</span><span class="section-tag">Level 4 — Expert</span></div>
+      <h2>Window Functions — <em>Analytics Without GROUP BY</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Window functions compute a value "over a window" of related rows without collapsing them. Invaluable for rankings, running totals, moving averages, and lead/lag comparisons.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — Window functions</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> Window, Sum, Avg, Rank, DenseRank, RowNumber, F
+<span class="kw">from</span> django.db.models.functions <span class="kw">import</span> Lag, Lead, FirstValue, LastValue
+<span class="kw">from</span> django.db.models.expressions <span class="kw">import</span> RowRange
+
+<span class="cm"># RUNNING TOTAL — cumulative debit per account, resets per account</span>
+JournalEntryLine.objects.annotate(
+    running_debit=Window(
+        expression=Sum(<span class="st">"debit"</span>),
+        partition_by=[F(<span class="st">"coa_account"</span>)],
+        order_by=F(<span class="st">"journal_entry__date"</span>).asc(),
+    )
+)
+
+<span class="cm"># RANK — Rank skips numbers on ties (1,2,2,4); DenseRank doesn't (1,2,2,3)</span>
+JournalEntryLine.objects.annotate(
+    rank_by_debit=Window(
+        expression=Rank(),
+        partition_by=[F(<span class="st">"coa_account"</span>)],
+        order_by=F(<span class="st">"debit"</span>).desc(),
+    ),
+    row_number=Window(
+        expression=RowNumber(),
+        partition_by=[F(<span class="st">"coa_account"</span>)],
+        order_by=F(<span class="st">"journal_entry__date"</span>).asc(),
+    ),
+)
+
+<span class="cm"># LAG / LEAD — access previous or next row's value within the partition</span>
+JournalEntryLine.objects.annotate(
+    prev_debit=Window(
+        expression=Lag(<span class="st">"debit"</span>, offset=<span class="nm">1</span>, default=<span class="nm">0</span>),
+        partition_by=[F(<span class="st">"coa_account"</span>)],
+        order_by=F(<span class="st">"journal_entry__date"</span>).asc(),
+    ),
+    next_debit=Window(
+        expression=Lead(<span class="st">"debit"</span>, offset=<span class="nm">1</span>, default=<span class="nm">0</span>),
+        partition_by=[F(<span class="st">"coa_account"</span>)],
+        order_by=F(<span class="st">"journal_entry__date"</span>).asc(),
+    ),
+)
+
+<span class="cm"># MOVING AVERAGE — 7-row sliding window (current + 6 preceding)</span>
+JournalEntryLine.objects.annotate(
+    moving_avg_debit=Window(
+        expression=Avg(<span class="st">"debit"</span>),
+        partition_by=[F(<span class="st">"coa_account"</span>)],
+        order_by=F(<span class="st">"journal_entry__date"</span>).asc(),
+        frame=RowRange(start=<span class="nm">-6</span>, end=<span class="nm">0</span>),
+    )
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §17 RAW SQL -->
+    <section id="rawsql">
+      <div class="section-eyebrow"><span class="section-num">§ 17</span><span class="section-tag">Level 4 — Expert</span></div>
+      <h2>Raw SQL — <em>When the ORM Can't Express It</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>The ORM covers ~95% of real-world queries. For the remaining 5%, use raw SQL — but always prefer <code>connection.cursor()</code> with parameterized queries over f-string interpolation, which is vulnerable to SQL injection.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — cursor() for analytics queries</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db <span class="kw">import</span> connection
+
+<span class="kw">def</span> <span class="fn">get_monthly_trial_balance</span>(company_id, year):
+    <span class="kw">with</span> connection.cursor() <span class="kw">as</span> cursor:
+        cursor.execute(
+            <span class="st">"""
+            WITH monthly_totals AS (
+                SELECT
+                    DATE_TRUNC('month', je.date)::DATE AS month,
+                    jel.coa_account_id,
+                    coa.code            AS account_code,
+                    coa.name            AS account_name,
+                    coa.account_type,
+                    SUM(jel.debit)      AS total_debit,
+                    SUM(jel.credit)     AS total_credit
+                FROM journal_entry_line jel
+                INNER JOIN journal_entry je ON je.id = jel.journal_entry_id
+                INNER JOIN chart_of_account coa ON coa.id = jel.coa_account_id
+                WHERE je.company_id = %s AND je.status = 'posted'
+                  AND EXTRACT(year FROM je.date) = %s
+                GROUP BY 1, 2, 3, 4, 5
+            ),
+            running_balance AS (
+                SELECT *,
+                    SUM(total_debit - total_credit) OVER (
+                        PARTITION BY coa_account_id
+                        ORDER BY month
+                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                    ) AS running_balance
+                FROM monthly_totals
+            )
+            SELECT * FROM running_balance ORDER BY account_code, month
+            """</span>,
+            [company_id, year]
+        )
+        <span class="at">columns</span> = [col[<span class="nm">0</span>] <span class="kw">for</span> col <span class="kw">in</span> cursor.description]
+        <span class="kw">return</span> [dict(zip(columns, row)) <span class="kw">for</span> row <span class="kw">in</span> cursor.fetchall()]</code></pre>
+      </div>
+    </section>
+
+    <!-- §18 INSPECTING -->
+    <section id="inspecting">
+      <div class="section-eyebrow"><span class="section-num">§ 18</span><span class="section-tag">Level 4 — Expert</span></div>
+      <h2>Inspecting <em>Queries</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
       <div class="code-block">
-        <div class="code-header"><span>naming conventions</span></div>
-        <pre><code><span class="comment-line"># Pattern: &lt;namespace&gt;_&lt;subsystem&gt;_&lt;name&gt;_&lt;unit&gt;_total (counters)
-#           &lt;namespace&gt;_&lt;subsystem&gt;_&lt;name&gt;_&lt;unit&gt;       (gauges/histograms)</span>
+        <div class="code-header"><span>Python — debugging & EXPLAIN</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db <span class="kw">import</span> connection, reset_queries
 
-<span class="comment-line"># Good names</span>
-<span class="hl3">"myapp_http_requests_total"</span>
-<span class="hl3">"myapp_order_processing_duration_seconds"</span>
-<span class="hl3">"myapp_cache_size_bytes"</span>
-<span class="hl3">"myapp_payment_amount_dollars"</span>
+<span class="cm"># Requires DEBUG=True in settings</span>
+reset_queries()
+<span class="at">qs</span> = JournalEntry.objects.select_related(<span class="st">"company"</span>).prefetch_related(<span class="st">"lines"</span>)
+list(qs)  <span class="cm"># force evaluation</span>
 
-<span class="comment-line"># Bad names — and why</span>
-<span class="hl3">"myapp_requests"</span>           <span class="comment-line"># Counter missing _total</span>
-<span class="hl3">"myapp_requestDurationMs"</span>  <span class="comment-line"># Camel case, non-base unit</span>
-<span class="hl3">"myapp_metric_count"</span>       <span class="comment-line"># "metric" in name is redundant</span></code></pre>
-      </div>
+print(f<span class="st">"Queries fired: {len(connection.queries)}"</span>)
+<span class="kw">for</span> q <span class="kw">in</span> connection.queries:
+    print(f<span class="st">"[{q['time']}s] {q['sql']}\n"</span>)
 
-      <div class="method-grid">
-        <div class="method-card red">
-          <h4>RED Method</h4>
-          <p style="font-size:0.85rem;color:var(--ink-faint);margin-bottom:0.75rem;">For every service endpoint and background task:</p>
-          <ul>
-            <li><strong>R</strong>ate — How many requests/second?</li>
-            <li><strong>E</strong>rrors — What fraction are failing?</li>
-            <li><strong>D</strong>uration — How long does each take?</li>
-          </ul>
-        </div>
-        <div class="method-card use-card">
-          <h4>USE Method</h4>
-          <p style="font-size:0.85rem;color:var(--ink-faint);margin-bottom:0.75rem;">For every resource (DB, cache, queue, workers):</p>
-          <ul>
-            <li><strong>U</strong>tilization — Fraction of capacity used?</li>
-            <li><strong>S</strong>aturation — How much is queued waiting?</li>
-            <li><strong>E</strong>rrors — Are errors occurring?</li>
-          </ul>
-        </div>
+<span class="cm"># Print the SQL for any queryset without executing it</span>
+print(JournalEntry.objects.filter(status=<span class="st">"posted"</span>).query)
+
+<span class="cm"># EXPLAIN — see the query plan (PostgreSQL)</span>
+<span class="cm"># Look for: Seq Scan on large tables, high startup cost, nested loops with high row estimates</span>
+print(
+    JournalEntry.objects
+    .filter(company=company, status=<span class="st">"posted"</span>)
+    .select_related(<span class="st">"company"</span>)
+    .explain(verbose=<span class="kw">True</span>, analyze=<span class="kw">True</span>)
+)</code></pre>
       </div>
     </section>
 
-    <!-- §21 CHECKLIST -->
+    <!-- §19 OPTIMIZATION -->
+    <section id="optimization">
+      <div class="section-eyebrow"><span class="section-num">§ 19</span><span class="section-tag">Level 5 — Legend</span></div>
+      <h2>only() &amp; defer() — <em>Surgical Field Loading</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>only()</code> tells Django to SELECT only the specified fields. <code>defer()</code> is the inverse — select everything EXCEPT the listed fields. Both reduce data transferred from the database.</p>
+
+      <div class="callout danger">
+        <strong>Accessing deferred fields causes N+1</strong>
+        <p>If you <code>only("id", "status")</code> and then access <code>entry.description</code> in a loop, Django fires one extra SELECT per object. Know exactly which fields your code accesses.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — only() & defer()</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># only() — SELECT id, date, status FROM journal_entry WHERE ...</span>
+<span class="at">entries</span> = JournalEntry.objects.only(<span class="st">"id"</span>, <span class="st">"date"</span>, <span class="st">"status"</span>)
+
+<span class="cm"># defer() — SELECT everything EXCEPT description</span>
+<span class="at">entries</span> = JournalEntry.objects.defer(<span class="st">"description"</span>)
+
+<span class="cm"># only() with select_related — must include FK id fields explicitly</span>
+JournalEntry.objects.only(
+    <span class="st">"id"</span>, <span class="st">"date"</span>, <span class="st">"status"</span>,
+    <span class="st">"company_id"</span>,    <span class="cm"># include the FK column</span>
+    <span class="st">"company__name"</span>, <span class="cm"># also select company name via JOIN</span>
+).select_related(<span class="st">"company"</span>)</code></pre>
+      </div>
+    </section>
+
+    <!-- §20 ITERATOR -->
+    <section id="iterator">
+      <div class="section-eyebrow"><span class="section-num">§ 20</span><span class="section-tag">Level 5 — Legend</span></div>
+      <h2>iterator() — <em>Stream Large QuerySets</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Without <code>iterator()</code>, Django fetches the entire result set and holds it in memory. For large datasets (tens of thousands of rows), this can exhaust RAM.</p>
+
+      <div class="callout warning">
+        <strong>iterator() is incompatible with prefetch_related</strong>
+        <p>If you need related data with <code>iterator()</code>, use <code>select_related</code> only — it uses a JOIN and works fine. <code>prefetch_related</code> requires the full queryset to be evaluated first.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — iterator()</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="cm"># Without iterator() — ALL rows loaded into Python memory simultaneously</span>
+<span class="kw">for</span> entry <span class="kw">in</span> JournalEntry.objects.filter(status=<span class="st">"posted"</span>):
+    process(entry)   <span class="cm"># 500,000 entries = 500,000 Python objects in RAM</span>
+
+<span class="cm"># With iterator() — rows fetched in chunks, only chunk_size objects alive at once</span>
+<span class="kw">for</span> entry <span class="kw">in</span> JournalEntry.objects.filter(status=<span class="st">"posted"</span>).iterator(chunk_size=<span class="nm">2000</span>):
+    process(entry)
+
+<span class="cm"># Combine with only() for maximum efficiency on large datasets</span>
+<span class="kw">for</span> line <span class="kw">in</span> JournalEntryLine.objects.only(<span class="st">"id"</span>, <span class="st">"debit"</span>, <span class="st">"credit"</span>).iterator(chunk_size=<span class="nm">5000</span>):
+    process(line)
+
+<span class="cm"># With select_related — OK, uses JOIN, works with iterator()</span>
+<span class="kw">for</span> entry <span class="kw">in</span> (
+    JournalEntry.objects
+    .select_related(<span class="st">"company"</span>, <span class="st">"created_by"</span>)
+    .filter(status=<span class="st">"posted"</span>)
+    .iterator(chunk_size=<span class="nm">1000</span>)
+):
+    process(entry)</code></pre>
+      </div>
+    </section>
+
+    <!-- §21 LOCKING -->
+    <section id="locking">
+      <div class="section-eyebrow"><span class="section-num">§ 21</span><span class="section-tag">Level 5 — Legend</span></div>
+      <h2>select_for_update() — <em>Pessimistic Locking</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>When multiple processes might modify the same rows concurrently, use database-level locking. <code>select_for_update()</code> issues <code>SELECT ... FOR UPDATE</code>. Must be inside <code>transaction.atomic()</code>.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — select_for_update()</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db <span class="kw">import</span> transaction
+
+<span class="cm"># Lock a single row — no other transaction can UPDATE or DELETE until we commit</span>
+<span class="kw">with</span> transaction.atomic():
+    <span class="at">entry</span> = JournalEntry.objects.select_for_update().get(id=entry_id)
+    <span class="kw">if</span> entry.status != <span class="st">"draft"</span>:
+        <span class="kw">raise</span> ValueError(<span class="st">"Only draft entries can be posted"</span>)
+    entry.status = <span class="st">"posted"</span>
+    entry.save()
+
+<span class="cm"># nowait=True — raise DatabaseError immediately if lock is unavailable</span>
+<span class="kw">with</span> transaction.atomic():
+    <span class="kw">try</span>:
+        <span class="at">entry</span> = JournalEntry.objects.select_for_update(nowait=<span class="kw">True</span>).get(id=entry_id)
+    <span class="kw">except</span> Exception:
+        <span class="kw">raise</span> ValueError(<span class="st">"Entry is currently being modified by another process"</span>)
+
+<span class="cm"># skip_locked=True — skip locked rows; perfect for job queues / worker pools</span>
+<span class="kw">with</span> transaction.atomic():
+    <span class="at">entries</span> = JournalEntry.objects.select_for_update(skip_locked=<span class="kw">True</span>).filter(status=<span class="st">"draft"</span>)[:<span class="nm">10</span>]
+    <span class="kw">for</span> entry <span class="kw">in</span> entries:
+        process_and_post(entry)
+
+<span class="cm"># of= — lock only specific tables (PostgreSQL)</span>
+<span class="kw">with</span> transaction.atomic():
+    <span class="at">entry</span> = JournalEntry.objects.select_related(<span class="st">"company"</span>).select_for_update(
+        of=(<span class="st">"self"</span>,)   <span class="cm"># lock journal_entry only, not company</span>
+    ).get(id=entry_id)</code></pre>
+      </div>
+    </section>
+
+    <!-- §22 TRANSACTIONS -->
+    <section id="transactions">
+      <div class="section-eyebrow"><span class="section-num">§ 22</span><span class="section-tag">Level 5 — Legend</span></div>
+      <h2>Atomic Transactions — <em>All or Nothing</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — transactions, savepoints, on_commit</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db <span class="kw">import</span> transaction
+
+<span class="cm"># Decorator — entire function runs in one transaction</span>
+<span class="dc">@transaction.atomic</span>
+<span class="kw">def</span> <span class="fn">post_journal_entry</span>(entry_id: int, approved_by_id: int) <span class="op">-></span> JournalEntry:
+    <span class="at">entry</span> = JournalEntry.objects.select_for_update().get(id=entry_id)
+    <span class="kw">if</span> entry.status != <span class="st">"draft"</span>:
+        <span class="kw">raise</span> ValueError(f<span class="st">"Cannot post entry with status '{entry.status}'"</span>)
+
+    <span class="at">totals</span> = entry.lines.aggregate(total_debit=Sum(<span class="st">"debit"</span>), total_credit=Sum(<span class="st">"credit"</span>))
+    <span class="kw">if</span> totals[<span class="st">"total_debit"</span>] != totals[<span class="st">"total_credit"</span>]:
+        <span class="kw">raise</span> ValueError(<span class="st">"Entry is unbalanced"</span>)
+
+    <span class="kw">from</span> django.utils <span class="kw">import</span> timezone
+    entry.status = <span class="st">"posted"</span>
+    entry.approved_by_id = approved_by_id
+    entry.approved_at = timezone.now()
+    entry.save(update_fields=[<span class="st">"status"</span>, <span class="st">"approved_by_id"</span>, <span class="st">"approved_at"</span>, <span class="st">"updated_at"</span>])
+    <span class="kw">return</span> entry
+
+
+<span class="cm"># Context manager with savepoints</span>
+<span class="kw">def</span> <span class="fn">create_entry_with_lines</span>(header_data, lines_data):
+    <span class="kw">with</span> transaction.atomic():
+        <span class="at">entry</span> = JournalEntry.objects.create(<span class="op">**</span>header_data)
+        JournalEntryLine.objects.bulk_create([
+            JournalEntryLine(journal_entry=entry, <span class="op">**</span>ld) <span class="kw">for</span> ld <span class="kw">in</span> lines_data
+        ])
+
+        <span class="cm"># Savepoint — partial rollback if optional step fails</span>
+        <span class="kw">try</span>:
+            <span class="kw">with</span> transaction.atomic():
+                send_notification(entry)  <span class="cm"># optional, non-critical</span>
+        <span class="kw">except</span> Exception:
+            <span class="kw">pass</span>  <span class="cm"># savepoint rolled back; outer transaction proceeds</span>
+
+        <span class="kw">return</span> entry
+
+
+<span class="cm"># on_commit — run ONLY after the transaction successfully commits</span>
+<span class="cm"># Use for emails, Celery tasks, webhooks — NOT if transaction rolls back</span>
+<span class="kw">def</span> <span class="fn">post_entry</span>(entry_id):
+    <span class="kw">with</span> transaction.atomic():
+        <span class="at">entry</span> = JournalEntry.objects.select_for_update().get(id=entry_id)
+        entry.status = <span class="st">"posted"</span>
+        entry.save()
+        transaction.on_commit(<span class="kw">lambda</span>: send_posting_email.delay(entry_id))
+        transaction.on_commit(<span class="kw">lambda</span>: sync_to_erp.delay(entry_id))</code></pre>
+      </div>
+    </section>
+
+    <!-- §23 INDEXES -->
+    <section id="indexes">
+      <div class="section-eyebrow"><span class="section-num">§ 23</span><span class="section-tag">Level 5 — Legend</span></div>
+      <h2>Indexes — <em>The Highest-Impact Optimization</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>No amount of ORM optimization compensates for a missing index on a hot query path. Understanding which indexes to create — and which waste space — separates senior engineers from the rest.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — index patterns</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">class</span> <span class="fn">JournalEntry</span>(<span class="fn">TimestampedModel</span>):
+    <span class="kw">class</span> <span class="fn">Meta</span>:
+        <span class="at">indexes</span> = [
+            <span class="cm"># Composite index — covers WHERE company_id = X AND date BETWEEN ...</span>
+            <span class="cm"># Column order matters: most selective filter first</span>
+            models.Index(fields=[<span class="st">"company"</span>, <span class="st">"date"</span>], name=<span class="st">"je_company_date_idx"</span>),
+
+            <span class="cm"># Partial index (PostgreSQL) — indexes ONLY posted entries</span>
+            <span class="cm"># Much smaller and faster than indexing all statuses</span>
+            models.Index(
+                fields=[<span class="st">"company"</span>, <span class="st">"date"</span>],
+                condition=models.Q(status=<span class="st">"posted"</span>),
+                name=<span class="st">"je_company_date_posted_idx"</span>,
+            ),
+            models.Index(fields=[<span class="st">"company"</span>, <span class="st">"status"</span>], name=<span class="st">"je_company_status_idx"</span>),
+        ]
+
+<span class="cm"># When NOT to add an index:
+# - Low cardinality columns (boolean, status with 2 values) — full scan is faster
+# - Tables < ~10,000 rows — overhead exceeds benefit
+# - Write-only columns never used in filters
+# - Already covered by leftmost columns of another composite index</span>
+
+<span class="cm"># How to detect missing indexes:
+# .explain(analyze=True) and look for "Seq Scan" on large tables</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §24 NESTED EXAMPLE -->
+    <section id="nested">
+      <div class="section-eyebrow"><span class="section-num">§ 24</span><span class="section-tag">Level 5 — Legend</span></div>
+      <h2>The Heavily Nested <em>Example</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>A single queryset combining <code>select_related</code>, <code>prefetch_related</code>, nested <code>select_related</code> inside <code>Prefetch</code>, <code>annotate</code>, <code>Subquery</code>, <code>OuterRef</code>, <code>Exists</code>, <code>Case/When</code>, <code>F()</code>, <code>Window</code>, and <code>Q</code> objects. Total DB queries for a full financial dashboard: <strong>3</strong>.</p>
+
+      <div class="pull-quote">
+        <p>"Three DB queries. A full financial dashboard. Zero loops hitting the database."</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>Python — the complete dashboard query</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="kw">from</span> django.db.models <span class="kw">import</span> (
+    Sum, Count, F, Q, Value, Case, When,
+    OuterRef, Subquery, Exists, Window, Rank,
+    DecimalField, CharField, BooleanField, ExpressionWrapper, Prefetch,
+)
+<span class="kw">from</span> django.db.models.functions <span class="kw">import</span> Coalesce
+
+
+<span class="kw">def</span> <span class="fn">get_dashboard_entries</span>(company, date_from, date_to, min_amount=<span class="nm">0</span>, approver=<span class="kw">None</span>):
+
+    <span class="cm"># ── Subquery 1: account name of the highest debit line per entry ──</span>
+    <span class="at">largest_debit_line</span> = (
+        JournalEntryLine.objects
+        .filter(journal_entry=OuterRef(<span class="st">"pk"</span>))
+        .order_by(<span class="st">"-debit"</span>)
+        .values(<span class="st">"coa_account__name"</span>)[:<span class="nm">1</span>]
+    )
+
+    <span class="cm"># ── Subquery 2: year-to-date budget total for the company ──</span>
+    <span class="at">ytd_budget</span> = (
+        Budget.objects
+        .filter(company=OuterRef(<span class="st">"company"</span>), year=date_from.year, month__lte=date_from.month)
+        .values(<span class="st">"company"</span>).annotate(total=Sum(<span class="st">"amount"</span>)).values(<span class="st">"total"</span>)[:<span class="nm">1</span>]
+    )
+
+    <span class="cm"># ── Subquery 3: does this entry have any expense-type lines? ──</span>
+    <span class="at">has_expense</span> = Exists(
+        JournalEntryLine.objects.filter(
+            journal_entry=OuterRef(<span class="st">"pk"</span>),
+            coa_account__account_type=<span class="st">"expense"</span>,
+        )
+    )
+
+    <span class="cm"># ── Prefetch: lines with FKs and an annotated net field ──</span>
+    <span class="at">lines_prefetch</span> = Prefetch(
+        <span class="st">"lines"</span>,
+        queryset=(
+            JournalEntryLine.objects
+            .select_related(
+                <span class="st">"coa_account"</span>, <span class="st">"coa_account__parent"</span>,
+                <span class="st">"cost_center"</span>, <span class="st">"cost_center__parent"</span>,
+            )
+            .order_by(<span class="st">"coa_account__code"</span>)
+            .annotate(
+                net=ExpressionWrapper(
+                    F(<span class="st">"debit"</span>) <span class="op">-</span> F(<span class="st">"credit"</span>),
+                    output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>),
+                )
+            )
+        ),
+        to_attr=<span class="st">"prefetched_lines"</span>,
+    )
+
+    <span class="cm"># ── Dynamic Q filter ──</span>
+    <span class="at">dynamic_filter</span> = Q(total_debit__gte=min_amount)
+    <span class="kw">if</span> approver:
+        <span class="at">dynamic_filter</span> <span class="op">|=</span> Q(approved_by=approver)
+
+    <span class="cm"># ── The main queryset ──</span>
+    <span class="kw">return</span> (
+        JournalEntry.objects
+        .select_related(<span class="st">"company"</span>, <span class="st">"created_by"</span>, <span class="st">"approved_by"</span>)
+        .prefetch_related(lines_prefetch)
+        .filter(company=company, status=<span class="st">"posted"</span>, date__range=(date_from, date_to))
+        .annotate(
+            total_debit=Coalesce(Sum(<span class="st">"lines__debit"</span>), Value(<span class="nm">0</span>), output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>)),
+            total_credit=Coalesce(Sum(<span class="st">"lines__credit"</span>), Value(<span class="nm">0</span>), output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>)),
+            line_count=Count(<span class="st">"lines"</span>, distinct=<span class="kw">True</span>),
+            is_balanced=Case(
+                When(total_debit=F(<span class="st">"total_credit"</span>), then=Value(<span class="kw">True</span>)),
+                default=Value(<span class="kw">False</span>), output_field=BooleanField(),
+            ),
+            status_label=Case(
+                When(status=<span class="st">"posted"</span>, approved_by__isnull=<span class="kw">False</span>, then=Value(<span class="st">"Posted &amp; Approved"</span>)),
+                When(status=<span class="st">"posted"</span>, approved_by__isnull=<span class="kw">True</span>,  then=Value(<span class="st">"Posted, Pending Approval"</span>)),
+                When(status=<span class="st">"draft"</span>, then=Value(<span class="st">"Draft"</span>)),
+                When(status=<span class="st">"voided"</span>, then=Value(<span class="st">"Voided"</span>)),
+                default=Value(<span class="st">"Unknown"</span>), output_field=CharField(),
+            ),
+            largest_debit_account=Subquery(largest_debit_line, output_field=CharField()),
+            ytd_budget_total=Subquery(ytd_budget, output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>)),
+            has_expense_lines=has_expense,
+            budget_variance=ExpressionWrapper(
+                Coalesce(Sum(<span class="st">"lines__debit"</span>), Value(<span class="nm">0</span>), output_field=DecimalField()) <span class="op">-</span>
+                Coalesce(Subquery(ytd_budget, output_field=DecimalField()), Value(<span class="nm">0</span>), output_field=DecimalField()),
+                output_field=DecimalField(max_digits=<span class="nm">18</span>, decimal_places=<span class="nm">2</span>),
+            ),
+            debit_rank=Window(expression=Rank(), order_by=F(<span class="st">"total_debit"</span>).desc()),
+            expense_line_count=Count(<span class="st">"lines"</span>, filter=Q(lines__coa_account__account_type=<span class="st">"expense"</span>)),
+            revenue_line_count=Count(<span class="st">"lines"</span>, filter=Q(lines__coa_account__account_type=<span class="st">"revenue"</span>)),
+        )
+        .filter(dynamic_filter)
+        .order_by(<span class="st">"debit_rank"</span>, <span class="st">"-date"</span>)
+    )
+
+
+<span class="cm"># ── Usage — zero extra queries in the loop ──</span>
+<span class="kw">from</span> datetime <span class="kw">import</span> date
+
+<span class="at">entries</span> = get_dashboard_entries(
+    company=company, date_from=date(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>), date_to=date(<span class="nm">2024</span>, <span class="nm">12</span>, <span class="nm">31</span>),
+    min_amount=<span class="nm">5000</span>, approver=request.user,
+)
+
+<span class="kw">for</span> entry <span class="kw">in</span> entries:
+    print(entry.company.name)           <span class="cm"># select_related — no query</span>
+    print(entry.status_label)           <span class="cm"># Case/When annotation</span>
+    print(entry.is_balanced)            <span class="cm"># annotation</span>
+    print(f<span class="st">"Rank #{entry.debit_rank}"</span>)  <span class="cm"># Window annotation</span>
+    print(entry.budget_variance)        <span class="cm"># compound annotation</span>
+
+    <span class="kw">for</span> line <span class="kw">in</span> entry.prefetched_lines:              <span class="cm"># prefetched list — no query</span>
+        print(line.coa_account.name)                 <span class="cm"># select_related</span>
+        <span class="kw">if</span> line.coa_account.parent:
+            print(line.coa_account.parent.name)      <span class="cm"># select_related</span>
+        <span class="kw">if</span> line.cost_center:
+            print(line.cost_center.name)             <span class="cm"># select_related</span>
+        print(line.net)                              <span class="cm"># annotated on line</span>
+
+<span class="cm"># Total DB queries for the entire above loop: 3
+# Query 1: the main JournalEntry queryset (with all JOINs from select_related)
+# Query 2: the prefetch_related lines query (with JOINs for coa_account, cost_center, parents)
+# Query 3: (none — everything is cached)</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §25 CHECKLIST -->
     <section id="checklist">
-      <div class="section-eyebrow"><span class="section-num">§ 21</span><span class="section-tag">Final Review</span></div>
-      <h2>Production <em>Checklist</em></h2>
+      <div class="section-eyebrow"><span class="section-num">§ 25</span><span class="section-tag">Production</span></div>
+      <h2>The N+1 Killer <em>Checklist</em></h2>
       <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
 
       <div class="checklist-group">
-        <h4>Initial Setup</h4>
+        <h4>Relationship Coverage</h4>
         <ul class="checklist">
-          <li><code>django_prometheus</code> is in INSTALLED_APPS</li>
-          <li><code>PrometheusBeforeMiddleware</code> is the very first middleware</li>
-          <li><code>PrometheusAfterMiddleware</code> is the very last middleware</li>
-          <li><code>django_prometheus.urls</code> is included in urls.py</li>
-          <li>The /metrics endpoint returns data when visited locally</li>
-          <li><code>PROMETHEUS_METRIC_NAMESPACE</code> is set to your project name</li>
+          <li>Every FK accessed in code or serializer → <code>select_related</code></li>
+          <li>Every reverse FK or M2M → <code>prefetch_related</code></li>
+          <li>Every FK on a prefetched object → nested <code>select_related</code> inside <code>Prefetch()</code></li>
         </ul>
       </div>
 
       <div class="checklist-group">
-        <h4>Database, Cache & Models</h4>
+        <h4>Loop Hygiene</h4>
         <ul class="checklist">
-          <li>Database ENGINE is <code>django_prometheus.db.backends.postgresql</code></li>
-          <li>Cache BACKEND is the django_prometheus equivalent</li>
-          <li><code>ExportModelOperationsMixin</code> added to all key models</li>
-          <li>Mixin label strings are lowercase, concise, and unique per model</li>
+          <li>No <code>.save()</code>, <code>.update()</code>, or <code>.create()</code> inside a for loop</li>
+          <li>Replace with <code>bulk_update</code>, <code>bulk_create</code>, or queryset-level <code>.update()</code> with <code>F()</code></li>
         </ul>
       </div>
 
       <div class="checklist-group">
-        <h4>Multi-Process (Gunicorn)</h4>
+        <h4>Efficiency Rules</h4>
         <ul class="checklist">
-          <li><code>PROMETHEUS_MULTIPROC_DIR</code> is set in environment (not Python code)</li>
-          <li>The directory is created before startup</li>
-          <li>The directory is cleared before every startup</li>
-          <li><code>gunicorn.conf.py</code> has the <code>child_exit</code> hook</li>
-          <li><code>preload_app = False</code> in gunicorn.conf.py</li>
-          <li>Gauges use appropriate <code>multiprocess_mode</code></li>
+          <li>Use <code>.only()</code> or <code>.values()</code> when accessing a small subset of fields</li>
+          <li>Use <code>aggregate()</code> or <code>annotate()</code> instead of summing/counting in Python</li>
+          <li>Use <code>.exists()</code> for boolean checks, never <code>len(qs) > 0</code></li>
+          <li>Use <code>.iterator(chunk_size=N)</code> for queries returning more than ~10,000 rows</li>
         </ul>
       </div>
 
       <div class="checklist-group">
-        <h4>Custom Metrics</h4>
+        <h4>Correctness & Safety</h4>
         <ul class="checklist">
-          <li>All custom metrics defined at module level in metrics.py files</li>
-          <li>Counter names end in <code>_total</code></li>
-          <li>Metric names are lowercase with underscores and include unit</li>
-          <li>No high-cardinality labels (no user IDs, request IDs, raw URLs)</li>
-          <li>Each endpoint/task has Rate, Error, Duration metrics (RED)</li>
+          <li>Multi-row operations that must succeed/fail together → <code>transaction.atomic()</code></li>
+          <li>Side effects (emails, tasks) → <code>transaction.on_commit()</code></li>
+          <li>Read-then-write patterns → <code>select_for_update()</code> inside <code>atomic()</code></li>
+          <li>Every field in a <code>.filter()</code> that isn't PK should have an index</li>
+          <li>Run <code>.explain(analyze=True)</code> and check for <code>Seq Scan</code> on large tables</li>
+          <li>Any view returning a list of objects should fire at most 2–3 queries</li>
         </ul>
       </div>
+    </section>
 
-      <div class="checklist-group">
-        <h4>Security & Alerting</h4>
-        <ul class="checklist">
-          <li>/metrics is not publicly accessible in production</li>
-          <li>Alert fires when 5xx error rate exceeds threshold</li>
-          <li>Alert fires when p95 latency exceeds threshold</li>
-          <li>Alert fires when <code>django_migrations_unapplied_by_connection &gt; 0</code></li>
-          <li>Alert fires when DB error rate spikes</li>
-          <li>Alerts have <code>for:</code> duration to avoid transient false positives</li>
-        </ul>
-      </div>
+    <!-- §26 CHEAT SHEET -->
+    <section id="cheatsheet">
+      <div class="section-eyebrow"><span class="section-num">§ 26</span><span class="section-tag">Reference</span></div>
+      <h2>The Legend <em>Cheat Sheet</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <table class="data-table">
+        <thead><tr><th>Situation</th><th>Tool</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>FK / OneToOne in code or serializer</td><td><code>select_related</code></td><td>SQL JOIN — one query</td></tr>
+          <tr><td>Reverse FK / M2M in code or serializer</td><td><code>prefetch_related</code></td><td>2 queries total</td></tr>
+          <tr><td>Filter or annotate the prefetched set</td><td><code>Prefetch(queryset=...)</code></td><td>Full control</td></tr>
+          <tr><td>Store prefetch as a list attribute</td><td><code>Prefetch(to_attr=...)</code></td><td>Avoids <code>.all()</code> call</td></tr>
+          <tr><td>FK on a prefetched object</td><td>Nested <code>select_related</code> inside <code>Prefetch</code></td><td>Prevents N+1 inside prefetch</td></tr>
+          <tr><td>Load only specific fields</td><td><code>.only("field1", "field2")</code></td><td>Deferred access = extra query</td></tr>
+          <tr><td>Skip heavy fields</td><td><code>.defer("large_text_field")</code></td><td>Load on demand</td></tr>
+          <tr><td>OR / NOT logic</td><td><code>Q</code> objects</td><td>Composable with <code>&amp;</code>, <code>|</code>, <code>~</code></td></tr>
+          <tr><td>Build filters dynamically</td><td><code>Q()</code> accumulator with <code>&amp;=</code> / <code>|=</code></td><td>Clean pattern for search APIs</td></tr>
+          <tr><td>Collapse queryset to a single dict</td><td><code>aggregate()</code></td><td>Terminates queryset</td></tr>
+          <tr><td>Add computed column per row</td><td><code>annotate()</code></td><td>Chainable, filterable</td></tr>
+          <tr><td>GROUP BY</td><td><code>.values(...).annotate(...)</code></td><td>Order matters: values before annotate</td></tr>
+          <tr><td>Reference row field in expression</td><td><code>F("field")</code></td><td>No Python roundtrip</td></tr>
+          <tr><td>Conditional column</td><td><code>Case(When(..., then=...), default=...)</code></td><td>SQL CASE WHEN</td></tr>
+          <tr><td>Correlated subquery</td><td><code>Subquery(qs) + OuterRef("pk")</code></td><td>Avoids JOIN row multiplication</td></tr>
+          <tr><td>Efficient "does related row exist"</td><td><code>Exists(qs)</code></td><td>SELECT 1 WHERE EXISTS</td></tr>
+          <tr><td>Running totals / rankings / lag</td><td><code>Window(expression=..., partition_by=..., order_by=...)</code></td><td>DB-level analytics</td></tr>
+          <tr><td>Return dicts (no model instances)</td><td><code>.values(...)</code></td><td>Faster for projections</td></tr>
+          <tr><td>Return flat list of one field</td><td><code>.values_list("field", flat=True)</code></td><td>Great for <code>id__in=</code></td></tr>
+          <tr><td>Insert many rows efficiently</td><td><code>bulk_create(list, batch_size=N)</code></td><td>Single INSERT</td></tr>
+          <tr><td>Update many rows efficiently</td><td><code>bulk_update(list, fields=[...])</code></td><td>Single UPDATE</td></tr>
+          <tr><td>Update all rows matching filter</td><td><code>.update(field=F("field") * 2)</code></td><td>No Python loop at all</td></tr>
+          <tr><td>Process millions of rows without OOM</td><td><code>.iterator(chunk_size=N)</code></td><td>Incompatible with prefetch</td></tr>
+          <tr><td>Race-condition-safe read+write</td><td><code>select_for_update()</code> inside <code>atomic()</code></td><td>SELECT FOR UPDATE</td></tr>
+          <tr><td>Skip locked rows (worker pattern)</td><td><code>select_for_update(skip_locked=True)</code></td><td>Multi-worker queue</td></tr>
+          <tr><td>Fail fast if locked</td><td><code>select_for_update(nowait=True)</code></td><td>Raises immediately</td></tr>
+          <tr><td>All-or-nothing writes</td><td><code>transaction.atomic()</code></td><td>Decorator or context manager</td></tr>
+          <tr><td>Savepoint (partial rollback)</td><td>Nested <code>transaction.atomic()</code></td><td>Inner rollback, outer proceeds</td></tr>
+          <tr><td>Side effects after commit</td><td><code>transaction.on_commit(fn)</code></td><td>Emails, Celery tasks</td></tr>
+          <tr><td>Inspect query plan</td><td><code>.explain(analyze=True)</code></td><td>Look for Seq Scan</td></tr>
+          <tr><td>Count queries in tests</td><td><code>connection.queries + reset_queries()</code></td><td>Requires DEBUG=True</td></tr>
+          <tr><td>Partial index (PostgreSQL)</td><td><code>Index(fields=..., condition=Q(...))</code></td><td>Index subset of rows</td></tr>
+          <tr><td>Encapsulate query logic</td><td>Custom <code>QuerySet + Manager</code></td><td>Chainable, reusable methods</td></tr>
+        </tbody>
+      </table>
     </section>
 
   </main>
 </div>
 
 <footer>
-  <p>django-prometheus · Complete Production Reference · Guide No. 2 of 6</p>
-  <p>github.com/django-commons/django-prometheus · prometheus.io/docs · github.com/prometheus/client_python</p>
+  <p>The Ultimate Django Querying Guide · From Beginner to Legend · Production-Grade Reference</p>
+  <p>docs.djangoproject.com/en/stable/topics/db/queries/ · All examples use the accounting schema from §01</p>
 </footer>
 
 <script>

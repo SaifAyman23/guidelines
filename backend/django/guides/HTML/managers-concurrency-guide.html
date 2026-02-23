@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Django Managers & Concurrency — The Complete Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #e8e0d4;
+    --ink-light: #b8aea0;
+    --ink-faint: #7a6e60;
+    --paper: #111009;
+    --paper-warm: #181510;
+    --paper-mid: #221e17;
+    --rule: #2e2820;
+    --rule-dark: #3d3528;
+    --red: #e07060;
+    --red-light: #2a1510;
+    --orange: #d98040;
+    --orange-light: #281a0a;
+    --green: #5a9e6a;
+    --green-light: #0e2015;
+    --blue: #5a85b0;
+    --blue-light: #0d1a28;
+    --amber: #c9a040;
+    --amber-light: #201800;
+    --purple: #9070b8;
+    --purple-light: #1a0f2a;
+    --gold: #c9a040;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  /* ── MASTHEAD ─────────────────────────────────────────── */
+  .masthead {
+    background: #090806;
+    color: var(--ink);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--rule-dark);
+  }
+  .masthead::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px);
+  }
+  .masthead-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 3rem 0;
+    position: relative;
+  }
+  .masthead-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+  .masthead-meta span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.4;
+  }
+  .issue-badge {
+    background: var(--gold);
+    color: #090806;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    opacity: 1 !important;
+  }
+  .masthead-title {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: end;
+    padding-bottom: 3rem;
+  }
+  .masthead-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .masthead-title h1 em {
+    font-style: italic;
+    color: var(--gold);
+    display: block;
+  }
+  .masthead-subtitle {
+    max-width: 320px;
+    padding-bottom: 0.5rem;
+  }
+  .masthead-subtitle p {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(232,224,212,0.5);
+    margin: 0;
+  }
+  .masthead-subtitle p + p { margin-top: 0.75rem; }
+  .masthead-rule {
+    height: 6px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--orange) 50%, var(--red) 100%);
+  }
+
+  /* ── NAV ──────────────────────────────────────────────── */
+  nav {
+    background: #0e0c09;
+    border-bottom: 2px solid var(--rule-dark);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 3rem;
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+  nav a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 0.85rem 1rem;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    margin-bottom: -2px;
+  }
+  nav a:hover { color: var(--ink); border-bottom-color: var(--gold); }
+
+  /* ── LAYOUT ───────────────────────────────────────────── */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 3rem 8rem;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* ── SIDEBAR ──────────────────────────────────────────── */
+  .sidebar {
+    position: sticky;
+    top: 52px;
+    padding-top: 2.5rem;
+  }
+  .sidebar-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule-dark);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .sidebar ol { list-style: none; counter-reset: toc; }
+  .sidebar ol li { counter-increment: toc; margin-bottom: 0.1rem; }
+  .sidebar ol li a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    text-decoration: none;
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.2rem 0;
+    border-left: 2px solid transparent;
+    padding-left: 0.6rem;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .sidebar ol li a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--rule-dark);
+    flex-shrink: 0;
+  }
+  .sidebar ol li a:hover { color: var(--ink); border-left-color: var(--gold); padding-left: 0.9rem; }
+  .sidebar-divider { height: 1px; background: var(--rule-dark); margin: 1.5rem 0; }
+  .sidebar-note {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+
+  /* ── MAIN ─────────────────────────────────────────────── */
+  main { min-width: 0; }
+  section { margin-bottom: 5rem; scroll-margin-top: 60px; animation: fadeUp 0.5s ease both; }
+
+  .section-eyebrow { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    background: var(--paper-mid);
+    border: 1px solid var(--rule-dark);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+  }
+  .section-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+  h2 em { font-style: italic; }
+
+  .section-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 2rem;
+  }
+  .section-rule .line { height: 2px; background: var(--rule-dark); flex: 1; }
+  .section-rule .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p { color: var(--ink-light); margin-bottom: 1.2rem; font-size: 1rem; }
+  strong { color: var(--ink); font-weight: 600; }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8em;
+    background: var(--paper-mid);
+    border: 1px solid var(--rule-dark);
+    padding: 0.1em 0.4em;
+    border-radius: 2px;
+    color: var(--red);
+  }
+
+  /* ── CODE BLOCKS ──────────────────────────────────────── */
+  .code-block {
+    margin: 1.75rem 0;
+    border: 1px solid var(--rule-dark);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0a0907;
+    box-shadow: 3px 3px 0 #1a1510;
+  }
+  .code-header {
+    background: #0f0d0a;
+    border-bottom: 1px solid var(--rule-dark);
+    padding: 0.55rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .code-header span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #5a5040;
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--rule-dark);
+    color: #5a5040;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--gold); border-color: var(--gold); }
+  pre {
+    padding: 1.5rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #c8bfb0;
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: 1em; }
+
+  .k   { color: #e8956d; }
+  .s   { color: #88b870; }
+  .n   { color: #7ec8e3; }
+  .m   { color: #d8b060; }
+  .c   { color: #3a3028; font-style: italic; }
+  .hl  { color: var(--gold); }
+  .hl2 { color: #7ec8e3; }
+  .hl3 { color: #88b870; }
+  .hl4 { color: #e8956d; }
+  .comment-line { color: #3d3528; font-style: italic; }
+  .pq  { color: #c080e8; }
+  .fn  { color: #c080e8; }
+
+  /* ── CALLOUTS ─────────────────────────────────────────── */
+  .callout {
+    border: 1px solid;
+    border-left: 4px solid;
+    border-radius: 2px;
+    padding: 1.1rem 1.4rem;
+    margin: 1.75rem 0;
+    font-size: 0.95rem;
+  }
+  .callout strong {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .callout p { margin: 0; font-size: 0.9rem; }
+  .callout.info    { background: var(--blue-light);   border-color: var(--blue); }
+  .callout.info strong { color: var(--blue); }
+  .callout.tip     { background: var(--green-light);  border-color: var(--green); }
+  .callout.tip strong { color: var(--green); }
+  .callout.warning { background: var(--amber-light);  border-color: var(--amber); }
+  .callout.warning strong { color: var(--amber); }
+  .callout.danger  { background: var(--red-light);    border-color: var(--red); }
+  .callout.danger strong { color: var(--red); }
+  .callout.purple  { background: var(--purple-light); border-color: var(--purple); }
+  .callout.purple strong { color: var(--purple); }
+
+  /* ── TABLES ───────────────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin: 1.75rem 0;
+    border: 1px solid var(--rule-dark);
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .data-table th {
+    background: var(--paper-mid);
+    color: var(--ink);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--rule-dark);
+  }
+  .data-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-light);
+    vertical-align: top;
+  }
+  .data-table tr:nth-child(even) td { background: var(--paper-warm); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--red);
+    white-space: nowrap;
+  }
+
+  /* ── PULL QUOTE ───────────────────────────────────────── */
+  .pull-quote {
+    border-left: 4px solid var(--gold);
+    border-right: 4px solid var(--gold);
+    margin: 2.5rem 0;
+    padding: 1.5rem 2rem;
+    background: var(--amber-light);
+    text-align: center;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── CONCEPT CARDS ────────────────────────────────────── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+  .concept-card {
+    border: 1px solid var(--rule-dark);
+    padding: 1.5rem;
+    position: relative;
+    background: var(--paper-warm);
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .concept-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .concept-card.manager::before  { background: var(--amber); }
+  .concept-card.qs::before       { background: var(--blue); }
+  .concept-card.trans::before    { background: var(--green); }
+  .concept-card.lock::before     { background: var(--red); }
+  .concept-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+  .concept-card.manager h4 { color: var(--amber); }
+  .concept-card.qs h4      { color: var(--blue); }
+  .concept-card.trans h4   { color: var(--green); }
+  .concept-card.lock h4    { color: var(--red); }
+  .concept-card p { font-size: 0.9rem; color: var(--ink-faint); margin-bottom: 0.75rem; }
+  .concept-card .use { font-size: 0.83rem; color: var(--ink-light); }
+  .concept-card .use + .use { margin-top: 0.35rem; }
+
+  /* ── TWO COL ──────────────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.75rem 0; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } .concept-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    border: 1px solid var(--rule-dark);
+    padding: 1.5rem;
+    background: var(--paper-warm);
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule-dark);
+    margin-bottom: 1rem;
+    margin-top: 0;
+  }
+  .card ul { list-style: none; }
+  .card ul li {
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    display: flex;
+    gap: 0.6rem;
+  }
+  .card ul li::before { content: '→'; color: var(--rule-dark); flex-shrink: 0; }
+
+  /* ── ARCH DIAGRAM ─────────────────────────────────────── */
+  .arch {
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-dark);
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 3px 3px 0 var(--rule);
+  }
+  .arch-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule-dark);
+  }
+
+  .chain-diagram { display: flex; flex-direction: column; gap: 2px; }
+  .chain-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .chain-box {
+    border: 1px solid var(--rule-dark);
+    padding: 0.75rem 1.1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    background: var(--paper-mid);
+    white-space: nowrap;
+    color: var(--ink-light);
+  }
+  .chain-box.qs {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--blue-light);
+  }
+  .chain-box.mgr {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: var(--amber-light);
+    font-weight: 600;
+  }
+  .chain-arrow {
+    color: var(--gold);
+    font-size: 1.1rem;
+    padding: 0 0.5rem;
+    line-height: 1;
+  }
+  .chain-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--ink-faint);
+    margin-left: auto;
+    padding-left: 1.5rem;
+    font-style: italic;
+  }
+
+  /* ── MUTEX DIAGRAM ────────────────────────────────────── */
+  .mutex-diagram {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .mutex-col {
+    border: 1px solid var(--rule-dark);
+    overflow: hidden;
+    background: var(--paper-warm);
+  }
+  .mutex-col-header {
+    background: var(--paper-mid);
+    padding: 0.5rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule-dark);
+  }
+  .mutex-col-header.req-a { border-bottom-color: var(--red); color: var(--red); }
+  .mutex-col-header.req-b { border-bottom-color: var(--blue); color: var(--blue); }
+  .mutex-step {
+    padding: 0.5rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .mutex-step:last-child { border-bottom: none; }
+  .mutex-step .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .dot-red   { background: var(--red); }
+  .dot-blue  { background: var(--blue); }
+  .dot-green { background: var(--green); }
+  .dot-gold  { background: var(--gold); }
+  .mutex-step.success { background: rgba(90,158,106,0.08); }
+  .mutex-step.blocked { background: rgba(90,133,176,0.08); color: var(--ink-faint); font-style: italic; }
+  .mutex-step.error   { background: rgba(224,112,96,0.08); color: var(--ink-faint); font-style: italic; }
+
+  /* ── STATE MACHINE ────────────────────────────────────── */
+  .state-machine {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 2rem;
+    flex-wrap: wrap;
+  }
+  .state-node {
+    border: 2px solid;
+    padding: 0.8rem 1.4rem;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    min-width: 120px;
+    background: var(--paper-warm);
+    box-shadow: 2px 2px 0;
+  }
+  .state-node small {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 400;
+    opacity: 0.55;
+    margin-top: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .state-node.draft   { border-color: var(--amber); color: var(--amber); box-shadow-color: var(--amber-light); box-shadow: 2px 2px 0 #201800; }
+  .state-node.posted  { border-color: var(--green);  color: var(--green);  box-shadow: 2px 2px 0 #0e2015; }
+  .state-node.voided  { border-color: var(--red);    color: var(--red);    box-shadow: 2px 2px 0 #2a1510; }
+  .state-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0.75rem;
+  }
+  .state-arrow .line { width: 40px; height: 2px; background: var(--rule-dark); }
+  .state-arrow .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--ink-faint);
+    margin-top: 0.3rem;
+    white-space: nowrap;
+  }
+  .state-arrow .head { color: var(--rule-dark); font-size: 10px; }
+
+  /* ── STEPS ────────────────────────────────────────────── */
+  .steps { counter-reset: step; }
+  .step { position: relative; padding-left: 3.25rem; margin-bottom: 2.5rem; }
+  .step::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 0.05rem;
+    width: 2rem; height: 2rem;
+    background: var(--paper-mid);
+    border: 1px solid var(--rule-dark);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 2px;
+  }
+  .step h3 { margin-top: 0; }
+
+  /* ── BADGE ────────────────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .badge.qs      { background: var(--blue-light);   color: var(--blue);   border-color: var(--blue); }
+  .badge.mgr     { background: var(--amber-light);  color: var(--amber);  border-color: var(--amber); }
+  .badge.atomic  { background: var(--green-light);  color: var(--green);  border-color: var(--green); }
+  .badge.lock    { background: var(--red-light);    color: var(--red);    border-color: var(--red); }
+
+  /* ── CHECKLIST ────────────────────────────────────────── */
+  .checklist-group {
+    border: 1px solid var(--rule-dark);
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+    background: var(--paper-warm);
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .checklist-group h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+    margin-top: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule-dark);
+  }
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: '□'; font-size: 1rem; line-height: 1.25; flex-shrink: 0; color: var(--rule-dark); }
+
+  /* ── QUICK REF TABLE ──────────────────────────────────── */
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin: 1.75rem 0;
+    border: 1px solid var(--rule-dark);
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .ref-table th {
+    background: var(--paper-mid);
+    color: var(--ink);
+    padding: 0.65rem 1rem;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--rule-dark);
+  }
+  .ref-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-light);
+    vertical-align: top;
+  }
+  .ref-table tr:nth-child(even) td { background: var(--paper-warm); }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .ref-table td:nth-child(2) {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--blue);
+  }
+
+  /* ── FOOTER ───────────────────────────────────────────── */
+  footer {
+    background: #090806;
+    border-top: 1px solid var(--rule-dark);
+    color: var(--ink);
+    padding: 2.5rem 3rem;
+    text-align: center;
+  }
+  footer p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgba(232,224,212,0.25);
+    margin: 0;
+  }
+  footer p + p { margin-top: 0.4rem; }
+
+  /* ── RESPONSIVE ───────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .page { grid-template-columns: 1fr; padding: 2rem 1.5rem 6rem; }
+    .sidebar { position: static; display: none; }
+    .masthead-inner { padding: 2rem 1.5rem 0; }
+    .masthead-title { grid-template-columns: 1fr; gap: 1.5rem; }
+    nav { padding: 0 1.5rem; }
+    .mutex-diagram { grid-template-columns: 1fr; }
+    .concept-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* ── ANIMATIONS ───────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .masthead-title h1 { animation: fadeUp 0.6s ease both; }
+  .masthead-subtitle { animation: fadeUp 0.6s 0.1s ease both; }
+  .masthead-rule { animation: fadeUp 0.4s 0.2s ease both; }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-meta">
+      <span>Complete Reference · Production Guide</span>
+      <span class="issue-badge">Guide No. 3 of 6</span>
+      <span>Django ORM</span>
+    </div>
+    <div class="masthead-title">
+      <h1>Managers &amp;<em>Concurrency</em></h1>
+      <div class="masthead-subtitle">
+        <p>Custom QuerySets, Manager patterns, atomic transactions, row-level locking, and safe concurrent writes.</p>
+        <p>From chainable query methods to deadlock prevention and state machine patterns.</p>
+      </div>
+    </div>
+  </div>
+  <div class="masthead-rule"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#concepts">Concepts</a>
+    <a href="#querysets">QuerySets</a>
+    <a href="#managers">Managers</a>
+    <a href="#multiple">Multiple Managers</a>
+    <a href="#inheritance">Inheritance</a>
+    <a href="#atomic">Atomic</a>
+    <a href="#locking">Locking</a>
+    <a href="#fullpattern">Full Pattern</a>
+    <a href="#nonblocking">Non-Blocking</a>
+    <a href="#oncommit">on_commit</a>
+    <a href="#savepoints">Savepoints</a>
+    <a href="#pitfalls">Pitfalls</a>
+    <a href="#fsm">State Machine</a>
+    <a href="#testing">Testing</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <ol>
+      <li><a href="#concepts">Managers vs QuerySets</a></li>
+      <li><a href="#querysets">Custom QuerySets</a></li>
+      <li><a href="#managers">Custom Managers</a></li>
+      <li><a href="#multiple">Multiple Managers</a></li>
+      <li><a href="#inheritance">Manager Inheritance</a></li>
+      <li><a href="#atomic">transaction.atomic()</a></li>
+      <li><a href="#locking">select_for_update()</a></li>
+      <li><a href="#fullpattern">The Full Pattern</a></li>
+      <li><a href="#nonblocking">nowait & skip_locked</a></li>
+      <li><a href="#oncommit">transaction.on_commit()</a></li>
+      <li><a href="#savepoints">Savepoints</a></li>
+      <li><a href="#pitfalls">Common Pitfalls</a></li>
+      <li><a href="#fsm">State Machine Pattern</a></li>
+      <li><a href="#testing">Testing</a></li>
+      <li><a href="#cheatsheet">Quick Reference</a></li>
+    </ol>
+    <div class="sidebar-divider"></div>
+    <p class="sidebar-note">The golden rule: query logic on the QuerySet, mutations inside atomic(), row locks via select_for_update(), side effects in on_commit().</p>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- §1 CONCEPTS -->
+    <section id="concepts">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 01</span>
+        <span class="section-tag">Foundation</span>
+      </div>
+      <h2>Managers vs <em>QuerySets</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Before writing a single line of custom code, you need to understand the relationship between these two objects. They serve different purposes and live at different layers of Django's ORM.</p>
+
+      <p>A <strong>Manager</strong> is the interface attached to the model class. It's what you access via <code>Model.objects</code>. It is responsible for creating new QuerySets and acts as the entry point from the model to the database. By default Django gives every model a manager named <code>objects</code> that returns a plain <code>QuerySet</code>.</p>
+
+      <p>A <strong>QuerySet</strong> is the object returned by the manager. It represents a lazy database query that you can chain filters, annotations, and other clauses onto. It is evaluated only when you force it — by iterating, slicing, calling <code>list()</code>, etc.</p>
+
+      <div class="pull-quote">
+        <p>Custom logic should almost always live on a QuerySet, not directly on the Manager. QuerySet methods are chainable — Manager-only methods break mid-chain.</p>
+      </div>
+
+      <div class="arch">
+        <div class="arch-title">Chainability — why QuerySet methods are superior</div>
+        <div class="chain-diagram">
+          <div class="chain-row">
+            <div class="chain-box mgr">Manager.posted()</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box qs">QuerySet</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box qs">.for_company()</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box qs">.in_year()</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box qs">.with_lines()</div>
+            <div class="chain-label">✓ works anywhere in the chain</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card manager">
+          <h4>Manager</h4>
+          <p>Entry point. Attached to the model class. Creates the first QuerySet. Best for factory methods and creation logic.</p>
+          <div class="use"><strong>Owns:</strong> <code>get_queryset()</code>, factory methods like <code>create_draft()</code></div>
+          <div class="use"><strong>Access:</strong> <code>JournalEntry.objects</code></div>
+        </div>
+        <div class="concept-card qs">
+          <h4>QuerySet</h4>
+          <p>The returned object. Chainable. Lazy. This is where all filtering, annotating, and eager-loading logic should live.</p>
+          <div class="use"><strong>Owns:</strong> <code>posted()</code>, <code>for_company()</code>, <code>with_lines()</code></div>
+          <div class="use"><strong>Access:</strong> Mid-chain after <code>.objects.all()</code></div>
+        </div>
+        <div class="concept-card trans">
+          <h4>transaction.atomic()</h4>
+          <p>Wraps DB operations in a single transaction. On exception, everything inside rolls back. All or nothing.</p>
+          <div class="use"><strong>Use for:</strong> multi-row or multi-model writes that must stay consistent</div>
+          <div class="use"><strong>NOT for:</strong> side effects like emails or Celery tasks</div>
+        </div>
+        <div class="concept-card lock">
+          <h4>select_for_update()</h4>
+          <p>Issues <code>SELECT ... FOR UPDATE</code>. Locks selected rows until the transaction commits. The database-level mutex.</p>
+          <div class="use"><strong>Use for:</strong> read-then-write patterns that must be race-condition-safe</div>
+          <div class="use"><strong>Requires:</strong> an open <code>transaction.atomic()</code> block</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- §2 QUERYSETS -->
+    <section id="querysets">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 02</span>
+        <span class="section-tag">Query Logic</span>
+      </div>
+      <h2>Custom <em>QuerySets</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>A custom QuerySet is a class that extends <code>models.QuerySet</code>. Every method you define must return <code>self.filter(...)</code>, <code>self.exclude(...)</code>, or another QuerySet operation so it stays chainable.</p>
+
+      <div class="callout danger">
+        <strong>Critical rule</strong>
+        <p>Never return a new queryset from scratch (<code>JournalEntry.objects.filter(...)</code>) inside a QuerySet method. That breaks the chain and ignores any prior filters the caller may have applied. Always return <code>self.something()</code>.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/accounting/querysets.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db.models <span class="k">import</span> QuerySet, Sum, Count, Q, F, Prefetch
+<span class="k">from</span> django.utils <span class="k">import</span> timezone
+
+
+<span class="k">class</span> <span class="n">JournalEntryQuerySet</span>(QuerySet):
+    <span class="hl3">"""
+    All query logic for JournalEntry lives here.
+    Every method returns self.something() so chains are preserved.
+    """</span>
+
+    <span class="comment-line"># ── Status filters ───────────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">posted</span>(self):
+        <span class="k">return</span> self.filter(status=<span class="hl3">"posted"</span>)
+
+    <span class="k">def</span> <span class="n">draft</span>(self):
+        <span class="k">return</span> self.filter(status=<span class="hl3">"draft"</span>)
+
+    <span class="k">def</span> <span class="n">voided</span>(self):
+        <span class="k">return</span> self.filter(status=<span class="hl3">"voided"</span>)
+
+    <span class="k">def</span> <span class="n">pending</span>(self):
+        <span class="hl3">"""Draft entries older than 24h — stale, should be reviewed."""</span>
+        cutoff = timezone.now() - timezone.timedelta(hours=<span class="m">24</span>)
+        <span class="k">return</span> self.filter(status=<span class="hl3">"draft"</span>, created_at__lte=cutoff)
+
+    <span class="comment-line"># ── Relationship filters ─────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">for_company</span>(self, company):
+        <span class="k">return</span> self.filter(company=company)
+
+    <span class="k">def</span> <span class="n">for_period</span>(self, period):
+        <span class="k">return</span> self.filter(accounting_period=period)
+
+    <span class="k">def</span> <span class="n">in_open_periods</span>(self):
+        <span class="k">return</span> self.filter(accounting_period__is_closed=<span class="k">False</span>)
+
+    <span class="k">def</span> <span class="n">unapproved</span>(self):
+        <span class="k">return</span> self.filter(status=<span class="hl3">"posted"</span>, approved_by__isnull=<span class="k">True</span>)
+
+    <span class="comment-line"># ── Date filters ─────────────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">in_year</span>(self, year):
+        <span class="k">return</span> self.filter(date__year=year)
+
+    <span class="k">def</span> <span class="n">in_date_range</span>(self, date_from, date_to):
+        <span class="k">return</span> self.filter(date__range=(date_from, date_to))
+
+    <span class="k">def</span> <span class="n">recent</span>(self, days=<span class="m">30</span>):
+        cutoff = timezone.now().date() - timezone.timedelta(days=days)
+        <span class="k">return</span> self.filter(date__gte=cutoff)
+
+    <span class="comment-line"># ── Data integrity ───────────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">unbalanced</span>(self):
+        <span class="hl3">"""Entries where total debit != total credit. Should always be empty."""</span>
+        <span class="k">return</span> self.annotate(
+            computed_debit=Sum(<span class="hl3">"lines__debit"</span>),
+            computed_credit=Sum(<span class="hl3">"lines__credit"</span>),
+        ).exclude(computed_debit=F(<span class="hl3">"computed_credit"</span>))
+
+    <span class="k">def</span> <span class="n">not_reversed</span>(self):
+        <span class="k">return</span> self.filter(status=<span class="hl3">"posted"</span>, reverse_entry__isnull=<span class="k">True</span>)
+
+    <span class="comment-line"># ── Search ───────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">search</span>(self, term):
+        <span class="k">return</span> self.filter(
+            Q(description__icontains=term) |
+            Q(reference__icontains=term) |
+            Q(lines__description__icontains=term)
+        ).distinct()
+
+    <span class="comment-line"># ── Eager loading ────────────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">with_lines</span>(self):
+        <span class="hl3">"""Use whenever you access entry.lines in a loop or serializer."""</span>
+        <span class="k">return</span> self.prefetch_related(
+            Prefetch(
+                <span class="hl3">"lines"</span>,
+                queryset=JournalEntryLine.objects.select_related(
+                    <span class="hl3">"coa_account"</span>,
+                    <span class="hl3">"cost_center"</span>,
+                ).order_by(<span class="hl3">"id"</span>)
+            )
+        )
+
+    <span class="k">def</span> <span class="n">with_related</span>(self):
+        <span class="hl3">"""Full eager load for API serialization."""</span>
+        <span class="k">return</span> self.select_related(
+            <span class="hl3">"company"</span>,
+            <span class="hl3">"accounting_period"</span>,
+            <span class="hl3">"created_by"</span>,
+            <span class="hl3">"approved_by"</span>,
+            <span class="hl3">"reversal_of"</span>,
+            <span class="hl3">"reverse_entry"</span>,
+        ).prefetch_related(
+            Prefetch(
+                <span class="hl3">"lines"</span>,
+                queryset=JournalEntryLine.objects.select_related(
+                    <span class="hl3">"coa_account"</span>, <span class="hl3">"cost_center"</span>
+                ).order_by(<span class="hl3">"id"</span>)
+            )
+        )
+
+    <span class="comment-line"># ── Annotations ──────────────────────────────────────────────────</span>
+
+    <span class="k">def</span> <span class="n">with_totals</span>(self):
+        <span class="k">return</span> self.annotate(
+            computed_debit=Sum(<span class="hl3">"lines__debit"</span>),
+            computed_credit=Sum(<span class="hl3">"lines__credit"</span>),
+            line_count=Count(<span class="hl3">"lines"</span>, distinct=<span class="k">True</span>),
+        )</code></pre>
+      </div>
+
+      <h3>The Payoff — Reads Like English</h3>
+
+      <div class="code-block">
+        <div class="code-header"><span>usage — fully chainable, all lazy, one query</span></div>
+        <pre><code>entries = (
+    JournalEntry.objects
+    .for_company(company)
+    .posted()
+    .in_year(<span class="m">2024</span>)
+    .with_lines()
+    .with_totals()
+    .search(<span class="hl3">"payroll"</span>)
+    .order_by(<span class="hl3">"-date"</span>)
+)
+<span class="comment-line"># Each method returns a QuerySet. The final SQL is built from all
+# chained calls and sent in ONE query.</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §3 MANAGERS -->
+    <section id="managers">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 03</span>
+        <span class="section-tag">Entry Point</span>
+      </div>
+      <h2>Custom <em>Managers</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>The Manager's primary job is to return your custom QuerySet. It also serves as a good place to put factory methods — class-level operations that create objects with enforced business rules.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/accounting/managers.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db <span class="k">import</span> models
+<span class="k">from</span> .querysets <span class="k">import</span> JournalEntryQuerySet
+
+
+<span class="k">class</span> <span class="n">JournalEntryManager</span>(models.Manager):
+    <span class="hl3">"""
+    Controls what .objects returns and provides factory methods
+    for creating entries with enforced business rules.
+    """</span>
+
+    <span class="k">def</span> <span class="n">get_queryset</span>(self):
+        <span class="hl3">"""
+        Always return our custom QuerySet.
+        This single override makes all QuerySet methods available on
+        JournalEntry.objects.
+        """</span>
+        <span class="k">return</span> JournalEntryQuerySet(self.model, using=self._db)
+
+    <span class="comment-line"># ── Proxy methods — convenience shortcuts ────────────────────────</span>
+    <span class="comment-line"># These are optional. They let callers write JournalEntry.objects.posted()</span>
+    <span class="comment-line"># directly, instead of JournalEntry.objects.all().posted()</span>
+
+    <span class="k">def</span> <span class="n">posted</span>(self):
+        <span class="k">return</span> self.get_queryset().posted()
+
+    <span class="k">def</span> <span class="n">draft</span>(self):
+        <span class="k">return</span> self.get_queryset().draft()
+
+    <span class="k">def</span> <span class="n">for_company</span>(self, company):
+        <span class="k">return</span> self.get_queryset().for_company(company)
+
+    <span class="comment-line"># ── Factory methods — enforce business rules at creation time ────</span>
+
+    <span class="k">def</span> <span class="n">create_draft</span>(self, company, accounting_period, date, created_by, **kwargs):
+        <span class="hl3">"""
+        Safe creation entry point. Validates that the period belongs to
+        the company and is open before creating anything.
+        """</span>
+        <span class="k">if</span> accounting_period.company_id != company.pk:
+            <span class="k">raise</span> ValueError(<span class="hl3">"Accounting period does not belong to this company."</span>)
+        <span class="k">if</span> accounting_period.is_closed:
+            <span class="k">raise</span> ValueError(
+                <span class="k">f</span><span class="hl3">"Accounting period '{accounting_period.name}' is closed."</span>
+            )
+        <span class="k">return</span> self.create(
+            company=company,
+            accounting_period=accounting_period,
+            date=date,
+            created_by=created_by,
+            status=<span class="hl3">"draft"</span>,
+            **kwargs,
+        )
+
+    <span class="k">def</span> <span class="n">get_or_create_draft</span>(self, company, reference, accounting_period, created_by, defaults=<span class="k">None</span>):
+        <span class="hl3">"""Idempotent creation — useful for import jobs that may re-run."""</span>
+        <span class="k">return</span> self.get_or_create(
+            company=company,
+            reference=reference,
+            status=<span class="hl3">"draft"</span>,
+            defaults={
+                <span class="hl3">"accounting_period"</span>: accounting_period,
+                <span class="hl3">"created_by"</span>: created_by,
+                **(defaults <span class="k">or</span> {}),
+            }
+        )
+
+
+<span class="comment-line"># Attach the manager to the model</span>
+<span class="k">class</span> <span class="n">JournalEntry</span>(TimestampedModel):
+    <span class="comment-line"># ... fields ...</span>
+    objects = JournalEntryManager()
+
+    <span class="k">class</span> <span class="n">Meta</span>:
+        indexes = [...]</code></pre>
+      </div>
+
+      <h3>Usage — Everything Works and Chains</h3>
+      <div class="code-block">
+        <div class="code-header"><span>usage examples</span></div>
+        <pre><code><span class="comment-line"># Via manager shortcut</span>
+JournalEntry.objects.posted()
+
+<span class="comment-line"># Via QuerySet chain — identical in behavior</span>
+JournalEntry.objects.all().posted()
+JournalEntry.objects.posted().for_company(c).in_year(<span class="m">2024</span>).with_lines()
+
+<span class="comment-line"># Factory method — preconditions are enforced, period/company mismatch raises</span>
+entry = JournalEntry.objects.create_draft(
+    company=company,
+    accounting_period=period,
+    date=date.today(),
+    created_by=request.user,
+    description=<span class="hl3">"Payroll June 2024"</span>,
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §4 MULTIPLE MANAGERS -->
+    <section id="multiple">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 04</span>
+        <span class="section-tag">Scoping</span>
+      </div>
+      <h2>Multiple <em>Managers</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>A model can have multiple managers. The most common use case is having a default manager that shows all objects and a second manager that automatically filters to a subset — useful for soft-delete patterns or multi-tenant models.</p>
+
+      <div class="callout warning">
+        <strong>Default manager caveat</strong>
+        <p>Django uses the first manager defined on the model for internal operations like <code>select_related</code> traversal, the admin, and related object lookups. If your default manager filters rows out, those rows can become invisible in related queries. Be careful — filtering in the default manager is a footgun when you have FKs pointing to filtered-out rows.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/core/models.py — soft-delete pattern</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">class</span> <span class="n">ActiveCompanyQuerySet</span>(models.QuerySet):
+    <span class="k">def</span> <span class="n">active</span>(self):
+        <span class="k">return</span> self.filter(is_active=<span class="k">True</span>)
+
+    <span class="k">def</span> <span class="n">with_entries</span>(self):
+        <span class="k">return</span> self.prefetch_related(<span class="hl3">"journal_entries"</span>)
+
+
+<span class="k">class</span> <span class="n">AllCompanyManager</span>(models.Manager):
+    <span class="hl3">"""Returns ALL companies — use for admin, reports, data integrity."""</span>
+    <span class="k">def</span> <span class="n">get_queryset</span>(self):
+        <span class="k">return</span> ActiveCompanyQuerySet(self.model, using=self._db)
+
+
+<span class="k">class</span> <span class="n">ActiveCompanyManager</span>(models.Manager):
+    <span class="hl3">"""Returns only active companies — safe default for most views."""</span>
+    <span class="k">def</span> <span class="n">get_queryset</span>(self):
+        <span class="k">return</span> ActiveCompanyQuerySet(self.model, using=self._db).filter(is_active=<span class="k">True</span>)
+
+
+<span class="k">class</span> <span class="n">Company</span>(TimestampedModel):
+    name = models.CharField(max_length=<span class="m">255</span>)
+    is_active = models.BooleanField(default=<span class="k">True</span>)
+
+    <span class="comment-line"># FIRST manager defined becomes the default</span>
+    objects = ActiveCompanyManager()     <span class="comment-line"># default — always filters to active</span>
+    all_objects = AllCompanyManager()    <span class="comment-line"># explicit — bypasses the active filter</span>
+
+
+<span class="comment-line"># Usage</span>
+Company.objects.all()          <span class="comment-line"># only active companies</span>
+Company.all_objects.all()      <span class="comment-line"># ALL companies including inactive</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §5 INHERITANCE -->
+    <section id="inheritance">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 05</span>
+        <span class="section-tag">Architecture</span>
+      </div>
+      <h2>Manager <em>Inheritance</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>When you have an abstract base model (<code>TimestampedModel</code>), its manager is inherited by all child models. This is a great way to give every model in your system a consistent set of base QuerySet methods without repeating yourself.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/core/models.py — shared base</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">class</span> <span class="n">TimestampedQuerySet</span>(models.QuerySet):
+    <span class="hl3">"""Methods available on EVERY model that inherits from TimestampedModel."""</span>
+
+    <span class="k">def</span> <span class="n">recent</span>(self, days=<span class="m">30</span>):
+        cutoff = timezone.now() - timezone.timedelta(days=days)
+        <span class="k">return</span> self.filter(created_at__gte=cutoff)
+
+    <span class="k">def</span> <span class="n">created_before</span>(self, dt):
+        <span class="k">return</span> self.filter(created_at__lt=dt)
+
+    <span class="k">def</span> <span class="n">oldest_first</span>(self):
+        <span class="k">return</span> self.order_by(<span class="hl3">"created_at"</span>)
+
+    <span class="k">def</span> <span class="n">newest_first</span>(self):
+        <span class="k">return</span> self.order_by(<span class="hl3">"-created_at"</span>)
+
+
+<span class="k">class</span> <span class="n">TimestampedManager</span>(models.Manager):
+    <span class="k">def</span> <span class="n">get_queryset</span>(self):
+        <span class="k">return</span> TimestampedQuerySet(self.model, using=self._db)
+
+
+<span class="k">class</span> <span class="n">TimestampedModel</span>(models.Model):
+    objects = TimestampedManager()
+    created_at = models.DateTimeField(auto_now_add=<span class="k">True</span>)
+    updated_at = models.DateTimeField(auto_now=<span class="k">True</span>)
+
+    <span class="k">class</span> <span class="n">Meta</span>:
+        abstract = <span class="k">True</span>
+
+
+<span class="comment-line"># JournalEntryQuerySet inherits TimestampedQuerySet methods</span>
+<span class="k">class</span> <span class="n">JournalEntryQuerySet</span>(TimestampedQuerySet):
+    <span class="hl3">"""Inherits all TimestampedQuerySet methods and adds entry-specific ones."""</span>
+
+    <span class="k">def</span> <span class="n">posted</span>(self):
+        <span class="k">return</span> self.filter(status=<span class="hl3">"posted"</span>)
+
+    <span class="comment-line"># .recent(), .newest_first(), etc. all available here too</span>
+
+
+<span class="comment-line"># Now this works</span>
+JournalEntry.objects.posted().recent(days=<span class="m">7</span>).newest_first()</code></pre>
+      </div>
+    </section>
+
+    <!-- §6 ATOMIC -->
+    <section id="atomic">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 06</span>
+        <span class="section-tag">Transactions</span>
+      </div>
+      <h2>transaction.<em>atomic()</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>transaction.atomic()</code> wraps a block of database operations in a single transaction. If anything inside the block raises an exception, every database operation inside is rolled back — nothing is persisted. If the block exits cleanly, everything commits together.</p>
+
+      <div class="callout info">
+        <strong>What atomic() does NOT do</strong>
+        <p><code>transaction.atomic()</code> does not protect against race conditions between concurrent transactions. Two transactions can both read the same row cleanly and then both write to it, overwriting each other. That requires locking — covered in the next section.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/accounting/services.py — atomic examples</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db <span class="k">import</span> transaction
+<span class="k">from</span> django.utils <span class="k">import</span> timezone
+
+
+<span class="comment-line"># ── As a context manager ──────────────────────────────────────────</span>
+
+<span class="k">def</span> <span class="n">post_journal_entry</span>(entry_id: int, approved_by) -> <span class="hl3">"JournalEntry"</span>:
+    <span class="k">with</span> transaction.atomic():
+        entry = JournalEntry.objects.get(id=entry_id)
+
+        <span class="k">if</span> entry.status != <span class="hl3">"draft"</span>:
+            <span class="k">raise</span> ValueError(<span class="k">f</span><span class="hl3">"Cannot post entry with status '{entry.status}'."</span>)
+
+        <span class="k">from</span> django.db.models <span class="k">import</span> Sum
+        totals = entry.lines.aggregate(
+            total_debit=Sum(<span class="hl3">"debit"</span>),
+            total_credit=Sum(<span class="hl3">"credit"</span>),
+        )
+        <span class="k">if</span> totals[<span class="hl3">"total_debit"</span>] != totals[<span class="hl3">"total_credit"</span>]:
+            <span class="k">raise</span> ValueError(<span class="hl3">"Entry is unbalanced."</span>)
+        <span class="k">if</span> <span class="k">not</span> entry.lines.exists():
+            <span class="k">raise</span> ValueError(<span class="hl3">"Cannot post an entry with no lines."</span>)
+
+        entry.status = <span class="hl3">"posted"</span>
+        entry.approved_by = approved_by
+        entry.approved_at = timezone.now()
+        <span class="comment-line"># update_fields prevents overwriting concurrent updates to other fields</span>
+        entry.save(update_fields=[<span class="hl3">"status"</span>, <span class="hl3">"approved_by"</span>, <span class="hl3">"approved_at"</span>, <span class="hl3">"updated_at"</span>])
+
+    <span class="k">return</span> entry
+
+
+<span class="comment-line"># ── As a decorator ────────────────────────────────────────────────</span>
+
+@transaction.atomic
+<span class="k">def</span> <span class="n">void_journal_entry</span>(entry_id: int) -> <span class="hl3">"JournalEntry"</span>:
+    entry = JournalEntry.objects.get(id=entry_id)
+    <span class="k">if</span> entry.status != <span class="hl3">"posted"</span>:
+        <span class="k">raise</span> ValueError(<span class="hl3">"Only posted entries can be voided."</span>)
+    entry.status = <span class="hl3">"voided"</span>
+    entry.save(update_fields=[<span class="hl3">"status"</span>, <span class="hl3">"updated_at"</span>])
+    <span class="k">return</span> entry
+
+
+<span class="comment-line"># ── Creating multiple related objects atomically ──────────────────</span>
+
+<span class="k">def</span> <span class="n">create_entry_with_lines</span>(header_data: dict, lines_data: list) -> <span class="hl3">"JournalEntry"</span>:
+    <span class="hl3">"""
+    Creates the entry and all its lines in one transaction.
+    If any line fails validation, the entry is also rolled back.
+    """</span>
+    <span class="k">with</span> transaction.atomic():
+        entry = JournalEntry.objects.create(**header_data)
+
+        <span class="k">if</span> <span class="k">not</span> lines_data:
+            <span class="k">raise</span> ValueError(<span class="hl3">"A journal entry must have at least one line."</span>)
+
+        lines = [JournalEntryLine(journal_entry=entry, **line) <span class="k">for</span> line <span class="k">in</span> lines_data]
+        JournalEntryLine.objects.bulk_create(lines)
+
+        <span class="k">from</span> django.db.models <span class="k">import</span> Sum
+        totals = entry.lines.aggregate(total_debit=Sum(<span class="hl3">"debit"</span>), total_credit=Sum(<span class="hl3">"credit"</span>))
+        <span class="k">if</span> totals[<span class="hl3">"total_debit"</span>] != totals[<span class="hl3">"total_credit"</span>]:
+            <span class="k">raise</span> ValueError(<span class="hl3">"Lines are unbalanced — entry not created."</span>)
+
+        <span class="k">return</span> entry</code></pre>
+      </div>
+    </section>
+
+    <!-- §7 LOCKING -->
+    <section id="locking">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 07</span>
+        <span class="section-tag">Concurrency</span>
+      </div>
+      <h2>select_for_<em>update()</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p><code>select_for_update()</code> adds <code>SELECT ... FOR UPDATE</code> to the SQL query. This is a pessimistic lock — it tells the database "I'm about to modify this row, lock it so nobody else can until my transaction finishes." It must always be used inside <code>transaction.atomic()</code>.</p>
+
+      <h3>The Race Condition it Prevents</h3>
+      <div class="arch">
+        <div class="arch-title">Two simultaneous POST /journal-entries/{id}/post/ requests</div>
+        <div class="mutex-diagram">
+          <div class="mutex-col">
+            <div class="mutex-col-header req-a">Without select_for_update</div>
+            <div class="mutex-step">
+              <div class="dot dot-red"></div>
+              Request A: SELECT status → "draft"
+            </div>
+            <div class="mutex-step">
+              <div class="dot dot-blue"></div>
+              Request B: SELECT status → "draft"
+            </div>
+            <div class="mutex-step">
+              <div class="dot dot-red"></div>
+              Request A: passes check, status = "posted"
+            </div>
+            <div class="mutex-step">
+              <div class="dot dot-blue"></div>
+              Request B: passes check, status = "posted"
+            </div>
+            <div class="mutex-step error">
+              <div class="dot dot-gold"></div>
+              Entry posted TWICE — data corruption
+            </div>
+          </div>
+          <div class="mutex-col">
+            <div class="mutex-col-header req-b">With select_for_update</div>
+            <div class="mutex-step success">
+              <div class="dot dot-red"></div>
+              Request A: SELECT ... FOR UPDATE → acquires lock
+            </div>
+            <div class="mutex-step blocked">
+              <div class="dot dot-blue"></div>
+              Request B: SELECT ... FOR UPDATE → BLOCKED, waiting...
+            </div>
+            <div class="mutex-step success">
+              <div class="dot dot-red"></div>
+              Request A: posts, commits → lock released
+            </div>
+            <div class="mutex-step">
+              <div class="dot dot-blue"></div>
+              Request B: resumes, reads status = "posted"
+            </div>
+            <div class="mutex-step success">
+              <div class="dot dot-green"></div>
+              Request B: check fails → raises ValueError ✓
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>select_for_update() — all modes</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db <span class="k">import</span> transaction
+
+<span class="comment-line"># ── Basic usage ───────────────────────────────────────────────────</span>
+<span class="k">with</span> transaction.atomic():
+    entry = JournalEntry.objects.select_for_update().get(id=entry_id)
+    <span class="comment-line"># Row is locked — no other transaction can UPDATE or DELETE it</span>
+    entry.status = <span class="hl3">"posted"</span>
+    entry.save()
+<span class="comment-line"># Lock released here — transaction committed</span>
+
+<span class="comment-line"># ── Lock multiple rows simultaneously ─────────────────────────────</span>
+<span class="k">with</span> transaction.atomic():
+    entries = list(
+        JournalEntry.objects
+        .select_for_update()
+        .filter(company=company, status=<span class="hl3">"draft"</span>, date__lt=cutoff_date)
+    )
+
+<span class="comment-line"># ── of= to lock only specific tables in a JOIN ───────────────────</span>
+<span class="k">with</span> transaction.atomic():
+    entry = (
+        JournalEntry.objects
+        .select_related(<span class="hl3">"accounting_period"</span>)
+        .select_for_update(of=(<span class="hl3">"self"</span>,))   <span class="comment-line"># lock ONLY journal_entry row</span>
+        .get(id=entry_id)
+    )
+    <span class="comment-line"># entry.accounting_period loaded via JOIN but NOT locked</span></code></pre>
+      </div>
+
+      <div class="callout warning">
+        <strong>Must be inside transaction.atomic()</strong>
+        <p>Without an open transaction, the lock is released immediately after the SELECT — making it completely useless. The lock only persists for the duration of the containing transaction.</p>
+      </div>
+    </section>
+
+    <!-- §8 FULL PATTERN -->
+    <section id="fullpattern">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 08</span>
+        <span class="section-tag">Production Pattern</span>
+      </div>
+      <h2>The Full <em>Pattern</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>This is the complete, production-safe pattern for any state-changing operation on a single record. It combines <code>transaction.atomic()</code>, <code>select_for_update()</code>, state validation, the actual mutation, and post-commit side effects.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/accounting/services.py — JournalEntryService</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">class</span> <span class="n">JournalEntryService</span>:
+    <span class="hl3">"""
+    Service layer owning all state-changing operations on JournalEntry.
+    Each method opens its own transaction, locks, validates, mutates,
+    and then commits or raises.
+    """</span>
+
+    @staticmethod
+    <span class="k">def</span> <span class="n">post</span>(entry_id: int, approved_by) -> <span class="hl3">"JournalEntry"</span>:
+        <span class="k">with</span> transaction.atomic():
+            <span class="comment-line"># 1. Lock the row — prevents concurrent posts</span>
+            entry = (
+                JournalEntry.objects
+                .select_for_update()
+                .select_related(<span class="hl3">"accounting_period"</span>)
+                .get(id=entry_id)
+            )
+
+            <span class="comment-line"># 2. Validate preconditions</span>
+            <span class="k">if</span> entry.status != <span class="hl3">"draft"</span>:
+                <span class="k">raise</span> ValueError(
+                    <span class="k">f</span><span class="hl3">"Cannot post #{entry.id}: status is '{entry.status}', expected 'draft'."</span>
+                )
+            <span class="k">if</span> entry.accounting_period.is_closed:
+                <span class="k">raise</span> ValueError(<span class="k">f</span><span class="hl3">"Cannot post #{entry.id}: accounting period is closed."</span>)
+
+            <span class="comment-line"># 3. Validate business rules</span>
+            <span class="k">from</span> django.db.models <span class="k">import</span> Sum
+            totals = entry.lines.aggregate(
+                total_debit=Sum(<span class="hl3">"debit"</span>),
+                total_credit=Sum(<span class="hl3">"credit"</span>),
+            )
+            <span class="k">if</span> <span class="k">not</span> entry.lines.exists():
+                <span class="k">raise</span> ValueError(<span class="k">f</span><span class="hl3">"Entry #{entry.id} has no lines."</span>)
+            <span class="k">if</span> totals[<span class="hl3">"total_debit"</span>] != totals[<span class="hl3">"total_credit"</span>]:
+                <span class="k">raise</span> ValueError(
+                    <span class="k">f</span><span class="hl3">"Entry #{entry.id} is unbalanced: "</span>
+                    <span class="k">f</span><span class="hl3">"debit={totals['total_debit']}, credit={totals['total_credit']}."</span>
+                )
+
+            <span class="comment-line"># 4. Mutate</span>
+            entry.status = <span class="hl3">"posted"</span>
+            entry.approved_by = approved_by
+            entry.approved_at = timezone.now()
+            entry.total_debit = totals[<span class="hl3">"total_debit"</span>]
+            entry.total_credit = totals[<span class="hl3">"total_credit"</span>]
+            entry.save(update_fields=[
+                <span class="hl3">"status"</span>, <span class="hl3">"approved_by"</span>, <span class="hl3">"approved_at"</span>,
+                <span class="hl3">"total_debit"</span>, <span class="hl3">"total_credit"</span>, <span class="hl3">"updated_at"</span>,
+            ])
+
+            <span class="comment-line"># 5. Side effects — ONLY after successful commit (see §10)</span>
+            transaction.on_commit(
+                <span class="k">lambda</span>: notify_entry_posted.delay(entry.id)
+            )
+
+        <span class="k">return</span> entry
+
+    @staticmethod
+    <span class="k">def</span> <span class="n">reverse</span>(entry_id: int, reversal_date, created_by) -> <span class="hl3">"JournalEntry"</span>:
+        <span class="hl3">"""
+        Creates a mirror-image entry that cancels out the original.
+        Both operations must succeed or neither is persisted.
+        """</span>
+        <span class="k">with</span> transaction.atomic():
+            original = (
+                JournalEntry.objects
+                .select_for_update()           <span class="comment-line"># prevent double reversals</span>
+                .prefetch_related(<span class="hl3">"lines"</span>)
+                .get(id=entry_id)
+            )
+
+            <span class="k">if</span> original.status != <span class="hl3">"posted"</span>:
+                <span class="k">raise</span> ValueError(<span class="hl3">"Only posted entries can be reversed."</span>)
+            <span class="k">if</span> original.reverse_entry_id <span class="k">is not None</span>:
+                <span class="k">raise</span> ValueError(<span class="hl3">"This entry has already been reversed."</span>)
+
+            reversal = JournalEntry.objects.create(
+                company=original.company,
+                accounting_period=original.accounting_period,
+                date=reversal_date,
+                reference=<span class="k">f</span><span class="hl3">"REV-{original.reference}"</span>,
+                description=<span class="k">f</span><span class="hl3">"Reversal of {original.reference}"</span>,
+                status=<span class="hl3">"posted"</span>,
+                created_by=created_by,
+                reversal_of=original,
+                total_debit=original.total_credit,   <span class="comment-line"># flip</span>
+                total_credit=original.total_debit,
+            )
+
+            JournalEntryLine.objects.bulk_create([
+                JournalEntryLine(
+                    journal_entry=reversal,
+                    coa_account=line.coa_account,
+                    debit=line.credit,     <span class="comment-line"># flip</span>
+                    credit=line.debit,
+                    cost_center=line.cost_center,
+                )
+                <span class="k">for</span> line <span class="k">in</span> original.lines.all()
+            ])
+
+            original.reverse_entry = reversal
+            original.save(update_fields=[<span class="hl3">"reverse_entry"</span>, <span class="hl3">"updated_at"</span>])
+
+        <span class="k">return</span> reversal</code></pre>
+      </div>
+    </section>
+
+    <!-- §9 NON-BLOCKING -->
+    <section id="nonblocking">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 09</span>
+        <span class="section-tag">Advanced Locking</span>
+      </div>
+      <h2>nowait &amp; <em>skip_locked</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>By default, <code>select_for_update()</code> blocks — if another transaction holds the lock, your query waits. Sometimes blocking is unacceptable or counterproductive.</p>
+
+      <h3>nowait=True — Fail Immediately if Locked</h3>
+
+      <div class="code-block">
+        <div class="code-header"><span>nowait — for user-facing API endpoints</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db <span class="k">import</span> transaction, DatabaseError
+
+
+<span class="k">def</span> <span class="n">try_post_entry</span>(entry_id: int, approved_by):
+    <span class="hl3">"""
+    If another request is already processing this entry,
+    fail immediately with a clear error rather than making the user wait.
+    Useful when a user clicks "Post" twice rapidly.
+    """</span>
+    <span class="k">try</span>:
+        <span class="k">with</span> transaction.atomic():
+            entry = (
+                JournalEntry.objects
+                .select_for_update(nowait=<span class="k">True</span>)   <span class="comment-line"># raises immediately if locked</span>
+                .get(id=entry_id)
+            )
+            entry.status = <span class="hl3">"posted"</span>
+            entry.save()
+
+    <span class="k">except</span> DatabaseError:
+        <span class="k">raise</span> ValueError(
+            <span class="hl3">"This entry is currently being processed. Please wait and try again."</span>
+        )</code></pre>
+      </div>
+
+      <h3>skip_locked=True — The Worker Queue Pattern</h3>
+      <p><code>skip_locked=True</code> tells the database: give me rows that are not currently locked, skip any that are. This is perfect for job queues where multiple workers process different items concurrently without stepping on each other.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>skip_locked — multi-worker queue</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">def</span> <span class="n">process_pending_entries_worker</span>():
+    <span class="hl3">"""
+    Designed to run concurrently across multiple worker processes.
+    Workers never compete for the same row — skip_locked ensures this.
+
+    Worker A grabs entries [1, 2, 3]  (locks them)
+    Worker B grabs entries [4, 5, 6]  (skips 1,2,3 — locked)
+    Worker C grabs entries [7, 8, 9]  (same)
+    """</span>
+    <span class="k">while</span> <span class="k">True</span>:
+        <span class="k">with</span> transaction.atomic():
+            batch = list(
+                JournalEntry.objects
+                .select_for_update(skip_locked=<span class="k">True</span>)
+                .filter(status=<span class="hl3">"draft"</span>)
+                .order_by(<span class="hl3">"created_at"</span>)[:<span class="m">10</span>]
+            )
+
+            <span class="k">if</span> <span class="k">not</span> batch:
+                <span class="k">break</span>   <span class="comment-line"># no more unprocessed entries</span>
+
+            <span class="k">for</span> entry <span class="k">in</span> batch:
+                <span class="k">try</span>:
+                    _validate_and_post(entry)
+                <span class="k">except</span> Exception <span class="k">as</span> e:
+                    entry.metadata[<span class="hl3">"error"</span>] = str(e)
+                    entry.save(update_fields=[<span class="hl3">"metadata"</span>, <span class="hl3">"updated_at"</span>])</code></pre>
+      </div>
+    </section>
+
+    <!-- §10 ON_COMMIT -->
+    <section id="oncommit">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 10</span>
+        <span class="section-tag">Side Effects</span>
+      </div>
+      <h2>transaction.<em>on_commit()</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Side effects like sending emails, firing Celery tasks, or hitting webhooks should <em>never</em> run inside a <code>transaction.atomic()</code> block. If the transaction later rolls back, the side effect has already happened and cannot be undone.</p>
+
+      <p><code>transaction.on_commit()</code> registers a callback that runs <strong>only if and after</strong> the transaction successfully commits to the database.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>on_commit — correct pattern</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">def</span> <span class="n">post_entry_with_notifications</span>(entry_id: int, approved_by):
+    <span class="k">with</span> transaction.atomic():
+        entry = JournalEntry.objects.select_for_update().get(id=entry_id)
+        entry.status = <span class="hl3">"posted"</span>
+        entry.save()
+
+        <span class="comment-line"># ❌ WRONG — runs even if transaction rolls back after this line</span>
+        <span class="comment-line"># send_posting_email(entry)</span>
+        <span class="comment-line"># notify_accounting_team.delay(entry.id)</span>
+
+        <span class="comment-line"># ✅ CORRECT — only runs after successful commit</span>
+        transaction.on_commit(<span class="k">lambda</span>: notify_accounting_team.delay(entry.id))
+        transaction.on_commit(<span class="k">lambda</span>: sync_to_erp.delay(entry.id))
+        transaction.on_commit(<span class="k">lambda</span>: send_posting_email(entry.id))</code></pre>
+      </div>
+
+      <div class="callout warning">
+        <strong>on_commit in tests</strong>
+        <p>In Django's <code>TestCase</code>, each test is wrapped in a transaction that rolls back at the end. <code>on_commit</code> hooks <em>never</em> fire in <code>TestCase</code>. Use <code>TransactionTestCase</code> when you need to test <code>on_commit</code> behavior, or mock <code>transaction.on_commit</code> to call the function immediately.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>testing on_commit hooks</span></div>
+        <pre><code><span class="comment-line"># Option 1 — TransactionTestCase (real commits, slower)</span>
+<span class="k">from</span> django.test <span class="k">import</span> TransactionTestCase
+
+<span class="k">class</span> <span class="n">PostEntryTest</span>(TransactionTestCase):
+    <span class="k">def</span> <span class="n">test_notification_fired</span>(self):
+        <span class="comment-line"># on_commit hooks DO fire here</span>
+        ...
+
+<span class="comment-line"># Option 2 — mock on_commit to call immediately</span>
+<span class="k">with</span> mock.patch(<span class="hl3">"django.db.transaction.on_commit"</span>, side_effect=<span class="k">lambda</span> fn: fn()):
+    post_entry_with_notifications(entry.id, user)</code></pre>
+      </div>
+    </section>
+
+    <!-- §11 SAVEPOINTS -->
+    <section id="savepoints">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 11</span>
+        <span class="section-tag">Partial Rollbacks</span>
+      </div>
+      <h2>Savepoints &amp; Nested <em>Transactions</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>When you nest <code>transaction.atomic()</code> blocks, the inner block creates a <strong>savepoint</strong> rather than a new transaction. If the inner block raises, only the operations inside it are rolled back — the outer transaction can continue and commit.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>savepoints — optional steps that should not abort the main operation</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">def</span> <span class="n">create_entry_and_notify</span>(header_data: dict, lines_data: list):
+    <span class="k">with</span> transaction.atomic():   <span class="comment-line"># outer transaction</span>
+        <span class="comment-line"># Critical path — if this fails, everything rolls back</span>
+        entry = JournalEntry.objects.create(**header_data)
+        JournalEntryLine.objects.bulk_create([
+            JournalEntryLine(journal_entry=entry, **ld) <span class="k">for</span> ld <span class="k">in</span> lines_data
+        ])
+
+        <span class="comment-line"># Optional path — wrapped in its own savepoint</span>
+        <span class="k">try</span>:
+            <span class="k">with</span> transaction.atomic():   <span class="comment-line"># savepoint</span>
+                <span class="comment-line"># If this raises, ONLY the savepoint rolls back.</span>
+                <span class="comment-line"># The outer transaction (entry + lines) is preserved.</span>
+                AuditLog.objects.create(
+                    action=<span class="hl3">"entry_created"</span>,
+                    entry=entry,
+                    user=header_data[<span class="hl3">"created_by"</span>],
+                )
+        <span class="k">except</span> Exception <span class="k">as</span> e:
+            logger.warning(<span class="k">f</span><span class="hl3">"Audit log failed for entry {entry.id}: {e}"</span>)
+
+        <span class="k">return</span> entry</code></pre>
+      </div>
+
+      <div class="callout danger">
+        <strong>Database integrity errors require savepoints</strong>
+        <p>Even within a savepoint, database errors (like unique constraint violations) put PostgreSQL into an aborted state. You <em>must</em> handle them in a <code>try/except</code> around the inner <code>atomic()</code> block, not outside it. Without the inner block, the outer transaction becomes un-usable after any DB error.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>correct pattern for integrity errors</span></div>
+        <pre><code><span class="comment-line"># ❌ WRONG — outer transaction is now aborted after IntegrityError</span>
+<span class="k">with</span> transaction.atomic():
+    <span class="k">try</span>:
+        inner_thing()            <span class="comment-line"># raises IntegrityError</span>
+    <span class="k">except</span> IntegrityError:
+        <span class="k">pass</span>                     <span class="comment-line"># transaction is aborted — any further DB op fails</span>
+
+<span class="comment-line"># ✅ CORRECT — savepoint isolates the error</span>
+<span class="k">with</span> transaction.atomic():
+    <span class="k">try</span>:
+        <span class="k">with</span> transaction.atomic():   <span class="comment-line"># savepoint</span>
+            inner_thing()
+    <span class="k">except</span> IntegrityError:
+        <span class="k">pass</span>                     <span class="comment-line"># savepoint rolled back, outer still healthy</span>
+    outer_thing()                <span class="comment-line"># works fine</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §12 PITFALLS -->
+    <section id="pitfalls">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 12</span>
+        <span class="section-tag">Danger Zones</span>
+      </div>
+      <h2>Common <em>Pitfalls</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <table class="data-table">
+        <thead><tr><th>Pitfall</th><th>Wrong</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Read-modify-write without lock</td>
+            <td><code>entry.total += n; entry.save()</code></td>
+            <td><code>F("total") + n</code> in <code>.update()</code> or lock first</td>
+          </tr>
+          <tr>
+            <td>Lock outside a transaction</td>
+            <td><code>objects.select_for_update().get(...)</code> alone</td>
+            <td>Always wrap in <code>transaction.atomic()</code></td>
+          </tr>
+          <tr>
+            <td>Side effects inside transaction</td>
+            <td><code>send_email(entry)</code> inside <code>atomic()</code></td>
+            <td><code>transaction.on_commit(lambda: ...)</code></td>
+          </tr>
+          <tr>
+            <td>Using .update() when validation is needed</td>
+            <td><code>JE.objects.filter(id=id).update(status="posted")</code></td>
+            <td>Fetch, validate, then <code>.save()</code></td>
+          </tr>
+          <tr>
+            <td>Inconsistent lock ordering (deadlock)</td>
+            <td>Lock entry A then B in one request, B then A in another</td>
+            <td>Always sort IDs: <code>sorted([a, b])</code> before locking</td>
+          </tr>
+          <tr>
+            <td>Holding locks during slow external calls</td>
+            <td>HTTP call to payment API inside <code>atomic()</code></td>
+            <td>Do slow work outside the lock, lock only for the write</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Deadlock Prevention — Consistent Lock Ordering</h3>
+      <div class="code-block">
+        <div class="code-header"><span>deadlock prevention</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment-line"># ❌ DANGEROUS — two simultaneous requests can deadlock</span>
+<span class="comment-line"># Request A: locks entry 1, then tries to lock entry 2</span>
+<span class="comment-line"># Request B: locks entry 2, then tries to lock entry 1 → DEADLOCK</span>
+<span class="k">def</span> <span class="n">transfer_unsafe</span>(from_id, to_id):
+    <span class="k">with</span> transaction.atomic():
+        from_entry = JournalEntry.objects.select_for_update().get(id=from_id)
+        to_entry   = JournalEntry.objects.select_for_update().get(id=to_id)
+
+<span class="comment-line"># ✅ CORRECT — always lock in a consistent order (ascending ID)</span>
+<span class="k">def</span> <span class="n">transfer_safe</span>(from_id, to_id):
+    ids = sorted([from_id, to_id])   <span class="comment-line"># always same order regardless of input</span>
+    <span class="k">with</span> transaction.atomic():
+        entries = dict(
+            JournalEntry.objects
+            .select_for_update()
+            .filter(id__in=ids)
+            .in_bulk()
+        )
+        from_entry = entries[from_id]
+        to_entry   = entries[to_id]</code></pre>
+      </div>
+    </section>
+
+    <!-- §13 FSM -->
+    <section id="fsm">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 13</span>
+        <span class="section-tag">Design Pattern</span>
+      </div>
+      <h2>State Machine <em>Pattern</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Journal entries follow a state machine. Encoding valid transitions into the manager or service layer makes invalid state changes impossible to accidentally trigger from anywhere in your codebase.</p>
+
+      <div class="arch">
+        <div class="arch-title">JournalEntry state transitions</div>
+        <div class="state-machine">
+          <div class="state-node draft">DRAFT<small>initial state</small></div>
+          <div class="state-arrow">
+            <div class="line"></div>
+            <div class="head">▶</div>
+            <div class="label">.post()</div>
+          </div>
+          <div class="state-node posted">POSTED<small>approved</small></div>
+          <div class="state-arrow">
+            <div class="line"></div>
+            <div class="head">▶</div>
+            <div class="label">.void()</div>
+          </div>
+          <div class="state-node voided">VOIDED<small>terminal</small></div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>state machine — enforced transitions</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">class</span> <span class="n">JournalEntryStateMachine</span>:
+
+    VALID_TRANSITIONS = {
+        <span class="hl3">"draft"</span>:  [<span class="hl3">"posted"</span>],
+        <span class="hl3">"posted"</span>: [<span class="hl3">"voided"</span>],
+        <span class="hl3">"voided"</span>: [],           <span class="comment-line"># terminal state</span>
+    }
+
+    @staticmethod
+    <span class="k">def</span> <span class="n">can_transition</span>(current: str, target: str) -> bool:
+        <span class="k">return</span> target <span class="k">in</span> JournalEntryStateMachine.VALID_TRANSITIONS.get(current, [])
+
+    @staticmethod
+    <span class="k">def</span> <span class="n">transition</span>(entry_id: int, target: str, by_user, **extra_fields):
+        <span class="k">with</span> transaction.atomic():
+            entry = JournalEntry.objects.select_for_update().get(id=entry_id)
+
+            <span class="k">if</span> <span class="k">not</span> JournalEntryStateMachine.can_transition(entry.status, target):
+                allowed = JournalEntryStateMachine.VALID_TRANSITIONS.get(entry.status, [])
+                <span class="k">raise</span> ValueError(
+                    <span class="k">f</span><span class="hl3">"Invalid transition: '{entry.status}' → '{target}'. "</span>
+                    <span class="k">f</span><span class="hl3">"Allowed: {allowed}"</span>
+                )
+
+            entry.status = target
+            <span class="k">for</span> field, value <span class="k">in</span> extra_fields.items():
+                setattr(entry, field, value)
+
+            update_fields = [<span class="hl3">"status"</span>, <span class="hl3">"updated_at"</span>] + list(extra_fields.keys())
+            entry.save(update_fields=update_fields)
+
+            entry.metadata.setdefault(<span class="hl3">"transitions"</span>, []).append({
+                <span class="hl3">"from"</span>: entry.status, <span class="hl3">"to"</span>: target,
+                <span class="hl3">"by"</span>: by_user.id, <span class="hl3">"at"</span>: timezone.now().isoformat(),
+            })
+            entry.save(update_fields=[<span class="hl3">"metadata"</span>, <span class="hl3">"updated_at"</span>])
+
+        <span class="k">return</span> entry
+
+
+<span class="comment-line"># Usage — clean, explicit, impossible to make invalid transitions</span>
+JournalEntryStateMachine.transition(
+    entry_id=<span class="m">1</span>,
+    target=<span class="hl3">"posted"</span>,
+    by_user=request.user,
+    approved_by=request.user,
+    approved_at=timezone.now(),
+)</code></pre>
+      </div>
+    </section>
+
+    <!-- §14 TESTING -->
+    <section id="testing">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 14</span>
+        <span class="section-tag">Quality</span>
+      </div>
+      <h2><em>Testing</em> Managers &amp; Transactions</h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Testing custom managers and transactional behavior requires understanding how Django's test infrastructure handles transactions.</p>
+
+      <div class="two-col">
+        <div class="card" style="border-top: 3px solid var(--blue);">
+          <h4 style="color: var(--blue);">TestCase</h4>
+          <ul>
+            <li>Wraps each test in a rolled-back transaction</li>
+            <li>Fast — no truncation between tests</li>
+            <li><code>on_commit</code> hooks NEVER fire</li>
+            <li>Use for QuerySet methods, filtering, annotations</li>
+          </ul>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--red);">
+          <h4 style="color: var(--red);">TransactionTestCase</h4>
+          <ul>
+            <li>Real commits — DB is truncated between tests</li>
+            <li>Slower — but <code>on_commit</code> DOES fire</li>
+            <li>Use for <code>on_commit</code>, <code>select_for_update</code>, concurrent behavior</li>
+            <li>Prefer <code>TestCase</code> unless you specifically need real commits</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>tests/test_managers.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.test <span class="k">import</span> TestCase, TransactionTestCase
+<span class="k">from</span> unittest <span class="k">import</span> mock
+
+
+<span class="k">class</span> <span class="n">JournalEntryQuerySetTest</span>(TestCase):
+    <span class="hl3">"""Fast tests for QuerySet methods — no real commits needed."""</span>
+
+    <span class="k">def</span> <span class="n">test_posted_filter</span>(self):
+        draft  = JournalEntry.objects.create(..., status=<span class="hl3">"draft"</span>)
+        posted = JournalEntry.objects.create(..., status=<span class="hl3">"posted"</span>)
+
+        result = JournalEntry.objects.posted()
+        self.assertIn(posted, result)
+        self.assertNotIn(draft, result)
+
+    <span class="k">def</span> <span class="n">test_chainability</span>(self):
+        qs = (
+            JournalEntry.objects
+            .for_company(self.company)
+            .posted()
+            .in_year(<span class="m">2024</span>)
+        )
+        self.assertIsInstance(qs, models.QuerySet)
+
+    <span class="k">def</span> <span class="n">test_query_count_with_lines</span>(self):
+        <span class="hl3">"""with_lines() must eliminate N+1."""</span>
+        <span class="k">for</span> _ <span class="k">in</span> range(<span class="m">5</span>):
+            JournalEntry.objects.create(..., status=<span class="hl3">"posted"</span>)
+
+        <span class="k">with</span> self.assertNumQueries(<span class="m">2</span>):   <span class="comment-line"># 1 entries + 1 lines prefetch</span>
+            entries = list(JournalEntry.objects.posted().with_lines())
+            <span class="k">for</span> entry <span class="k">in</span> entries:
+                _ = list(entry.lines.all())   <span class="comment-line"># no extra queries</span>
+
+    <span class="k">def</span> <span class="n">test_create_draft_validates_period_company</span>(self):
+        other_company = Company.objects.create(name=<span class="hl3">"Other"</span>, tax_id=<span class="hl3">"456"</span>)
+        other_period  = AccountingPeriod.objects.create(company=other_company, ...)
+
+        <span class="k">with</span> self.assertRaises(ValueError):
+            JournalEntry.objects.create_draft(
+                company=self.company,
+                accounting_period=other_period,   <span class="comment-line"># wrong company's period</span>
+                date=date.today(),
+                created_by=self.user,
+            )
+
+
+<span class="k">class</span> <span class="n">JournalEntryTransactionTest</span>(TransactionTestCase):
+    <span class="hl3">"""Slower tests — needed for on_commit and concurrent behavior."""</span>
+
+    <span class="k">def</span> <span class="n">test_on_commit_does_not_fire_on_rollback</span>(self):
+        fired = []
+        <span class="k">with</span> mock.patch(<span class="hl3">"myapp.tasks.notify.delay"</span>, side_effect=<span class="k">lambda</span> id: fired.append(id)):
+            <span class="k">try</span>:
+                <span class="k">with</span> transaction.atomic():
+                    JournalEntryService.post(entry_id=self.entry.id, approved_by=self.user)
+                    <span class="k">raise</span> Exception(<span class="hl3">"Force rollback"</span>)
+            <span class="k">except</span> Exception:
+                <span class="k">pass</span>
+
+        self.assertEqual(fired, [])   <span class="comment-line"># on_commit must NOT have fired</span>
+
+    <span class="k">def</span> <span class="n">test_select_for_update_prevents_double_post</span>(self):
+        <span class="hl3">"""Simulate concurrent requests using threads."""</span>
+        <span class="k">import</span> threading
+
+        results = []
+
+        <span class="k">def</span> <span class="n">try_post</span>():
+            <span class="k">try</span>:
+                JournalEntryService.post(entry_id=self.entry.id, approved_by=self.user)
+                results.append(<span class="hl3">"success"</span>)
+            <span class="k">except</span> ValueError:
+                results.append(<span class="hl3">"error"</span>)
+
+        threads = [threading.Thread(target=try_post) <span class="k">for</span> _ <span class="k">in</span> range(<span class="m">2</span>)]
+        <span class="k">for</span> t <span class="k">in</span> threads: t.start()
+        <span class="k">for</span> t <span class="k">in</span> threads: t.join()
+
+        successes = [r <span class="k">for</span> r <span class="k">in</span> results <span class="k">if</span> r == <span class="hl3">"success"</span>]
+        self.assertEqual(len(successes), <span class="m">1</span>)   <span class="comment-line"># exactly one should succeed</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §15 CHEAT SHEET -->
+    <section id="cheatsheet">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 15</span>
+        <span class="section-tag">Reference</span>
+      </div>
+      <h2>Quick <em>Reference</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <table class="ref-table">
+        <thead><tr><th>Situation</th><th>Tool</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>All query logic for a model</td><td>Custom QuerySet</td><td>Every method returns <code>self.something()</code></td></tr>
+          <tr><td>Entry point / factory methods</td><td>Custom Manager</td><td><code>get_queryset()</code> returns your QuerySet</td></tr>
+          <tr><td>Available on Manager and mid-chain</td><td>Proxy QuerySet methods on Manager</td><td>Chainable from anywhere</td></tr>
+          <tr><td>Filter a subset by default</td><td>Second manager on the model</td><td>Be careful with related lookups</td></tr>
+          <tr><td>Shared methods across all models</td><td>QuerySet on abstract base model</td><td>Children inherit it</td></tr>
+          <tr><td>Multi-row/model consistency</td><td><code>transaction.atomic()</code></td><td>Decorator or context manager</td></tr>
+          <tr><td>State-change without race conditions</td><td><code>select_for_update()</code> inside <code>atomic()</code></td><td>Locks the row for the transaction</td></tr>
+          <tr><td>Fail immediately if row is locked</td><td><code>select_for_update(nowait=True)</code></td><td>Raises <code>DatabaseError</code></td></tr>
+          <tr><td>Worker queue — skip busy rows</td><td><code>select_for_update(skip_locked=True)</code></td><td>Multiple workers, no conflict</td></tr>
+          <tr><td>Lock only specific tables in JOIN</td><td><code>select_for_update(of=("self",))</code></td><td>Prevents locking joined rows</td></tr>
+          <tr><td>Atomic increment without Python</td><td><code>F("field") + value</code> in <code>.update()</code></td><td>No read-modify-write race</td></tr>
+          <tr><td>Emails / Celery tasks after commit</td><td><code>transaction.on_commit(fn)</code></td><td>Only fires if transaction commits</td></tr>
+          <tr><td>Optional step that can fail</td><td>Nested <code>transaction.atomic()</code> (savepoint)</td><td>Inner rollback, outer proceeds</td></tr>
+          <tr><td>Consistent lock ordering</td><td>Sort IDs before locking</td><td>Prevents deadlocks</td></tr>
+          <tr><td>Keep locks brief</td><td>Slow work outside the transaction</td><td>Lock only for the actual write</td></tr>
+          <tr><td>State machine transitions</td><td>Enforce in service layer</td><td>Invalid transitions raise immediately</td></tr>
+          <tr><td>Test QuerySet methods</td><td><code>TestCase</code> + <code>assertNumQueries</code></td><td>Fast — wrapped in rollback</td></tr>
+          <tr><td>Test on_commit hooks</td><td><code>TransactionTestCase</code></td><td>Slower — real commits</td></tr>
+          <tr><td>Test concurrent behavior</td><td><code>TransactionTestCase</code> + threads</td><td>Verifies lock behavior end-to-end</td></tr>
+          <tr><td>Creation with enforced rules</td><td>Manager factory method</td><td>Centralizes precondition checks</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <strong>The four golden rules</strong>
+        <p>Put query logic on the QuerySet. Put the transaction boundary as close to the mutation as possible. Lock what you read before you write it. Never run side effects inside a transaction. Follow these four rules and 95% of Django concurrency bugs become impossible by construction.</p>
+      </div>
+
+      <div class="checklist-group">
+        <h4>QuerySet & Manager Setup</h4>
+        <ul class="checklist">
+          <li>All filter/annotate/prefetch logic lives on a custom QuerySet, not the Manager</li>
+          <li>Every QuerySet method returns <code>self.something()</code> — never a new queryset</li>
+          <li>Manager's <code>get_queryset()</code> returns the custom QuerySet class</li>
+          <li>Factory methods (<code>create_draft</code>) validate preconditions before creating</li>
+          <li>Model-specific QuerySet inherits from the base <code>TimestampedQuerySet</code></li>
+        </ul>
+      </div>
+
+      <div class="checklist-group">
+        <h4>Transaction & Locking</h4>
+        <ul class="checklist">
+          <li>All state-changing operations (post, void, reverse) run inside <code>transaction.atomic()</code></li>
+          <li><code>select_for_update()</code> is always inside <code>transaction.atomic()</code></li>
+          <li>Read-modify-write patterns use either <code>F()</code> expressions or <code>select_for_update()</code></li>
+          <li>External calls (APIs, emails) happen outside transaction boundaries</li>
+          <li>Side effects (Celery, email) are in <code>transaction.on_commit()</code></li>
+          <li>Database errors are caught inside nested <code>atomic()</code> (savepoint) blocks</li>
+          <li>Multi-row locks are acquired in a consistent sorted order to prevent deadlocks</li>
+        </ul>
+      </div>
+
+      <div class="checklist-group">
+        <h4>Testing</h4>
+        <ul class="checklist">
+          <li>QuerySet method tests use <code>TestCase</code> (fast, no real commits needed)</li>
+          <li><code>assertNumQueries</code> is used to verify eager loading eliminates N+1</li>
+          <li><code>on_commit</code> behavior tested with <code>TransactionTestCase</code> or mock</li>
+          <li>Concurrency behavior (double-post prevention) tested with threads in <code>TransactionTestCase</code></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <p>Django Managers &amp; Concurrency · Complete Production Reference · Guide No. 3 of 6</p>
+  <p>Pairs with: The Ultimate Django Querying Guide · django-prometheus Complete Guide</p>
+</footer>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>

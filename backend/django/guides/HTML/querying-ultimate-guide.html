@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>django-prometheus — The Complete Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --ink-light: #4a3f2f;
+    --ink-faint: #7a6e60;
+    --paper: #faf7f2;
+    --paper-warm: #f3ede3;
+    --paper-mid: #e8dfd0;
+    --rule: #d4c9b8;
+    --rule-dark: #b5a898;
+    --red: #c0392b;
+    --red-light: #fadbd8;
+    --orange: #d35400;
+    --orange-light: #fde8d8;
+    --green: #1e8449;
+    --green-light: #d5f0e0;
+    --blue: #1a5276;
+    --blue-light: #d6eaf8;
+    --amber: #b7950b;
+    --amber-light: #fef9e7;
+    --purple: #6c3483;
+    --purple-light: #f4ecf7;
+    --gold: #c9a227;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  /* ── MASTHEAD ───────────────────────────────────────────────────── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
+  }
+  .masthead-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 3rem 0;
+    position: relative;
+  }
+  .masthead-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+  .masthead-meta span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .issue-badge {
+    background: var(--gold);
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    opacity: 1 !important;
+  }
+  .masthead-title {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: end;
+    padding-bottom: 3rem;
+  }
+  .masthead-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+  }
+  .masthead-title h1 em {
+    font-style: italic;
+    color: var(--gold);
+    display: block;
+  }
+  .masthead-subtitle {
+    max-width: 320px;
+    padding-bottom: 0.5rem;
+  }
+  .masthead-subtitle p {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(250,247,242,0.6);
+    margin: 0;
+  }
+  .masthead-subtitle p + p {
+    margin-top: 0.75rem;
+  }
+  .masthead-rule {
+    height: 6px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--orange) 50%, var(--red) 100%);
+  }
+
+  /* ── NAV STRIP ─────────────────────────────────────────────────── */
+  nav {
+    background: var(--paper-warm);
+    border-bottom: 2px solid var(--ink);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 3rem;
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+  nav a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 0.85rem 1rem;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    margin-bottom: -2px;
+  }
+  nav a:hover {
+    color: var(--ink);
+    border-bottom-color: var(--gold);
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────────────────── */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 3rem 8rem;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* ── SIDEBAR ─────────────────────────────────────────────────────── */
+  .sidebar {
+    position: sticky;
+    top: 52px;
+    padding-top: 2.5rem;
+  }
+  .sidebar-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .sidebar ol {
+    list-style: none;
+    counter-reset: toc;
+  }
+  .sidebar ol li {
+    counter-increment: toc;
+    margin-bottom: 0.1rem;
+  }
+  .sidebar ol li a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    text-decoration: none;
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.2rem 0;
+    border-left: 2px solid transparent;
+    padding-left: 0.6rem;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .sidebar ol li a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--rule-dark);
+    flex-shrink: 0;
+  }
+  .sidebar ol li a:hover {
+    color: var(--ink);
+    border-left-color: var(--gold);
+    padding-left: 0.9rem;
+  }
+  .sidebar-divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 1.5rem 0;
+  }
+  .sidebar-note {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+
+  /* ── MAIN CONTENT ─────────────────────────────────────────────────── */
+  main { min-width: 0; }
+
+  section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 60px;
+  }
+
+  .section-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    background: var(--paper-mid);
+    border: 1px solid var(--rule);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+  }
+  .section-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+  h2 em { font-style: italic; }
+
+  .section-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 2rem;
+  }
+  .section-rule .line {
+    height: 2px;
+    background: var(--ink);
+    flex: 1;
+  }
+  .section-rule .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--ink-light);
+    margin-bottom: 1.2rem;
+    font-size: 1rem;
+  }
+
+  strong { color: var(--ink); font-weight: 600; }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8em;
+    background: var(--paper-mid);
+    border: 1px solid var(--rule);
+    padding: 0.1em 0.4em;
+    border-radius: 2px;
+    color: var(--red);
+  }
+
+  /* ── CODE BLOCKS ─────────────────────────────────────────────────── */
+  .code-block {
+    margin: 1.75rem 0;
+    border: 1px solid var(--rule-dark);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #1e1812;
+    box-shadow: 3px 3px 0 var(--rule-dark);
+  }
+  .code-header {
+    background: #2a2118;
+    border-bottom: 1px solid #3a3028;
+    padding: 0.55rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .code-header span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #857060;
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid #3a3028;
+    color: #857060;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--gold); border-color: var(--gold); }
+  pre {
+    padding: 1.5rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: #e8dfd0;
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: 1em; }
+
+  .k  { color: #e8956d; }
+  .s  { color: #98c379; }
+  .n  { color: #7ec8e3; }
+  .m  { color: #e5c07b; }
+  .c  { color: #4a4035; font-style: italic; }
+  .hl { color: var(--gold); }
+  .hl2{ color: #7ec8e3; }
+  .hl3{ color: #98c379; }
+  .hl4{ color: #e8956d; }
+  .comment-line { color: #4a4035; font-style: italic; }
+  .pq { color: #c678dd; }
+  .fn { color: #c678dd; }
+  .label-sel { color: #98c379; }
+  .op { color: var(--gold); }
+  .num { color: #e5c07b; }
+
+  /* ── CALLOUTS ─────────────────────────────────────────────────────── */
+  .callout {
+    border: 1px solid;
+    border-left: 4px solid;
+    border-radius: 2px;
+    padding: 1.1rem 1.4rem;
+    margin: 1.75rem 0;
+    font-size: 0.95rem;
+  }
+  .callout strong {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .callout p { margin: 0; font-size: 0.9rem; }
+  .callout.info    { background: var(--blue-light);   border-color: var(--blue); }
+  .callout.info strong { color: var(--blue); }
+  .callout.tip     { background: var(--green-light);  border-color: var(--green); }
+  .callout.tip strong { color: var(--green); }
+  .callout.warning { background: var(--amber-light);  border-color: var(--amber); }
+  .callout.warning strong { color: var(--amber); }
+  .callout.danger  { background: var(--red-light);    border-color: var(--red); }
+  .callout.danger strong { color: var(--red); }
+  .callout.purple  { background: var(--purple-light); border-color: var(--purple); }
+  .callout.purple strong { color: var(--purple); }
+
+  /* ── TABLES ─────────────────────────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin: 1.75rem 0;
+    border: 1px solid var(--rule-dark);
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .data-table th {
+    background: var(--ink);
+    color: var(--paper-warm);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .data-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-light);
+    vertical-align: top;
+  }
+  .data-table tr:nth-child(even) td { background: var(--paper-warm); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--red);
+    white-space: nowrap;
+  }
+  .data-table td:nth-child(2) {
+    color: var(--purple);
+    font-size: 0.82rem;
+  }
+
+  /* ── PULL QUOTE ─────────────────────────────────────────────────── */
+  .pull-quote {
+    border-left: 4px solid var(--gold);
+    border-right: 4px solid var(--gold);
+    margin: 2.5rem 0;
+    padding: 1.5rem 2rem;
+    background: var(--amber-light);
+    text-align: center;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── METRIC CARDS ─────────────────────────────────────────────────── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+  .metric-card {
+    border: 1px solid var(--rule-dark);
+    padding: 1.5rem;
+    position: relative;
+    background: white;
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .metric-card.counter::before { background: var(--amber); }
+  .metric-card.gauge::before   { background: var(--blue); }
+  .metric-card.histo::before   { background: var(--green); }
+  .metric-card.summ::before    { background: var(--purple); }
+  .metric-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+  .metric-card.counter h4 { color: var(--amber); }
+  .metric-card.gauge   h4 { color: var(--blue); }
+  .metric-card.histo   h4 { color: var(--green); }
+  .metric-card.summ    h4 { color: var(--purple); }
+  .metric-card p { font-size: 0.9rem; color: var(--ink-faint); margin-bottom: 0.75rem; }
+  .metric-card .use { font-size: 0.83rem; color: var(--ink-light); }
+  .metric-card .use strong { font-size: 0.83rem; color: var(--ink); }
+  .metric-card .use + .use { margin-top: 0.35rem; }
+
+  /* ── TWO COL ─────────────────────────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.75rem 0; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } .metric-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    border: 1px solid var(--rule-dark);
+    padding: 1.5rem;
+    background: white;
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 1rem;
+    margin-top: 0;
+  }
+  .card ul { list-style: none; }
+  .card ul li {
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    display: flex;
+    gap: 0.6rem;
+  }
+  .card ul li::before { content: '→'; color: var(--rule-dark); flex-shrink: 0; }
+
+  /* ── ARCH DIAGRAM ─────────────────────────────────────────────────── */
+  .arch {
+    background: var(--paper-warm);
+    border: 1px solid var(--rule-dark);
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 3px 3px 0 var(--rule);
+  }
+  .arch-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pull-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .arch-node {
+    border: 2px solid;
+    padding: 0.8rem 1.25rem;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    min-width: 160px;
+    background: white;
+    box-shadow: 2px 2px 0;
+  }
+  .arch-node small {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 400;
+    opacity: 0.65;
+    margin-top: 0.2rem;
+  }
+  .arch-node.django  { border-color: var(--red);  color: var(--red);  box-shadow-color: var(--red-light);  }
+  .arch-node.prom    { border-color: var(--orange); color: var(--orange); box-shadow: 2px 2px 0 var(--orange-light); }
+  .arch-node.grafana { border-color: var(--amber); color: var(--amber); box-shadow: 2px 2px 0 var(--amber-light); }
+  .arch-arrow-h {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0.5rem;
+  }
+  .arch-arrow-h .line { width: 40px; height: 2px; background: var(--rule-dark); }
+  .arch-arrow-h .arrow-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--ink-faint);
+    margin-top: 0.3rem;
+    white-space: nowrap;
+  }
+  .arch-arrow-h .arrowhead { color: var(--rule-dark); font-size: 10px; }
+
+  .layer-diagram { display: flex; flex-direction: column; gap: 2px; }
+  .layer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--rule);
+    background: white;
+  }
+  .layer:first-child { border-left: 4px solid var(--red); }
+  .layer:nth-child(2) { border-left: 4px solid var(--orange); }
+  .layer:nth-child(3) { border-left: 4px solid var(--amber); }
+  .layer-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    flex-shrink: 0;
+    background: var(--paper-mid);
+    color: var(--ink-faint);
+    border-radius: 2px;
+  }
+  .layer-content h5 { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.15rem; color: var(--ink); }
+  .layer-content p { font-size: 0.83rem; color: var(--ink-faint); margin: 0; }
+
+  /* ── MP DIAGRAM ─────────────────────────────────────────────────── */
+  .mp-diagram { display: flex; flex-direction: column; align-items: center; }
+  .mp-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .mp-box {
+    border: 1px solid var(--rule-dark);
+    padding: 0.5rem 0.9rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    text-align: center;
+    background: white;
+  }
+  .mp-box small { display: block; font-size: 0.6rem; opacity: 0.6; margin-top: 0.1rem; }
+  .mp-box.worker { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+  .mp-box.dir { border-color: var(--green); color: var(--green); background: var(--green-light); min-width: 240px; }
+  .mp-box.prom { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+  .mp-arrow-v { width: 1px; height: 24px; background: var(--rule-dark); margin: 0 auto; position: relative; }
+  .mp-arrow-v::after { content: '▼'; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--rule-dark); }
+  .mp-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--ink-faint); text-align: center; margin: 4px 0; }
+
+  /* ── STEPS ─────────────────────────────────────────────────────── */
+  .steps { counter-reset: step; }
+  .step { position: relative; padding-left: 3.25rem; margin-bottom: 2.5rem; }
+  .step::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 0.05rem;
+    width: 2rem; height: 2rem;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 2px;
+  }
+  .step h3 { margin-top: 0; }
+
+  /* ── PROMQL BOXES ─────────────────────────────────────────────────── */
+  .promql-box {
+    background: #f0f4f8;
+    border: 1px solid #9db5cc;
+    border-left: 4px solid var(--blue);
+    margin: 1.25rem 0;
+    overflow: hidden;
+    box-shadow: 2px 2px 0 #c5d8e8;
+  }
+  .promql-header {
+    background: var(--blue);
+    padding: 0.45rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: white;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .promql-box pre {
+    padding: 1.25rem;
+    color: var(--blue);
+    background: #f0f4f8;
+    font-size: 0.82rem;
+  }
+  .promql-box .comment-line { color: #9db5cc; font-style: italic; }
+  .promql-box .fn { color: var(--purple); }
+  .promql-box .label-sel { color: var(--green); }
+  .promql-box .op { color: var(--red); }
+  .promql-box .num { color: var(--orange); }
+
+  /* ── METHOD CARDS ─────────────────────────────────────────────────── */
+  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.75rem 0; }
+  @media (max-width: 640px) { .method-grid { grid-template-columns: 1fr; } }
+  .method-card {
+    border: 1px solid var(--rule-dark);
+    padding: 1.25rem;
+    background: white;
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .method-card.red { border-top: 3px solid var(--red); }
+  .method-card.use-card { border-top: 3px solid var(--blue); }
+  .method-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    border-bottom: none;
+    padding-bottom: 0;
+    color: var(--ink);
+  }
+  .method-card.red h4 { color: var(--red); }
+  .method-card.use-card h4 { color: var(--blue); }
+  .method-card ul { list-style: none; }
+  .method-card ul li { font-size: 0.88rem; color: var(--ink-faint); padding: 0.25rem 0; }
+  .method-card ul li strong { color: var(--ink); }
+
+  /* ── BADGE ─────────────────────────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .badge.counter { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
+  .badge.gauge   { background: var(--blue-light);  color: var(--blue);  border-color: var(--blue); }
+  .badge.histo   { background: var(--green-light); color: var(--green); border-color: var(--green); }
+  .badge.summary { background: var(--purple-light);color: var(--purple);border-color: var(--purple); }
+
+  /* ── CHECKLIST ─────────────────────────────────────────────────── */
+  .checklist-group {
+    border: 1px solid var(--rule-dark);
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+    background: white;
+    box-shadow: 2px 2px 0 var(--rule);
+  }
+  .checklist-group h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+    margin-top: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--paper-warm);
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '□';
+    font-size: 1rem;
+    line-height: 1.25;
+    flex-shrink: 0;
+    color: var(--rule-dark);
+  }
+
+  /* ── FOOTER ─────────────────────────────────────────────────────── */
+  footer {
+    background: var(--ink);
+    color: var(--paper-warm);
+    padding: 2.5rem 3rem;
+    text-align: center;
+  }
+  footer p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgba(250,247,242,0.5);
+    margin: 0;
+  }
+  footer p + p { margin-top: 0.4rem; }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .page { grid-template-columns: 1fr; padding: 2rem 1.5rem 6rem; }
+    .sidebar { position: static; display: none; }
+    .masthead-inner { padding: 2rem 1.5rem 0; }
+    .masthead-title { grid-template-columns: 1fr; gap: 1.5rem; }
+    nav { padding: 0 1.5rem; }
+  }
+
+  /* ── ANIMATIONS ─────────────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .masthead-title h1 { animation: fadeUp 0.6s ease both; }
+  .masthead-subtitle { animation: fadeUp 0.6s 0.1s ease both; }
+  .masthead-rule { animation: fadeUp 0.4s 0.2s ease both; }
+  section { animation: fadeUp 0.5s ease both; }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-meta">
+      <span>Complete Reference · Production Guide</span>
+      <span class="issue-badge">Guide No. 2 of 6</span>
+      <span>django-prometheus</span>
+    </div>
+    <div class="masthead-title">
+      <h1>django-<em>prometheus</em></h1>
+      <div class="masthead-subtitle">
+        <p>A complete, production-focused reference for instrumenting Django with Prometheus.</p>
+        <p>Covers every metric type, PromQL, Grafana dashboards, the multi-process problem, and production hardening.</p>
+      </div>
+    </div>
+  </div>
+  <div class="masthead-rule"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#bigpicture">Architecture</a>
+    <a href="#install">Install</a>
+    <a href="#settings">Settings</a>
+    <a href="#metrics">Built-in</a>
+    <a href="#database">Database</a>
+    <a href="#cache">Cache</a>
+    <a href="#models">Models</a>
+    <a href="#types">Metric Types</a>
+    <a href="#custom">Custom</a>
+    <a href="#labels">Labels</a>
+    <a href="#multiproc">Multi-Process</a>
+    <a href="#security">Security</a>
+    <a href="#promql">PromQL</a>
+    <a href="#alerting">Alerting</a>
+    <a href="#grafana">Grafana</a>
+    <a href="#docker">Docker</a>
+    <a href="#checklist">Checklist</a>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <ol>
+      <li><a href="#bigpicture">The Big Picture</a></li>
+      <li><a href="#install">Installation</a></li>
+      <li><a href="#settings">Settings & Middleware</a></li>
+      <li><a href="#endpoint">The /metrics Endpoint</a></li>
+      <li><a href="#metrics">Built-in Metrics</a></li>
+      <li><a href="#database">Database Monitoring</a></li>
+      <li><a href="#cache">Cache Monitoring</a></li>
+      <li><a href="#models">Model Monitoring</a></li>
+      <li><a href="#types">The Four Metric Types</a></li>
+      <li><a href="#custom">Custom Metrics</a></li>
+      <li><a href="#labels">Labels & Cardinality</a></li>
+      <li><a href="#multiproc">The Multi-Process Problem</a></li>
+      <li><a href="#security">Securing /metrics</a></li>
+      <li><a href="#prometheus">Prometheus Server</a></li>
+      <li><a href="#promql">PromQL Queries</a></li>
+      <li><a href="#alerting">Alerting Rules</a></li>
+      <li><a href="#grafana">Grafana Dashboards</a></li>
+      <li><a href="#custom-labels">Custom Middleware Labels</a></li>
+      <li><a href="#docker">Docker & Kubernetes</a></li>
+      <li><a href="#naming">Naming Best Practices</a></li>
+      <li><a href="#checklist">Production Checklist</a></li>
+    </ol>
+    <div class="sidebar-divider"></div>
+    <p class="sidebar-note">django-prometheus only handles instrumentation. You still need to run Prometheus and Grafana separately.</p>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- §1 BIG PICTURE -->
+    <section id="bigpicture">
+      <div class="section-eyebrow">
+        <span class="section-num">§ 01</span>
+        <span class="section-tag">Foundation</span>
+      </div>
+      <h2>The Big <em>Picture</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Before touching any code, you need to understand the architecture — it is fundamentally different from logging or traditional push-based monitoring.</p>
+
+      <h3>The Pull Model</h3>
+      <p>Most monitoring systems work by pushing data: your app sends metrics to a central server. Prometheus inverts this completely. Prometheus <strong>pulls</strong> — it periodically sends an HTTP GET to a <code>/metrics</code> endpoint on your app, reads the current values, and stores them in its time-series database.</p>
+
+      <div class="arch">
+        <div class="arch-title">Request flow — Prometheus pulls from your Django app</div>
+        <div class="pull-diagram">
+          <div class="arch-node django">Django App<small>/metrics endpoint</small></div>
+          <div class="arch-arrow-h">
+            <div class="line"></div>
+            <div class="arrowhead">◀</div>
+            <div class="arrow-label">GET /metrics every 15s</div>
+          </div>
+          <div class="arch-node prom">Prometheus<small>scrapes & stores</small></div>
+          <div class="arch-arrow-h">
+            <div class="line"></div>
+            <div class="arrowhead">◀</div>
+            <div class="arrow-label">PromQL queries</div>
+          </div>
+          <div class="arch-node grafana">Grafana<small>dashboards & alerts</small></div>
+        </div>
+      </div>
+
+      <p>This means your app does not need to know where Prometheus is — it just exposes <code>/metrics</code>. Prometheus decides the scrape interval. If Prometheus goes down, your app keeps running. When it comes back, scraping resumes.</p>
+
+      <h3>The Three-Layer Stack</h3>
+      <div class="arch">
+        <div class="arch-title">A complete monitoring setup</div>
+        <div class="layer-diagram">
+          <div class="layer">
+            <span class="layer-num">Layer 1</span>
+            <div class="layer-content">
+              <h5>Instrumentation — Your Django App</h5>
+              <p>django-prometheus handles this layer. Exposes /metrics with all your metric data.</p>
+            </div>
+          </div>
+          <div class="layer">
+            <span class="layer-num">Layer 2</span>
+            <div class="layer-content">
+              <h5>Collection — Prometheus Server</h5>
+              <p>Scrapes /metrics every 15s, stores time-series data, evaluates alerting rules.</p>
+            </div>
+          </div>
+          <div class="layer">
+            <span class="layer-num">Layer 3</span>
+            <div class="layer-content">
+              <h5>Visualization — Grafana</h5>
+              <p>Reads from Prometheus via PromQL queries, renders dashboards and sends alerts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <strong>Scope of this guide</strong>
+        <p><code>django-prometheus</code> only handles Layer 1. You still need to run Prometheus and Grafana separately. This guide covers all three layers.</p>
+      </div>
+
+      <h3>What /metrics Returns</h3>
+      <p>When Prometheus scrapes your app, it gets a plain-text response. Each line is a metric name, labels, and a value:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>example /metrics output</span></div>
+        <pre><code><span class="comment-line"># HELP django_http_requests_total_by_method_total Number of requests by method</span>
+<span class="comment-line"># TYPE django_http_requests_total_by_method_total counter</span>
+django_http_requests_total_by_method_total{method="GET"} 4521.0
+django_http_requests_total_by_method_total{method="POST"} 832.0
+
+<span class="comment-line"># HELP django_http_responses_total_by_status_total Responses by status code</span>
+<span class="comment-line"># TYPE django_http_responses_total_by_status_total counter</span>
+django_http_responses_total_by_status_total{status="200"} 4200.0
+django_http_responses_total_by_status_total{status="404"} 102.0
+django_http_responses_total_by_status_total{status="500"} 21.0
+
+<span class="comment-line"># HELP django_db_execute_total Total number of DB execute calls</span>
+<span class="comment-line"># TYPE django_db_execute_total counter</span>
+django_db_execute_total{alias="default",vendor="postgresql"} 89432.0</code></pre>
+      </div>
+    </section>
+
+    <!-- §2 INSTALL -->
+    <section id="install">
+      <div class="section-eyebrow"><span class="section-num">§ 02</span><span class="section-tag">Setup</span></div>
+      <h2><em>Installation</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment-line"># pip</span>
+pip install django-prometheus
+
+<span class="comment-line"># uv</span>
+uv add django-prometheus
+
+<span class="comment-line"># poetry</span>
+poetry add django-prometheus</code></pre>
+      </div>
+
+      <div class="callout tip">
+        <strong>What gets installed</strong>
+        <p>This automatically installs <code>prometheus_client</code> (the official Python Prometheus client) as a dependency. You will use both packages: <code>django_prometheus</code> for Django-specific instrumentation, and <code>prometheus_client</code> directly for your own custom metrics.</p>
+      </div>
+    </section>
+
+    <!-- §3 SETTINGS -->
+    <section id="settings">
+      <div class="section-eyebrow"><span class="section-num">§ 03</span><span class="section-tag">Configuration</span></div>
+      <h2>Settings &amp; <em>Middleware</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>settings/base.py — INSTALLED_APPS</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>INSTALLED_APPS = [
+    ...
+    <span class="hl3">"django_prometheus"</span>,
+    ...
+]</code></pre>
+      </div>
+
+      <h3>Middleware — Position is Critical</h3>
+      <p>The two Prometheus middlewares must be the <strong>outermost pair</strong> in your stack. <code>PrometheusBeforeMiddleware</code> must be first and <code>PrometheusAfterMiddleware</code> must be last. Every middleware between them is timed, and measurements are correct even when inner middlewares raise exceptions.</p>
+
+      <div class="callout danger">
+        <strong>Wrong position = wrong data</strong>
+        <p>If you place these middlewares anywhere other than absolute first and last, latency measurements will be wrong. You will miss time spent in middlewares outside the pair.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>settings/base.py — middleware</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>MIDDLEWARE = [
+    <span class="hl3">"django_prometheus.middleware.PrometheusBeforeMiddleware"</span>,  <span class="comment-line"># MUST be first</span>
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    <span class="hl3">"django_prometheus.middleware.PrometheusAfterMiddleware"</span>,   <span class="comment-line"># MUST be last</span>
+]</code></pre>
+      </div>
+
+      <h3>Optional Settings</h3>
+      <div class="code-block">
+        <div class="code-header"><span>settings/base.py — optional configuration</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="comment-line"># Namespace prefix — all auto-generated metrics become myproject_django_*</span>
+PROMETHEUS_METRIC_NAMESPACE = <span class="hl3">"myproject"</span>
+
+<span class="comment-line"># Latency histogram buckets (seconds) — tune to your app's profile</span>
+PROMETHEUS_LATENCY_BUCKETS = (
+    <span class="m">0.010</span>,  <span class="m">0.025</span>,  <span class="m">0.050</span>,  <span class="m">0.100</span>,  <span class="m">0.250</span>,
+    <span class="m">0.500</span>,  <span class="m">1.000</span>,  <span class="m">2.500</span>,  <span class="m">5.000</span>,  <span class="m">10.00</span>,
+    float(<span class="hl3">"inf"</span>),
+)
+
+PROMETHEUS_EXPORT_MIGRATIONS = <span class="k">True</span>  <span class="comment-line"># default</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §4 ENDPOINT -->
+    <section id="endpoint">
+      <div class="section-eyebrow"><span class="section-num">§ 04</span><span class="section-tag">Routing</span></div>
+      <h2>The <em>/metrics</em> Endpoint</h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>config/urls.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.urls <span class="k">import</span> path, include
+
+urlpatterns = [
+    path(<span class="hl3">"admin/"</span>, admin.site.urls),
+    path(<span class="hl3">"api/v1/"</span>, include(<span class="hl3">"apps.api.urls"</span>)),
+
+    <span class="comment-line"># Exposes /metrics — the endpoint Prometheus will scrape</span>
+    path(<span class="hl3">""</span>, include(<span class="hl3">"django_prometheus.urls"</span>)),
+]</code></pre>
+      </div>
+    </section>
+
+    <!-- §5 BUILT-IN METRICS -->
+    <section id="metrics">
+      <div class="section-eyebrow"><span class="section-num">§ 05</span><span class="section-tag">Out of the box</span></div>
+      <h2>Built-in <em>Metrics</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Once the middleware and <code>INSTALLED_APPS</code> entry are in place, you get all of the following without writing a single line of code.</p>
+
+      <h3>HTTP Request Metrics</h3>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>django_http_requests_total_by_method</td><td><span class="badge counter">Counter</span></td><td>Request count by HTTP method</td></tr>
+          <tr><td>django_http_requests_total_by_transport</td><td><span class="badge counter">Counter</span></td><td>HTTP vs HTTPS breakdown</td></tr>
+          <tr><td>django_http_requests_total_by_view_transport_method</td><td><span class="badge counter">Counter</span></td><td>Per view name, transport, and method</td></tr>
+          <tr><td>django_http_responses_total_by_status</td><td><span class="badge counter">Counter</span></td><td>Response count by HTTP status code</td></tr>
+          <tr><td>django_http_responses_total_by_status_view_method</td><td><span class="badge counter">Counter</span></td><td>Per status code, view name, and method</td></tr>
+          <tr><td>django_http_responses_body_total_bytes</td><td><span class="badge counter">Counter</span></td><td>Total bytes sent in response bodies</td></tr>
+          <tr><td>django_http_requests_latency_including_middlewares_seconds</td><td><span class="badge histo">Histogram</span></td><td>End-to-end request latency</td></tr>
+          <tr><td>django_http_requests_latency_seconds_by_view_method</td><td><span class="badge histo">Histogram</span></td><td>Latency per view name and method</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Migration Metrics</h3>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>django_migrations_applied_by_connection</td><td><span class="badge gauge">Gauge</span></td><td>Applied migrations per database alias</td></tr>
+          <tr><td>django_migrations_unapplied_by_connection</td><td><span class="badge gauge">Gauge</span></td><td>Pending migrations — alert on this &gt; 0</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <strong>Free alert: unapplied migrations</strong>
+        <p><code>django_migrations_unapplied_by_connection &gt; 0</code> is one of the most valuable free alerts you get. It catches deployments that forgot to run <code>manage.py migrate</code>.</p>
+      </div>
+
+      <h3>Python Runtime Metrics</h3>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>process_virtual_memory_bytes</td><td><span class="badge gauge">Gauge</span></td><td>Virtual memory size</td></tr>
+          <tr><td>process_resident_memory_bytes</td><td><span class="badge gauge">Gauge</span></td><td>RSS memory (what the OS actually allocated)</td></tr>
+          <tr><td>process_cpu_seconds_total</td><td><span class="badge counter">Counter</span></td><td>CPU time used</td></tr>
+          <tr><td>process_open_fds</td><td><span class="badge gauge">Gauge</span></td><td>Open file descriptors</td></tr>
+          <tr><td>python_gc_objects_collected_total</td><td><span class="badge counter">Counter</span></td><td>GC objects collected per generation</td></tr>
+          <tr><td>python_info</td><td><span class="badge gauge">Gauge</span></td><td>Python version info label set</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- §6 DATABASE -->
+    <section id="database">
+      <div class="section-eyebrow"><span class="section-num">§ 06</span><span class="section-tag">Data Layer</span></div>
+      <h2>Database <em>Monitoring</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>By default, Django's database backend does not emit metrics. Swap Django's backend with django-prometheus's instrumented version. The only change is the <code>ENGINE</code> value.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>settings/base.py — PostgreSQL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>DATABASES = {
+    <span class="hl3">"default"</span>: {
+        <span class="comment-line"># Change: django.db.backends.postgresql</span>
+        <span class="comment-line"># To:     django_prometheus.db.backends.postgresql</span>
+        <span class="hl3">"ENGINE"</span>: <span class="hl3">"django_prometheus.db.backends.postgresql"</span>,
+        <span class="hl3">"NAME"</span>: env(<span class="hl3">"POSTGRES_DB"</span>),
+        <span class="hl3">"USER"</span>: env(<span class="hl3">"POSTGRES_USER"</span>),
+        <span class="hl3">"PASSWORD"</span>: env(<span class="hl3">"POSTGRES_PASSWORD"</span>),
+        <span class="hl3">"HOST"</span>: env(<span class="hl3">"POSTGRES_HOST"</span>, default=<span class="hl3">"localhost"</span>),
+        <span class="hl3">"PORT"</span>: env(<span class="hl3">"POSTGRES_PORT"</span>, default=<span class="hl3">"5432"</span>),
+        <span class="hl3">"CONN_MAX_AGE"</span>: <span class="m">60</span>,
+    }
+}
+
+<span class="comment-line"># MySQL:  "django_prometheus.db.backends.mysql"</span>
+<span class="comment-line"># SQLite: "django_prometheus.db.backends.sqlite3"</span></code></pre>
+      </div>
+
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>django_db_query_duration_seconds</td><td><span class="badge histo">Histogram</span></td><td>Query execution time per alias and vendor</td></tr>
+          <tr><td>django_db_execute_total</td><td><span class="badge counter">Counter</span></td><td>Total execute() calls</td></tr>
+          <tr><td>django_db_execute_many_total</td><td><span class="badge counter">Counter</span></td><td>Total executemany() calls</td></tr>
+          <tr><td>django_db_errors_total</td><td><span class="badge counter">Counter</span></td><td>Database errors by error type</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- §7 CACHE -->
+    <section id="cache">
+      <div class="section-eyebrow"><span class="section-num">§ 07</span><span class="section-tag">Caching Layer</span></div>
+      <h2>Cache <em>Monitoring</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>settings/base.py — Redis cache</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>CACHES = {
+    <span class="hl3">"default"</span>: {
+        <span class="comment-line"># Change: django.core.cache.backends.redis.RedisCache</span>
+        <span class="comment-line"># To:     django_prometheus.cache.backends.redis.RedisCache</span>
+        <span class="hl3">"BACKEND"</span>: <span class="hl3">"django_prometheus.cache.backends.redis.RedisCache"</span>,
+        <span class="hl3">"LOCATION"</span>: env(<span class="hl3">"REDIS_URL"</span>),
+    }
+}
+
+<span class="comment-line"># Memcached: "django_prometheus.cache.backends.memcached.PyMemcacheCache"</span>
+<span class="comment-line"># File-based: "django_prometheus.cache.backends.filebased.FileBasedCache"</span></code></pre>
+      </div>
+
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>django_cache_get_total</td><td><span class="badge counter">Counter</span></td><td>Total GET operations</td></tr>
+          <tr><td>django_cache_get_hits_total</td><td><span class="badge counter">Counter</span></td><td>Cache hits (value was found)</td></tr>
+          <tr><td>django_cache_get_misses_total</td><td><span class="badge counter">Counter</span></td><td>Cache misses (value not found)</td></tr>
+          <tr><td>django_cache_set_total</td><td><span class="badge counter">Counter</span></td><td>Total SET operations</td></tr>
+          <tr><td>django_cache_delete_total</td><td><span class="badge counter">Counter</span></td><td>Total DELETE operations</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <strong>Cache hit rate</strong>
+        <p>The most important derived cache metric is hit rate: <code>django_cache_get_hits_total / django_cache_get_total</code>. A dropping hit rate means keys are expiring too fast, memory is full, or your code changed and cached keys are no longer being hit.</p>
+      </div>
+    </section>
+
+    <!-- §8 MODELS -->
+    <section id="models">
+      <div class="section-eyebrow"><span class="section-num">§ 08</span><span class="section-tag">ORM</span></div>
+      <h2>Model <em>Monitoring</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Track create, update, and delete rates per model by adding a mixin. This requires no database migration — the mixin hooks into Django model signals.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/orders/models.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db <span class="k">import</span> models
+<span class="k">from</span> django_prometheus.models <span class="k">import</span> ExportModelOperationsMixin
+
+<span class="k">class</span> <span class="n">Order</span>(ExportModelOperationsMixin(<span class="hl3">"order"</span>), models.Model):
+    status = models.CharField(max_length=<span class="m">20</span>)
+    total_amount = models.DecimalField(max_digits=<span class="m">10</span>, decimal_places=<span class="m">2</span>)
+
+<span class="k">class</span> <span class="n">OrderItem</span>(ExportModelOperationsMixin(<span class="hl3">"order_item"</span>), models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+<span class="k">class</span> <span class="n">Product</span>(ExportModelOperationsMixin(<span class="hl3">"product"</span>), models.Model):
+    name = models.CharField(max_length=<span class="m">200</span>)
+    stock = models.PositiveIntegerField(default=<span class="m">0</span>)</code></pre>
+      </div>
+
+      <p>This exports three metrics per model:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>exported model metrics</span></div>
+        <pre><code>django_model_inserts_total{model="order"} 1204.0
+django_model_updates_total{model="order"} 982.0
+django_model_deletes_total{model="order"} 11.0</code></pre>
+      </div>
+
+      <div class="callout warning">
+        <strong>Operation counts, not record counts</strong>
+        <p>These counters count operations (inserts, updates, deletes) that happened in the current process — not how many records exist in the database. To count records, use a Gauge that queries the database periodically (see the Custom Metrics section).</p>
+      </div>
+    </section>
+
+    <!-- §9 METRIC TYPES -->
+    <section id="types">
+      <div class="section-eyebrow"><span class="section-num">§ 09</span><span class="section-tag">Core Concepts</span></div>
+      <h2>The Four <em>Metric Types</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="pull-quote">
+        <p>Using the wrong metric type leads to incorrect data and misleading dashboards. There are exactly four. Learn them before writing any custom metrics.</p>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card counter">
+          <h4>Counter</h4>
+          <p>A number that only ever increases. Resets to 0 on process restart. Never decrement a counter.</p>
+          <div class="use"><strong>Use for:</strong> events — requests, emails sent, errors raised, jobs completed.</div>
+          <div class="use"><strong>Never for:</strong> anything that can go down (queue depth, active connections).</div>
+          <div class="use"><strong>PromQL:</strong> always use <code>rate()</code> or <code>increase()</code>, never the raw value.</div>
+        </div>
+        <div class="metric-card gauge">
+          <h4>Gauge</h4>
+          <p>A number that can go up and down. Represents current state at this moment.</p>
+          <div class="use"><strong>Use for:</strong> active sessions, queue depth, memory usage, open connections.</div>
+          <div class="use"><strong>Never for:</strong> cumulative event counts (use Counter instead).</div>
+          <div class="use"><strong>PromQL:</strong> raw value is meaningful. Use <code>avg_over_time()</code> for smoothing.</div>
+        </div>
+        <div class="metric-card histo">
+          <h4>Histogram</h4>
+          <p>Tracks distribution of values by sorting observations into pre-defined buckets. Exports <code>_bucket</code>, <code>_sum</code>, and <code>_count</code>.</p>
+          <div class="use"><strong>Use for:</strong> response latency, request size, payment amounts.</div>
+          <div class="use"><strong>Key decision:</strong> configure bucket boundaries to match your expected value range.</div>
+          <div class="use"><strong>PromQL:</strong> <code>histogram_quantile(0.95, rate(metric_bucket[5m]))</code></div>
+        </div>
+        <div class="metric-card summ">
+          <h4>Summary</h4>
+          <p>Like Histogram, but pre-computes quantiles client-side. Cannot be aggregated across processes.</p>
+          <div class="use"><strong>Use for:</strong> single-process apps where you need precise quantile accuracy.</div>
+          <div class="use"><strong>Avoid for:</strong> multi-process setups (Gunicorn workers).</div>
+          <div class="use"><strong>In practice:</strong> prefer Histogram in virtually all Django production setups.</div>
+        </div>
+      </div>
+
+      <h3>Counter — Full Code Reference</h3>
+      <div class="code-block">
+        <div class="code-header"><span>python — Counter</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Counter
+
+<span class="comment-line"># Define at MODULE LEVEL — not inside a function or class</span>
+orders_created = Counter(
+    <span class="hl3">"myapp_orders_created_total"</span>,   <span class="comment-line"># counters must end in _total</span>
+    <span class="hl3">"Total number of orders created"</span>,
+)
+payments_failed = Counter(
+    <span class="hl3">"myapp_payments_failed_total"</span>,
+    <span class="hl3">"Total failed payment attempts"</span>,
+    [<span class="hl3">"payment_provider"</span>],
+)
+
+orders_created.inc()                                       <span class="comment-line"># +1</span>
+orders_created.inc(<span class="m">5</span>)                                    <span class="comment-line"># +5</span>
+payments_failed.labels(payment_provider=<span class="hl3">"stripe"</span>).inc()</code></pre>
+      </div>
+
+      <h3>Gauge — Full Code Reference</h3>
+      <div class="code-block">
+        <div class="code-header"><span>python — Gauge</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Gauge
+
+active_sessions = Gauge(<span class="hl3">"myapp_active_sessions"</span>, <span class="hl3">"Currently active user sessions"</span>)
+queue_depth = Gauge(<span class="hl3">"myapp_task_queue_depth"</span>, <span class="hl3">"Tasks in Celery queue"</span>, [<span class="hl3">"queue_name"</span>])
+
+active_sessions.set(<span class="m">42</span>)
+active_sessions.inc()
+active_sessions.dec()
+queue_depth.labels(queue_name=<span class="hl3">"default"</span>).set(depth)
+
+<span class="comment-line"># Context manager: auto inc on enter, auto dec on exit</span>
+<span class="k">with</span> active_sessions.track_inprogress():
+    process_request()</code></pre>
+      </div>
+
+      <h3>Histogram — Full Code Reference</h3>
+      <div class="code-block">
+        <div class="code-header"><span>python — Histogram</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Histogram
+
+request_latency = Histogram(
+    <span class="hl3">"myapp_request_duration_seconds"</span>,
+    <span class="hl3">"Time spent processing a request"</span>,
+    [<span class="hl3">"endpoint"</span>, <span class="hl3">"method"</span>],
+    buckets=(<span class="m">0.005</span>, <span class="m">0.01</span>, <span class="m">0.025</span>, <span class="m">0.05</span>, <span class="m">0.1</span>, <span class="m">0.25</span>, <span class="m">0.5</span>, <span class="m">1.0</span>, <span class="m">2.5</span>, float(<span class="hl3">"inf"</span>)),
+)
+
+<span class="comment-line"># Manual observe</span>
+<span class="k">import</span> time
+start = time.time()
+process_order()
+request_latency.labels(endpoint=<span class="hl3">"/api/orders/"</span>, method=<span class="hl3">"POST"</span>).observe(time.time() - start)
+
+<span class="comment-line"># Context manager (cleaner)</span>
+<span class="k">with</span> request_latency.labels(endpoint=<span class="hl3">"/api/orders/"</span>, method=<span class="hl3">"POST"</span>).time():
+    process_order()
+
+<span class="comment-line"># Decorator</span>
+@request_latency.labels(endpoint=<span class="hl3">"/api/products/"</span>, method=<span class="hl3">"GET"</span>).time()
+<span class="k">def</span> <span class="n">list_products</span>():
+    ...</code></pre>
+      </div>
+    </section>
+
+    <!-- §10 CUSTOM METRICS -->
+    <section id="custom">
+      <div class="section-eyebrow"><span class="section-num">§ 10</span><span class="section-tag">Instrumentation</span></div>
+      <h2>Custom <em>Metrics</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Custom metrics are where django-prometheus becomes truly powerful. The built-in metrics tell you <em>how Django is performing</em>; custom metrics tell you <em>what your business is doing</em>.</p>
+
+      <div class="callout danger">
+        <strong>Define metrics at module level</strong>
+        <p>Prometheus metrics are global singletons. Define them at the top of a module — never inside a function, view, or class method. Instantiating them inside a function creates duplicate registration errors on every request.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/orders/metrics.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Counter, Gauge, Histogram
+
+orders_created = Counter(
+    <span class="hl3">"myapp_orders_created_total"</span>,
+    <span class="hl3">"Total orders created"</span>,
+    [<span class="hl3">"payment_provider"</span>, <span class="hl3">"user_type"</span>],
+)
+
+order_processing_duration = Histogram(
+    <span class="hl3">"myapp_order_processing_duration_seconds"</span>,
+    <span class="hl3">"Time taken to process an order from creation to confirmation"</span>,
+    [<span class="hl3">"order_type"</span>],
+    buckets=(<span class="m">0.1</span>, <span class="m">0.5</span>, <span class="m">1.0</span>, <span class="m">2.5</span>, <span class="m">5.0</span>, <span class="m">10.0</span>, <span class="m">30.0</span>, <span class="m">60.0</span>, float(<span class="hl3">"inf"</span>)),
+)
+
+orders_pending = Gauge(
+    <span class="hl3">"myapp_orders_pending"</span>,
+    <span class="hl3">"Number of orders currently in pending status"</span>,
+)
+
+payments_failed = Counter(
+    <span class="hl3">"myapp_payments_failed_total"</span>,
+    <span class="hl3">"Total failed payment attempts"</span>,
+    [<span class="hl3">"payment_provider"</span>, <span class="hl3">"failure_reason"</span>],
+)
+
+user_logins = Counter(
+    <span class="hl3">"myapp_user_logins_total"</span>,
+    <span class="hl3">"Total successful user logins"</span>,
+    [<span class="hl3">"auth_method"</span>],  <span class="comment-line"># password, oauth, sso</span>
+)
+
+user_login_failures = Counter(
+    <span class="hl3">"myapp_user_login_failures_total"</span>,
+    <span class="hl3">"Total failed login attempts"</span>,
+    [<span class="hl3">"failure_reason"</span>],
+)</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>apps/orders/services.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django.db <span class="k">import</span> transaction
+<span class="k">from</span> .metrics <span class="k">import</span> orders_created, order_processing_duration, orders_pending, payments_failed
+
+<span class="k">def</span> <span class="n">create_order</span>(*, user, items, payment_provider):
+    <span class="k">with</span> order_processing_duration.labels(order_type=<span class="hl3">"standard"</span>).time():
+        <span class="k">with</span> transaction.atomic():
+            order = Order.objects.create(user=user)
+            <span class="k">for</span> item <span class="k">in</span> items:
+                OrderItem.objects.create(order=order, **item)
+
+        user_type = <span class="hl3">"premium"</span> <span class="k">if</span> user.is_premium <span class="k">else</span> <span class="hl3">"standard"</span>
+        orders_created.labels(payment_provider=payment_provider, user_type=user_type).inc()
+        orders_pending.inc()
+    <span class="k">return</span> order
+
+
+<span class="k">def</span> <span class="n">process_payment</span>(order, payment_provider):
+    <span class="k">try</span>:
+        charge_card(order)
+        orders_pending.dec()
+    <span class="k">except</span> PaymentDeclined:
+        payments_failed.labels(payment_provider=payment_provider, failure_reason=<span class="hl3">"card_declined"</span>).inc()
+        <span class="k">raise</span>
+    <span class="k">except</span> InsufficientFunds:
+        payments_failed.labels(payment_provider=payment_provider, failure_reason=<span class="hl3">"insufficient_funds"</span>).inc()
+        <span class="k">raise</span></code></pre>
+      </div>
+
+      <h3>Periodic Gauge Updates via Celery</h3>
+      <div class="code-block">
+        <div class="code-header"><span>apps/orders/tasks.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> celery <span class="k">import</span> shared_task
+<span class="k">from</span> .models <span class="k">import</span> Order
+<span class="k">from</span> .metrics <span class="k">import</span> orders_pending
+
+@shared_task
+<span class="k">def</span> <span class="n">update_order_metrics</span>():
+    <span class="hl3">"""Sync gauge with actual DB state. Run every minute via Celery Beat."""</span>
+    pending_count = Order.objects.filter(status=<span class="hl3">"pending"</span>).count()
+    orders_pending.set(pending_count)</code></pre>
+      </div>
+    </section>
+
+    <!-- §11 LABELS -->
+    <section id="labels">
+      <div class="section-eyebrow"><span class="section-num">§ 11</span><span class="section-tag">Data Modeling</span></div>
+      <h2>Labels &amp; <em>Cardinality</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>Labels are key-value pairs that let you slice and group data when querying. They are the most powerful feature of Prometheus and the most common source of serious production problems.</p>
+
+      <div class="two-col">
+        <div class="card" style="border-top: 3px solid var(--red);">
+          <h4 style="color: var(--red);">Never use these as labels</h4>
+          <ul>
+            <li>User IDs — millions of users = millions of series</li>
+            <li>Request IDs / session IDs — unbounded</li>
+            <li>IP addresses — unbounded</li>
+            <li>Raw URL paths — /orders/123 creates a series per order</li>
+            <li>Timestamps</li>
+            <li>Email addresses</li>
+          </ul>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--green);">
+          <h4 style="color: var(--green);">Good label candidates</h4>
+          <ul>
+            <li>HTTP method (GET, POST — 5–7 values)</li>
+            <li>Status code (200, 404, 500 — small set)</li>
+            <li>View name (bounded by code)</li>
+            <li>Payment provider (stripe, paypal — small)</li>
+            <li>Queue name</li>
+            <li>User type (anonymous, authenticated, premium)</li>
+            <li>Error type / failure reason</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <strong>Cardinality rule of thumb</strong>
+        <p>Keep each label to under ~100 distinct values. The total time series for a metric equals the product of all label cardinalities: labels [status (5), view_name (50), method (5)] creates 1,250 time series — fine. A user_id label with 1 million users creates 1 million time series — that will break Prometheus.</p>
+      </div>
+    </section>
+
+    <!-- §12 MULTI-PROCESS -->
+    <section id="multiproc">
+      <div class="section-eyebrow"><span class="section-num">§ 12</span><span class="section-tag">Critical</span></div>
+      <h2>The Multi-Process <em>Problem</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <p>This is the most commonly misunderstood aspect of running Prometheus with Python. If you skip this section and run multiple Gunicorn workers, your metrics will be incorrect.</p>
+
+      <div class="arch">
+        <div class="arch-title">Solution — shared directory aggregation</div>
+        <div class="mp-diagram">
+          <div class="mp-row">
+            <div class="mp-box worker">Worker 1<small>writes metrics file</small></div>
+            <div class="mp-box worker">Worker 2<small>writes metrics file</small></div>
+            <div class="mp-box worker">Worker N<small>writes metrics file</small></div>
+          </div>
+          <div class="mp-arrow-v"></div>
+          <div class="mp-box dir">PROMETHEUS_MULTIPROC_DIR<small>/tmp/prometheus_multiproc/</small></div>
+          <div class="mp-arrow-v"></div>
+          <div class="mp-label">Any worker handling /metrics reads + aggregates all files</div>
+          <div class="mp-arrow-v"></div>
+          <div class="mp-box prom">Prometheus<small>sees complete, correct metrics</small></div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <h3>Create the directory</h3>
+          <div class="code-block">
+            <div class="code-header"><span>bash</span></div>
+            <pre><code>mkdir -p /tmp/prometheus_multiproc
+<span class="comment-line"># In production, use tmpfs: /run/prometheus_multiproc</span></code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <h3>Set the environment variable before Django starts</h3>
+          <div class="code-block">
+            <div class="code-header"><span>entrypoint.sh</span></div>
+            <pre><code>export PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
+gunicorn config.wsgi:application --workers 4</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span>Dockerfile</span></div>
+            <pre><code>ENV PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
+RUN mkdir -p /tmp/prometheus_multiproc</code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <h3>Add child_exit hook to gunicorn.conf.py</h3>
+          <div class="code-block">
+            <div class="code-header"><span>gunicorn.conf.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> multiprocess
+
+<span class="k">def</span> <span class="n">child_exit</span>(server, worker):
+    multiprocess.mark_process_dead(worker.pid)</code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <h3>Clear the directory on startup</h3>
+          <div class="code-block">
+            <div class="code-header"><span>entrypoint.sh</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><code>rm -rf /tmp/prometheus_multiproc/*
+python manage.py migrate
+exec gunicorn config.wsgi:application --workers 4 --config gunicorn.conf.py</code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <h3>Disable preload_app in Gunicorn</h3>
+          <div class="code-block">
+            <div class="code-header"><span>gunicorn.conf.py</span></div>
+            <pre><code>preload_app = <span class="k">False</span>  <span class="comment-line"># REQUIRED for multiprocess mode</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <h3>Gauge Modes in Multiprocess</h3>
+      <div class="code-block">
+        <div class="code-header"><span>python — multiprocess_mode for Gauges</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> prometheus_client <span class="k">import</span> Gauge
+
+active_requests = Gauge(
+    <span class="hl3">"myapp_active_requests"</span>,
+    <span class="hl3">"Requests currently being processed"</span>,
+    multiprocess_mode=<span class="hl3">"livesum"</span>,   <span class="comment-line"># Sum all LIVE workers</span>
+)
+
+<span class="comment-line"># "all"         — one series per process, labeled by pid (default)
+# "livesum"     — sum of all LIVE processes only
+# "liveall"     — all series, only for LIVE processes
+# "min"         — minimum value across all processes
+# "max"         — maximum value across all processes
+# "sum"         — sum of all processes (alive and dead)
+# "mostrecent"  — most recently set value</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §13 SECURITY -->
+    <section id="security">
+      <div class="section-eyebrow"><span class="section-num">§ 13</span><span class="section-tag">Hardening</span></div>
+      <h2>Securing <em>/metrics</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <h3>Option 1 — Network-Level Restriction (Recommended)</h3>
+      <div class="code-block">
+        <div class="code-header"><span>nginx.conf</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>location /metrics {
+    allow <span class="hl3">10.0.1.50</span>;   <span class="comment-line"># Your Prometheus server's internal IP</span>
+    deny all;
+    proxy_pass http://django:8000;
+}</code></pre>
+      </div>
+
+      <h3>Option 2 — Token Authentication</h3>
+      <div class="code-block">
+        <div class="code-header"><span>config/urls.py — protected metrics view</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>@require_GET
+<span class="k">def</span> <span class="n">metrics_view</span>(request):
+    token = request.headers.get(<span class="hl3">"Authorization"</span>, <span class="hl3">""</span>)
+    <span class="k">if</span> token != <span class="k">f</span><span class="hl3">"Bearer {settings.PROMETHEUS_TOKEN}"</span>:
+        <span class="k">return</span> HttpResponse(status=<span class="m">403</span>)
+
+    <span class="k">from</span> prometheus_client <span class="k">import</span> generate_latest, CONTENT_TYPE_LATEST
+    <span class="k">return</span> HttpResponse(generate_latest(), content_type=CONTENT_TYPE_LATEST)</code></pre>
+      </div>
+    </section>
+
+    <!-- §14 PROMETHEUS SERVER -->
+    <section id="prometheus">
+      <div class="section-eyebrow"><span class="section-num">§ 14</span><span class="section-tag">Infrastructure</span></div>
+      <h2>Prometheus Server <em>Configuration</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>prometheus.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>global:
+  scrape_interval: <span class="hl3">15s</span>
+  evaluation_interval: <span class="hl3">15s</span>
+
+rule_files:
+  - <span class="hl3">"alerts.yml"</span>
+
+scrape_configs:
+  - job_name: <span class="hl3">"django"</span>
+    static_configs:
+      - targets: [<span class="hl3">"web:8000"</span>]
+    metrics_path: <span class="hl3">"/metrics"</span>
+
+  - job_name: <span class="hl3">"prometheus"</span>
+    static_configs:
+      - targets: [<span class="hl3">"localhost:9090"</span>]</code></pre>
+      </div>
+    </section>
+
+    <!-- §15 PROMQL -->
+    <section id="promql">
+      <div class="section-eyebrow"><span class="section-num">§ 15</span><span class="section-tag">Querying</span></div>
+      <h2>PromQL <em>Queries</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <h3>rate() — How fast is a counter increasing?</h3>
+      <div class="promql-box">
+        <div class="promql-header"><span>PromQL — rate()</span></div>
+        <pre><code><span class="comment-line"># Requests per second (last 5 minutes)</span>
+<span class="fn">rate</span>(django_http_requests_total_by_method_total[<span class="num">5m</span>])
+
+<span class="comment-line"># 500 errors per second</span>
+<span class="fn">rate</span>(django_http_responses_total_by_status_total{<span class="label-sel">status="500"</span>}[<span class="num">5m</span>])
+
+<span class="comment-line"># DB queries per second</span>
+<span class="fn">rate</span>(django_db_execute_total{<span class="label-sel">alias="default"</span>}[<span class="num">5m</span>])</code></pre>
+      </div>
+
+      <h3>histogram_quantile() — Percentile latency</h3>
+      <div class="promql-box">
+        <div class="promql-header"><span>PromQL — percentiles</span></div>
+        <pre><code><span class="comment-line"># p95 request latency</span>
+<span class="fn">histogram_quantile</span>(<span class="num">0.95</span>,
+  <span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket[<span class="num">5m</span>])
+)
+
+<span class="comment-line"># p99 latency per view</span>
+<span class="fn">histogram_quantile</span>(<span class="num">0.99</span>,
+  <span class="fn">sum</span> by (<span class="label-sel">view, le</span>) (
+    <span class="fn">rate</span>(django_http_requests_latency_seconds_by_view_method_bucket[<span class="num">5m</span>])
+  )
+)
+
+<span class="comment-line"># Median latency in milliseconds</span>
+<span class="fn">histogram_quantile</span>(<span class="num">0.50</span>,
+  <span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket[<span class="num">5m</span>])
+) <span class="op">*</span> <span class="num">1000</span></code></pre>
+      </div>
+
+      <h3>Production Query Cookbook</h3>
+      <div class="promql-box">
+        <div class="promql-header"><span>HTTP performance</span></div>
+        <pre><code><span class="comment-line"># Error rate — percentage of 5xx responses</span>
+<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_responses_total_by_status_total{<span class="label-sel">status=~"5.."</span>}[<span class="num">5m</span>]))
+<span class="op">/</span>
+<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_total_by_method_total[<span class="num">5m</span>]))
+<span class="op">*</span> <span class="num">100</span>
+
+<span class="comment-line"># Apdex score — ratio of requests under 500ms</span>
+<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket{<span class="label-sel">le="0.5"</span>}[<span class="num">5m</span>]))
+<span class="op">/</span>
+<span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_count[<span class="num">5m</span>]))</code></pre>
+      </div>
+
+      <div class="promql-box">
+        <div class="promql-header"><span>Database & Cache</span></div>
+        <pre><code><span class="comment-line"># Average DB query duration</span>
+<span class="fn">rate</span>(django_db_query_duration_seconds_sum[<span class="num">5m</span>])
+<span class="op">/</span>
+<span class="fn">rate</span>(django_db_query_duration_seconds_count[<span class="num">5m</span>])
+
+<span class="comment-line"># Cache hit rate (0–1, higher is better)</span>
+<span class="fn">rate</span>(django_cache_get_hits_total[<span class="num">5m</span>])
+<span class="op">/</span>
+<span class="fn">rate</span>(django_cache_get_total[<span class="num">5m</span>])</code></pre>
+      </div>
+
+      <div class="promql-box">
+        <div class="promql-header"><span>Business metrics</span></div>
+        <pre><code><span class="comment-line"># Payment failure rate</span>
+<span class="fn">rate</span>(myapp_payments_failed_total[<span class="num">5m</span>])
+<span class="op">/</span>
+(<span class="fn">rate</span>(myapp_payments_failed_total[<span class="num">5m</span>]) <span class="op">+</span> <span class="fn">rate</span>(myapp_orders_created_total[<span class="num">5m</span>]))
+<span class="op">*</span> <span class="num">100</span>
+
+<span class="comment-line"># Unapplied migrations — alert when > 0</span>
+django_migrations_unapplied_by_connection <span class="op">></span> <span class="num">0</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §16 ALERTING -->
+    <section id="alerting">
+      <div class="section-eyebrow"><span class="section-num">§ 16</span><span class="section-tag">Operations</span></div>
+      <h2>Alerting <em>Rules</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>alerts.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>groups:
+  - name: django_application
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          <span class="fn">sum</span>(<span class="fn">rate</span>(django_http_responses_total_by_status_total{status=~"5.."}[5m]))
+          /
+          <span class="fn">sum</span>(<span class="fn">rate</span>(django_http_requests_total_by_method_total[5m]))
+          > 0.01
+        for: <span class="hl3">2m</span>
+        labels:
+          severity: critical
+        annotations:
+          summary: <span class="hl3">"High HTTP error rate on {{ $labels.instance }}"</span>
+          description: <span class="hl3">"{{ $value | humanizePercentage }} of requests are 5xx."</span>
+
+      - alert: HighLatency
+        expr: |
+          <span class="fn">histogram_quantile</span>(0.95,
+            <span class="fn">rate</span>(django_http_requests_latency_including_middlewares_seconds_bucket[5m])
+          ) > 2.0
+        for: <span class="hl3">5m</span>
+        labels:
+          severity: warning
+        annotations:
+          summary: <span class="hl3">"High request latency"</span>
+          description: <span class="hl3">"p95 latency is {{ $value }}s"</span>
+
+      - alert: UnappliedMigrations
+        expr: django_migrations_unapplied_by_connection > 0
+        for: <span class="hl3">1m</span>
+        labels:
+          severity: warning
+        annotations:
+          summary: <span class="hl3">"Unapplied database migrations detected"</span>
+
+      - alert: LowCacheHitRate
+        expr: |
+          <span class="fn">rate</span>(django_cache_get_hits_total[10m])
+          /
+          <span class="fn">rate</span>(django_cache_get_total[10m]) < 0.5
+        for: <span class="hl3">10m</span>
+        labels:
+          severity: warning
+        annotations:
+          summary: <span class="hl3">"Cache hit rate below 50%"</span>
+
+      - alert: PaymentFailureSpike
+        expr: rate(myapp_payments_failed_total[5m]) > 0.5
+        for: <span class="hl3">2m</span>
+        labels:
+          severity: critical
+        annotations:
+          summary: <span class="hl3">"Payment failures spiking"</span></code></pre>
+      </div>
+    </section>
+
+    <!-- §17 GRAFANA -->
+    <section id="grafana">
+      <div class="section-eyebrow"><span class="section-num">§ 17</span><span class="section-tag">Visualization</span></div>
+      <h2>Grafana <em>Dashboards</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <h3>Essential Dashboard Panels</h3>
+      <table class="data-table">
+        <thead><tr><th>Panel</th><th>Visualization</th><th>PromQL Query</th></tr></thead>
+        <tbody>
+          <tr><td>Request Rate</td><td>Time Series</td><td><code style="font-size:0.72rem">sum(rate(django_http_requests_total_by_method_total[5m]))</code></td></tr>
+          <tr><td>Error Rate (%)</td><td>Gauge + Time Series</td><td><code style="font-size:0.72rem">sum(rate(...{status=~"5.."}[5m])) / sum(rate(...[5m])) * 100</code></td></tr>
+          <tr><td>p95 Latency (ms)</td><td>Time Series</td><td><code style="font-size:0.72rem">histogram_quantile(0.95, rate(..._bucket[5m])) * 1000</code></td></tr>
+          <tr><td>DB Query Rate</td><td>Time Series</td><td><code style="font-size:0.72rem">rate(django_db_execute_total{alias="default"}[5m])</code></td></tr>
+          <tr><td>Cache Hit Rate (%)</td><td>Gauge</td><td><code style="font-size:0.72rem">rate(django_cache_get_hits_total[5m]) / rate(django_cache_get_total[5m]) * 100</code></td></tr>
+          <tr><td>Memory (MB)</td><td>Time Series</td><td><code style="font-size:0.72rem">process_resident_memory_bytes / 1024 / 1024</code></td></tr>
+          <tr><td>Unapplied Migrations</td><td>Stat (red &gt; 1)</td><td><code style="font-size:0.72rem">django_migrations_unapplied_by_connection</code></td></tr>
+          <tr><td>Pending Orders</td><td>Stat</td><td><code style="font-size:0.72rem">myapp_orders_pending</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- §18 CUSTOM LABELS -->
+    <section id="custom-labels">
+      <div class="section-eyebrow"><span class="section-num">§ 18</span><span class="section-tag">Advanced</span></div>
+      <h2>Custom Middleware <em>Labels</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>myapp/prometheus_middleware.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code><span class="k">from</span> django_prometheus.middleware <span class="k">import</span> Metrics, PrometheusBeforeMiddleware, PrometheusAfterMiddleware
+
+<span class="k">class</span> <span class="n">CustomMetrics</span>(Metrics):
+    <span class="k">def</span> <span class="n">register_metric</span>(self, metric_cls, name, documentation, labelnames=(), **kwargs):
+        <span class="k">return</span> super().register_metric(
+            metric_cls, name, documentation,
+            labelnames=list(labelnames) + [<span class="hl3">"api_version"</span>, <span class="hl3">"user_type"</span>],
+            **kwargs,
+        )
+
+<span class="k">class</span> <span class="n">CustomPrometheusBeforeMiddleware</span>(PrometheusBeforeMiddleware):
+    metrics_cls = CustomMetrics
+
+<span class="k">class</span> <span class="n">CustomPrometheusAfterMiddleware</span>(PrometheusAfterMiddleware):
+    metrics_cls = CustomMetrics
+
+    <span class="k">def</span> <span class="n">label_metric</span>(self, metric, request, response=<span class="k">None</span>, **labels):
+        api_version = getattr(request, <span class="hl3">"version"</span>, <span class="hl3">"v1"</span>) <span class="k">or</span> <span class="hl3">"v1"</span>
+        user_type = <span class="hl3">"authenticated"</span> <span class="k">if</span> request.user.is_authenticated <span class="k">else</span> <span class="hl3">"anonymous"</span>
+        <span class="k">return</span> super().label_metric(metric, request, response, api_version=api_version, user_type=user_type, **labels)</code></pre>
+      </div>
+    </section>
+
+    <!-- §19 DOCKER -->
+    <section id="docker">
+      <div class="section-eyebrow"><span class="section-num">§ 19</span><span class="section-tag">Deployment</span></div>
+      <h2>Docker &amp; <em>Kubernetes</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>docker-compose.yml — full monitoring stack</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>services:
+  web:
+    build: .
+    environment:
+      PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus_multiproc
+    volumes:
+      - prometheus_multiproc:/tmp/prometheus_multiproc
+    command: >
+      sh -c "rm -rf /tmp/prometheus_multiproc/* &&
+             python manage.py migrate &&
+             gunicorn config.wsgi:application --workers 4 --config gunicorn.conf.py"
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: [<span class="hl3">"9090:9090"</span>]
+    volumes:
+      - ./provisioning/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - <span class="hl3">"--config.file=/etc/prometheus/prometheus.yml"</span>
+      - <span class="hl3">"--storage.tsdb.retention.time=15d"</span>
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: [<span class="hl3">"3000:3000"</span>]
+    volumes: [grafana_data:/var/lib/grafana]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: changeme
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  prometheus_multiproc:</code></pre>
+      </div>
+    </section>
+
+    <!-- §20 NAMING -->
+    <section id="naming">
+      <div class="section-eyebrow"><span class="section-num">§ 20</span><span class="section-tag">Standards</span></div>
+      <h2>Naming &amp; <em>Best Practices</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="code-block">
+        <div class="code-header"><span>naming conventions</span></div>
+        <pre><code><span class="comment-line"># Pattern: &lt;namespace&gt;_&lt;subsystem&gt;_&lt;name&gt;_&lt;unit&gt;_total (counters)
+#           &lt;namespace&gt;_&lt;subsystem&gt;_&lt;name&gt;_&lt;unit&gt;       (gauges/histograms)</span>
+
+<span class="comment-line"># Good names</span>
+<span class="hl3">"myapp_http_requests_total"</span>
+<span class="hl3">"myapp_order_processing_duration_seconds"</span>
+<span class="hl3">"myapp_cache_size_bytes"</span>
+<span class="hl3">"myapp_payment_amount_dollars"</span>
+
+<span class="comment-line"># Bad names — and why</span>
+<span class="hl3">"myapp_requests"</span>           <span class="comment-line"># Counter missing _total</span>
+<span class="hl3">"myapp_requestDurationMs"</span>  <span class="comment-line"># Camel case, non-base unit</span>
+<span class="hl3">"myapp_metric_count"</span>       <span class="comment-line"># "metric" in name is redundant</span></code></pre>
+      </div>
+
+      <div class="method-grid">
+        <div class="method-card red">
+          <h4>RED Method</h4>
+          <p style="font-size:0.85rem;color:var(--ink-faint);margin-bottom:0.75rem;">For every service endpoint and background task:</p>
+          <ul>
+            <li><strong>R</strong>ate — How many requests/second?</li>
+            <li><strong>E</strong>rrors — What fraction are failing?</li>
+            <li><strong>D</strong>uration — How long does each take?</li>
+          </ul>
+        </div>
+        <div class="method-card use-card">
+          <h4>USE Method</h4>
+          <p style="font-size:0.85rem;color:var(--ink-faint);margin-bottom:0.75rem;">For every resource (DB, cache, queue, workers):</p>
+          <ul>
+            <li><strong>U</strong>tilization — Fraction of capacity used?</li>
+            <li><strong>S</strong>aturation — How much is queued waiting?</li>
+            <li><strong>E</strong>rrors — Are errors occurring?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- §21 CHECKLIST -->
+    <section id="checklist">
+      <div class="section-eyebrow"><span class="section-num">§ 21</span><span class="section-tag">Final Review</span></div>
+      <h2>Production <em>Checklist</em></h2>
+      <div class="section-rule"><div class="line"></div><div class="dot"></div><div class="line" style="max-width:60px"></div></div>
+
+      <div class="checklist-group">
+        <h4>Initial Setup</h4>
+        <ul class="checklist">
+          <li><code>django_prometheus</code> is in INSTALLED_APPS</li>
+          <li><code>PrometheusBeforeMiddleware</code> is the very first middleware</li>
+          <li><code>PrometheusAfterMiddleware</code> is the very last middleware</li>
+          <li><code>django_prometheus.urls</code> is included in urls.py</li>
+          <li>The /metrics endpoint returns data when visited locally</li>
+          <li><code>PROMETHEUS_METRIC_NAMESPACE</code> is set to your project name</li>
+        </ul>
+      </div>
+
+      <div class="checklist-group">
+        <h4>Database, Cache & Models</h4>
+        <ul class="checklist">
+          <li>Database ENGINE is <code>django_prometheus.db.backends.postgresql</code></li>
+          <li>Cache BACKEND is the django_prometheus equivalent</li>
+          <li><code>ExportModelOperationsMixin</code> added to all key models</li>
+          <li>Mixin label strings are lowercase, concise, and unique per model</li>
+        </ul>
+      </div>
+
+      <div class="checklist-group">
+        <h4>Multi-Process (Gunicorn)</h4>
+        <ul class="checklist">
+          <li><code>PROMETHEUS_MULTIPROC_DIR</code> is set in environment (not Python code)</li>
+          <li>The directory is created before startup</li>
+          <li>The directory is cleared before every startup</li>
+          <li><code>gunicorn.conf.py</code> has the <code>child_exit</code> hook</li>
+          <li><code>preload_app = False</code> in gunicorn.conf.py</li>
+          <li>Gauges use appropriate <code>multiprocess_mode</code></li>
+        </ul>
+      </div>
+
+      <div class="checklist-group">
+        <h4>Custom Metrics</h4>
+        <ul class="checklist">
+          <li>All custom metrics defined at module level in metrics.py files</li>
+          <li>Counter names end in <code>_total</code></li>
+          <li>Metric names are lowercase with underscores and include unit</li>
+          <li>No high-cardinality labels (no user IDs, request IDs, raw URLs)</li>
+          <li>Each endpoint/task has Rate, Error, Duration metrics (RED)</li>
+        </ul>
+      </div>
+
+      <div class="checklist-group">
+        <h4>Security & Alerting</h4>
+        <ul class="checklist">
+          <li>/metrics is not publicly accessible in production</li>
+          <li>Alert fires when 5xx error rate exceeds threshold</li>
+          <li>Alert fires when p95 latency exceeds threshold</li>
+          <li>Alert fires when <code>django_migrations_unapplied_by_connection &gt; 0</code></li>
+          <li>Alert fires when DB error rate spikes</li>
+          <li>Alerts have <code>for:</code> duration to avoid transient false positives</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <p>django-prometheus · Complete Production Reference · Guide No. 2 of 6</p>
+  <p>github.com/django-commons/django-prometheus · prometheus.io/docs · github.com/prometheus/client_python</p>
+</footer>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+  });
+}
+</script>
+</body>
+</html>

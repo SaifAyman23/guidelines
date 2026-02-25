@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Django & DRF Best Practices — Definitive Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e29;
+    --border: #252a38;
+    --border-light: #2e3448;
+    --accent: #4ade80;
+    --accent-dim: rgba(74, 222, 128, 0.12);
+    --accent-glow: rgba(74, 222, 128, 0.25);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.1);
+    --orange: #fb923c;
+    --orange-dim: rgba(251, 146, 60, 0.1);
+    --red: #f87171;
+    --yellow: #facc15;
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.1);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-faint: #475569;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-code: 'IBM Plex Mono', monospace;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ─────────────────────────────────────── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 0 0 40px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+  .sidebar-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .sidebar-logo {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .sidebar-subtitle {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+    font-family: var(--font-code);
+  }
+
+  .sidebar-section-label {
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 16px 24px 6px;
+  }
+
+  #sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+  }
+
+  #sidebar nav a:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.03);
+    border-left-color: var(--border-light);
+  }
+
+  #sidebar nav a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .nav-num {
+    font-family: var(--font-code);
+    font-size: 10px;
+    color: var(--text-faint);
+    min-width: 20px;
+  }
+
+  /* ── MAIN CONTENT ────────────────────────────────── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    max-width: 900px;
+    padding: 60px 56px;
+  }
+
+  /* ── HERO ────────────────────────────────────────── */
+  .hero {
+    margin-bottom: 64px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1.hero-title {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+
+  h1.hero-title span { color: var(--accent); }
+
+  .hero-desc {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 540px;
+    line-height: 1.65;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .hero-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--text-faint);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 4px;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  /* ── SECTIONS ────────────────────────────────────── */
+  .section {
+    margin-bottom: 72px;
+    scroll-margin-top: 32px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(74,222,128,0.2);
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h3::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 14px; color: var(--text-muted); }
+
+  strong { color: var(--text); font-weight: 500; }
+
+  /* ── CODE BLOCKS ─────────────────────────────────── */
+  .code-block {
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #0a0c11;
+  }
+
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-filename {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .code-lang {
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--font-code);
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: #b8c4d8;
+  }
+
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-track { background: transparent; }
+  pre::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+  .tok-comment { color: #4a5568; font-style: italic; }
+  .tok-keyword { color: var(--purple); }
+  .tok-string { color: var(--accent); }
+  .tok-number { color: var(--orange); }
+  .tok-decorator { color: var(--blue); }
+  .tok-class { color: var(--yellow); }
+  .tok-func { color: #93c5fd; }
+  .tok-good { color: var(--accent); }
+  .tok-bad { color: var(--red); }
+
+  code {
+    font-family: var(--font-code);
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--blue);
+  }
+
+  /* ── TABLES ──────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-family: var(--font-code);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 500;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+
+  td:first-child { font-family: var(--font-code); font-size: 12px; color: var(--blue); }
+
+  /* ── CALLOUTS ────────────────────────────────────── */
+  .callout {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-left: 3px solid;
+    font-size: 13.5px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .callout-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  .callout.tip {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: #a3e6bc;
+  }
+
+  .callout.warning {
+    background: var(--orange-dim);
+    border-color: var(--orange);
+    color: #fbc9a0;
+  }
+
+  .callout.info {
+    background: var(--blue-dim);
+    border-color: var(--blue);
+    color: #9dc9fb;
+  }
+
+  .callout.danger {
+    background: rgba(248, 113, 113, 0.08);
+    border-color: var(--red);
+    color: #fca5a5;
+  }
+
+  /* ── ARCHITECTURE DIAGRAM ────────────────────────── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .arch-card {
+    background: var(--surface);
+    padding: 16px;
+    transition: background 0.15s;
+  }
+
+  .arch-card:hover { background: var(--surface2); }
+
+  .arch-card-title {
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .arch-card-desc {
+    font-size: 12px;
+    color: var(--text-faint);
+    line-height: 1.5;
+  }
+
+  /* ── CHECKLIST SECTIONS ──────────────────────────── */
+  .checklist-group {
+    margin: 20px 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .checklist-group-header {
+    padding: 12px 18px;
+    background: var(--surface2);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .checklist-group-header .emoji { font-size: 15px; }
+
+  .checklist-items { padding: 8px 0; }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+  }
+
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: rgba(255,255,255,0.02); }
+
+  .check-item.checked { color: var(--text-faint); text-decoration: line-through; }
+
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border-light);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .check-item.checked .checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-item.checked .checkbox::after {
+    content: '✓';
+    font-size: 10px;
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* ── FILE TREE ───────────────────────────────────── */
+  .file-tree {
+    font-family: var(--font-code);
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #b8c4d8;
+    background: #0a0c11;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+
+  .ft-dir { color: var(--blue); }
+  .ft-file { color: var(--text-muted); }
+  .ft-comment { color: var(--accent); }
+
+  /* ── INLINE TAG ──────────────────────────────────── */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-code);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+
+  .tag.green { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.2); }
+  .tag.blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+  .tag.orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
+  .tag.purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+
+  /* ── DIVIDERS ────────────────────────────────────── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── FOOTER ──────────────────────────────────────── */
+  footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--text-faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ── SCROLL TO TOP ───────────────────────────────── */
+  #scroll-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 40px; height: 40px;
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.2s, background 0.15s;
+    z-index: 200;
+  }
+
+  #scroll-top:hover { background: var(--surface); color: var(--accent); }
+  #scroll-top.visible { opacity: 1; }
+
+  /* ── RESPONSIVE ──────────────────────────────────── */
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; padding: 32px 24px; max-width: 100%; }
+    h1.hero-title { font-size: 28px; }
+    .hero-meta { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Django + DRF</div>
+    <div class="sidebar-subtitle">// best practices guide</div>
+  </div>
+  <nav>
+    <div class="sidebar-section-label">Architecture</div>
+    <a href="#s1"><span class="nav-num">01</span>Project Structure</a>
+    <a href="#s2"><span class="nav-num">02</span>Settings & Config</a>
+
+    <div class="sidebar-section-label">Data Layer</div>
+    <a href="#s3"><span class="nav-num">03</span>Models & Database</a>
+    <a href="#s5"><span class="nav-num">05</span>Serializers</a>
+
+    <div class="sidebar-section-label">API Layer</div>
+    <a href="#s4"><span class="nav-num">04</span>Views & ViewSets</a>
+    <a href="#s6"><span class="nav-num">06</span>URLs & Routing</a>
+    <a href="#s7"><span class="nav-num">07</span>Auth & Permissions</a>
+    <a href="#s8"><span class="nav-num">08</span>Filtering & Search</a>
+    <a href="#s9"><span class="nav-num">09</span>Pagination</a>
+
+    <div class="sidebar-section-label">Infrastructure</div>
+    <a href="#s10"><span class="nav-num">10</span>Caching</a>
+    <a href="#s11"><span class="nav-num">11</span>Celery & Async</a>
+    <a href="#s12"><span class="nav-num">12</span>File Handling</a>
+    <a href="#s13"><span class="nav-num">13</span>Testing</a>
+
+    <div class="sidebar-section-label">Production</div>
+    <a href="#s14"><span class="nav-num">14</span>API Versioning</a>
+    <a href="#s15"><span class="nav-num">15</span>Error Handling</a>
+    <a href="#s16"><span class="nav-num">16</span>Security</a>
+    <a href="#s17"><span class="nav-num">17</span>Performance</a>
+    <a href="#s18"><span class="nav-num">18</span>Logging</a>
+    <a href="#s19"><span class="nav-num">19</span>Documentation</a>
+    <a href="#s20"><span class="nav-num">20</span>Deployment</a>
+
+    <div class="sidebar-section-label">Reference</div>
+    <a href="#s21"><span class="nav-num">21</span>Libraries</a>
+    <a href="#s22"><span class="nav-num">22</span>Master Checklist</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Definitive Reference Guide</div>
+    <h1 class="hero-title">Django &amp; <span>DRF</span> Best Practices</h1>
+    <p class="hero-desc">A comprehensive, opinionated guide covering architecture decisions, code patterns, tooling, and production checklists for building APIs with Django and Django REST Framework.</p>
+    <div class="hero-meta">
+      <div class="hero-badge"><span class="dot"></span>22 Sections</div>
+      <div class="hero-badge"><span class="dot"></span>Master Checklist</div>
+      <div class="hero-badge"><span class="dot"></span>Updated 2026</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 1: Project Structure -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2>Project Structure &amp; Architecture</h2>
+    </div>
+
+    <h3>Recommended Layout</h3>
+    <div class="file-tree">
+<span class="ft-dir">my_project/</span>
+├── <span class="ft-dir">config/</span>                <span class="ft-comment"># All configuration lives here</span>
+│   ├── <span class="ft-dir">settings/</span>
+│   │   ├── <span class="ft-file">base.py</span>          <span class="ft-comment"># Shared settings</span>
+│   │   ├── <span class="ft-file">development.py</span>   <span class="ft-comment"># Dev overrides</span>
+│   │   ├── <span class="ft-file">production.py</span>    <span class="ft-comment"># Prod overrides</span>
+│   │   └── <span class="ft-file">testing.py</span>       <span class="ft-comment"># Test-specific settings</span>
+│   ├── <span class="ft-file">urls.py</span>
+│   ├── <span class="ft-file">wsgi.py</span>
+│   └── <span class="ft-file">asgi.py</span>
+├── <span class="ft-dir">apps/</span>                   <span class="ft-comment"># All Django apps live here</span>
+│   ├── <span class="ft-dir">users/</span>
+│   │   ├── <span class="ft-file">models.py</span>
+│   │   ├── <span class="ft-file">views.py</span>
+│   │   ├── <span class="ft-file">serializers.py</span>
+│   │   ├── <span class="ft-file">services.py</span>      <span class="ft-comment"># Business logic</span>
+│   │   ├── <span class="ft-file">selectors.py</span>     <span class="ft-comment"># Read queries</span>
+│   │   ├── <span class="ft-file">permissions.py</span>
+│   │   ├── <span class="ft-file">filters.py</span>
+│   │   ├── <span class="ft-file">tasks.py</span>         <span class="ft-comment"># Celery tasks</span>
+│   │   └── <span class="ft-dir">tests/</span>
+│   └── <span class="ft-dir">orders/</span>
+├── <span class="ft-dir">common/</span>                 <span class="ft-comment"># Shared utilities</span>
+│   ├── <span class="ft-file">models.py</span>            <span class="ft-comment"># Abstract base models</span>
+│   ├── <span class="ft-file">serializers.py</span>
+│   ├── <span class="ft-file">permissions.py</span>
+│   └── <span class="ft-file">exceptions.py</span>
+├── <span class="ft-dir">requirements/</span>
+│   ├── <span class="ft-file">base.txt</span>
+│   ├── <span class="ft-file">development.txt</span>
+│   └── <span class="ft-file">production.txt</span>
+├── <span class="ft-file">.env.example</span>            <span class="ft-comment"># Commit this</span>
+├── <span class="ft-file">.env</span>                    <span class="ft-comment"># Never commit this</span>
+└── <span class="ft-file">docker-compose.yml</span>
+    </div>
+
+    <h3>Architecture Pattern: Services + Selectors</h3>
+    <p>The key insight: <strong>keep your views thin</strong>. Business logic should not live in views or serializers.</p>
+
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-card-title" style="color:var(--blue)">Views</div>
+        <div class="arch-card-desc">Handle HTTP only — auth, parsing, delegation, response. Nothing else.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-title" style="color:var(--purple)">Serializers</div>
+        <div class="arch-card-desc">Validate and transform data only. No business logic.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-title" style="color:var(--accent)">Services</div>
+        <div class="arch-card-desc">All write operations and business logic. Take plain Python values, not request objects.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-title" style="color:var(--yellow)">Selectors</div>
+        <div class="arch-card-desc">All read/query logic. Returns querysets or model instances.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-title" style="color:var(--orange)">Models</div>
+        <div class="arch-card-desc">Data structure and simple model-level methods only.</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/views.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-comment"># ✅ Good — thin view, logic in service</span>
+<span class="tok-keyword">class</span> <span class="tok-class">OrderCreateView</span>(generics.CreateAPIView):
+    serializer_class = OrderCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+    <span class="tok-keyword">def</span> <span class="tok-func">perform_create</span>(self, serializer):
+        order = create_order(user=self.request.user, **serializer.validated_data)</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/services.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-comment"># ✅ Good — service handles business logic</span>
+<span class="tok-keyword">def</span> <span class="tok-func">create_order</span>(*, user, items, coupon_code=None):
+    <span class="tok-keyword">with</span> transaction.atomic():
+        order = Order.objects.create(user=user)
+        <span class="tok-keyword">for</span> item <span class="tok-keyword">in</span> items:
+            OrderItem.objects.create(order=order, **item)
+        <span class="tok-keyword">if</span> coupon_code:
+            apply_coupon(order=order, code=coupon_code)
+        send_order_confirmation.delay(order.id)
+    <span class="tok-keyword">return</span> order</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 2: Settings -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2>Settings &amp; Configuration</h2>
+    </div>
+
+    <div class="callout tip"><span class="callout-icon">💡</span><span>Never hardcode credentials. Always pull from environment variables using <code>django-environ</code>.</span></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">config/settings/base.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">from</span> pathlib <span class="tok-keyword">import</span> Path
+<span class="tok-keyword">import</span> environ
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+environ.Env.read_env(BASE_DIR / <span class="tok-string">".env"</span>)
+
+INSTALLED_APPS = [
+    <span class="tok-comment"># Django builtins...</span>
+    <span class="tok-string">"rest_framework"</span>,
+    <span class="tok-string">"corsheaders"</span>,
+    <span class="tok-string">"django_filters"</span>,
+    <span class="tok-string">"drf_spectacular"</span>,
+    <span class="tok-string">"apps.users"</span>,
+    <span class="tok-string">"apps.orders"</span>,
+]
+
+AUTH_USER_MODEL = <span class="tok-string">"users.User"</span>  <span class="tok-comment"># Always use a custom User model</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">config/settings/production.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">from</span> .base <span class="tok-keyword">import</span> *
+
+DEBUG = False
+SECRET_KEY = env(<span class="tok-string">"DJANGO_SECRET_KEY"</span>)
+ALLOWED_HOSTS = env.list(<span class="tok-string">"DJANGO_ALLOWED_HOSTS"</span>)
+DATABASES = {<span class="tok-string">"default"</span>: env.db(<span class="tok-string">"DATABASE_URL"</span>)}
+
+<span class="tok-comment"># Security headers</span>
+SECURE_HSTS_SECONDS = <span class="tok-number">31536000</span>
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 3: Models -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2>Models &amp; Database</h2>
+    </div>
+
+    <div class="callout warning"><span class="callout-icon">⚠️</span><span>Always create a custom User model <strong>before your first migration</strong>. Changing it later is painful.</span></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/users/models.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">User</span>(AbstractUser):
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=<span class="tok-number">20</span>, blank=True)
+    USERNAME_FIELD = <span class="tok-string">"email"</span>
+    REQUIRED_FIELDS = [<span class="tok-string">"username"</span>]</pre>
+    </div>
+
+    <h3>Base Model — Common Fields</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">common/models.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">BaseModel</span>(UUIDModel, TimeStampedModel):
+    <span class="tok-string">"""UUID primary key + created_at + updated_at. Use as your default base."""</span>
+    <span class="tok-keyword">class</span> <span class="tok-class">Meta</span>:
+        abstract = True</pre>
+    </div>
+
+    <h3>Model Field Best Practices</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/models.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">Order</span>(BaseModel):
+    <span class="tok-comment"># ✅ Use TextChoices for enum-like fields</span>
+    <span class="tok-keyword">class</span> <span class="tok-class">Status</span>(models.TextChoices):
+        PENDING   = <span class="tok-string">"pending"</span>,   <span class="tok-string">"Pending"</span>
+        CONFIRMED = <span class="tok-string">"confirmed"</span>, <span class="tok-string">"Confirmed"</span>
+        SHIPPED   = <span class="tok-string">"shipped"</span>,   <span class="tok-string">"Shipped"</span>
+        CANCELLED = <span class="tok-string">"cancelled"</span>, <span class="tok-string">"Cancelled"</span>
+
+    user = models.ForeignKey(
+        <span class="tok-string">"users.User"</span>,
+        on_delete=models.PROTECT,  <span class="tok-comment"># ✅ PROTECT by default, not CASCADE</span>
+        related_name=<span class="tok-string">"orders"</span>,
+    )
+    status = models.CharField(
+        max_length=<span class="tok-number">20</span>, choices=Status.choices,
+        default=Status.PENDING, db_index=True,  <span class="tok-comment"># ✅ Index filtered fields</span>
+    )
+    total_amount = models.DecimalField(
+        max_digits=<span class="tok-number">10</span>, decimal_places=<span class="tok-number">2</span>,  <span class="tok-comment"># ✅ Always DecimalField for money</span>
+    )
+
+    <span class="tok-keyword">class</span> <span class="tok-class">Meta</span>:
+        ordering = [<span class="tok-string">"-created_at"</span>]
+        indexes = [models.Index(fields=[<span class="tok-string">"user"</span>, <span class="tok-string">"status"</span>])]</pre>
+    </div>
+
+    <h3>Soft Delete Pattern</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">common/models.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">SoftDeleteModel</span>(models.Model):
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    objects = SoftDeleteManager()       <span class="tok-comment"># Excludes deleted records</span>
+    all_objects = models.Manager()      <span class="tok-comment"># Includes deleted records</span>
+
+    <span class="tok-keyword">def</span> <span class="tok-func">delete</span>(self, *args, **kwargs):
+        self.deleted_at = timezone.now()
+        self.save(update_fields=[<span class="tok-string">"deleted_at"</span>])
+
+    <span class="tok-keyword">class</span> <span class="tok-class">Meta</span>:
+        abstract = True</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 4: Views -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2>Views &amp; ViewSets</h2>
+    </div>
+
+    <h3>Choose the Right View Class</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Use Case</th><th>Class</th></tr></thead>
+        <tbody>
+          <tr><td>ModelViewSet</td><td>Full CRUD on a resource</td></tr>
+          <tr><td>ReadOnlyModelViewSet</td><td>Read-only resource</td></tr>
+          <tr><td>APIView</td><td>Single endpoint with custom logic</td></tr>
+          <tr><td>generics.ListCreateAPIView</td><td>Generic create / list</td></tr>
+          <tr><td>generics.RetrieveUpdateDestroyAPIView</td><td>Generic retrieve / update / delete</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/views.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">OrderViewSet</span>(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsOrderOwner]
+
+    <span class="tok-keyword">def</span> <span class="tok-func">get_queryset</span>(self):
+        <span class="tok-comment"># ✅ Always scope queryset to the current user</span>
+        <span class="tok-keyword">return</span> get_user_orders(user=self.request.user)
+
+    <span class="tok-keyword">def</span> <span class="tok-func">get_serializer_class</span>(self):
+        <span class="tok-comment"># ✅ Different serializers for different actions</span>
+        <span class="tok-keyword">if</span> self.action == <span class="tok-string">"create"</span>:   <span class="tok-keyword">return</span> OrderCreateSerializer
+        <span class="tok-keyword">if</span> self.action == <span class="tok-string">"cancel"</span>:   <span class="tok-keyword">return</span> OrderCancelSerializer
+        <span class="tok-keyword">return</span> OrderSerializer
+
+    <span class="tok-keyword">def</span> <span class="tok-func">perform_create</span>(self, serializer):
+        <span class="tok-comment"># ✅ Delegate to a service</span>
+        create_order(user=self.request.user, **serializer.validated_data)
+
+    <span class="tok-decorator">@action</span>(detail=True, methods=[<span class="tok-string">"post"</span>], url_path=<span class="tok-string">"cancel"</span>)
+    <span class="tok-keyword">def</span> <span class="tok-func">cancel</span>(self, request, pk=None):
+        order = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cancel_order(order=order, reason=serializer.validated_data.get(<span class="tok-string">"reason"</span>))
+        <span class="tok-keyword">return</span> Response({<span class="tok-string">"detail"</span>: <span class="tok-string">"Order cancelled."</span>}, status=HTTP_200_OK)</pre>
+    </div>
+
+    <h3>ViewSet Method Reference</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">reference</span><span class="code-lang">routes</span></div>
+      <pre><span class="tok-comment"># HTTP Method    → ViewSet Action    → URL</span>
+GET    /orders/        → list()            → router auto-generates
+POST   /orders/        → create()
+GET    /orders/{id}/   → retrieve()
+PUT    /orders/{id}/   → update()
+PATCH  /orders/{id}/   → partial_update()
+DELETE /orders/{id}/   → destroy()
+POST   /orders/{id}/cancel/ → cancel()    <span class="tok-comment"># custom @action</span></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 5: Serializers -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2>Serializers</h2>
+    </div>
+
+    <div class="callout danger"><span class="callout-icon">🚫</span><span><strong>Never</strong> make database calls in <code>SerializerMethodField</code> — it causes N+1 queries. Annotate the queryset instead.</span></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/serializers.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">OrderSerializer</span>(serializers.ModelSerializer):
+    <span class="tok-string">"""Read serializer — returns nested data."""</span>
+    items       = OrderItemSerializer(many=True, read_only=True)
+    user_email  = serializers.EmailField(source=<span class="tok-string">"user.email"</span>, read_only=True)
+    status_display = serializers.CharField(source=<span class="tok-string">"get_status_display"</span>, read_only=True)
+
+    <span class="tok-keyword">class</span> <span class="tok-class">Meta</span>:
+        model = Order
+        fields = [<span class="tok-string">"id"</span>, <span class="tok-string">"user_email"</span>, <span class="tok-string">"status"</span>, <span class="tok-string">"status_display"</span>,
+                  <span class="tok-string">"total_amount"</span>, <span class="tok-string">"items"</span>, <span class="tok-string">"created_at"</span>]
+        read_only_fields = [<span class="tok-string">"id"</span>, <span class="tok-string">"total_amount"</span>, <span class="tok-string">"created_at"</span>]
+
+<span class="tok-keyword">class</span> <span class="tok-class">OrderCreateSerializer</span>(serializers.Serializer):
+    <span class="tok-string">"""Write serializer — validates input for order creation."""</span>
+    items       = OrderItemInputSerializer(many=True)
+    coupon_code = serializers.CharField(required=False, allow_blank=True)
+
+    <span class="tok-keyword">def</span> <span class="tok-func">validate_items</span>(self, value):
+        <span class="tok-keyword">if not</span> value:
+            <span class="tok-keyword">raise</span> serializers.ValidationError(<span class="tok-string">"At least one item is required."</span>)
+        <span class="tok-keyword">return</span> value</pre>
+    </div>
+
+    <h3>Field-Level vs Object-Level Validation</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">validation pattern</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-comment"># Field-level: validate_&lt;field&gt;()</span>
+<span class="tok-keyword">def</span> <span class="tok-func">validate_email</span>(self, value):
+    <span class="tok-keyword">if</span> User.objects.filter(email=value).exists():
+        <span class="tok-keyword">raise</span> serializers.ValidationError(<span class="tok-string">"Email already registered."</span>)
+    <span class="tok-keyword">return</span> value.lower()
+
+<span class="tok-comment"># Object-level (cross-field): validate()</span>
+<span class="tok-keyword">def</span> <span class="tok-func">validate</span>(self, attrs):
+    <span class="tok-keyword">if</span> attrs[<span class="tok-string">"password"</span>] != attrs.pop(<span class="tok-string">"password_confirm"</span>):
+        <span class="tok-keyword">raise</span> serializers.ValidationError({<span class="tok-string">"password"</span>: <span class="tok-string">"Passwords do not match."</span>})
+    <span class="tok-keyword">return</span> attrs</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 6: URLs -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <h2>URLs &amp; Routing</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/urls.py</span><span class="code-lang">python</span></div>
+      <pre>router = DefaultRouter()
+router.register(r<span class="tok-string">"orders"</span>, views.OrderViewSet, basename=<span class="tok-string">"order"</span>)
+urlpatterns = router.urls</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">config/urls.py</span><span class="code-lang">python</span></div>
+      <pre>urlpatterns = [
+    path(<span class="tok-string">"admin/"</span>,       admin.site.urls),
+    path(<span class="tok-string">"api/v1/"</span>,      include(<span class="tok-string">"apps.users.urls"</span>)),
+    path(<span class="tok-string">"api/v1/"</span>,      include(<span class="tok-string">"apps.orders.urls"</span>)),
+    path(<span class="tok-string">"api/schema/"</span>,  SpectacularAPIView.as_view(), name=<span class="tok-string">"schema"</span>),
+    path(<span class="tok-string">"api/docs/"</span>,    SpectacularSwaggerView.as_view(url_name=<span class="tok-string">"schema"</span>)),
+]</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 7: Auth -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <h2>Authentication &amp; Permissions</h2>
+    </div>
+
+    <h3>Authentication Options</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Library</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td>JWT (stateless)</td><td>djangorestframework-simplejwt</td><td>SPAs, mobile apps, microservices</td></tr>
+          <tr><td>Session</td><td>Built-in DRF</td><td>Browser-based Django apps with CSRF</td></tr>
+          <tr><td>Token (simple)</td><td>Built-in DRF</td><td>Simple APIs, admin tools</td></tr>
+          <tr><td>OAuth2</td><td>django-oauth-toolkit</td><td>Third-party integrations</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">settings/base.py — JWT Config</span><span class="code-lang">python</span></div>
+      <pre>SIMPLE_JWT = {
+    <span class="tok-string">"ACCESS_TOKEN_LIFETIME"</span>:  timedelta(minutes=<span class="tok-number">60</span>),
+    <span class="tok-string">"REFRESH_TOKEN_LIFETIME"</span>: timedelta(days=<span class="tok-number">7</span>),
+    <span class="tok-string">"ROTATE_REFRESH_TOKENS"</span>:  True,
+    <span class="tok-string">"BLACKLIST_AFTER_ROTATION"</span>: True,
+    <span class="tok-string">"AUTH_HEADER_TYPES"</span>: (<span class="tok-string">"Bearer"</span>,),
+}</pre>
+    </div>
+
+    <h3>Custom Permissions</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/permissions.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">IsOrderOwner</span>(BasePermission):
+    <span class="tok-keyword">def</span> <span class="tok-func">has_object_permission</span>(self, request, view, obj):
+        <span class="tok-keyword">return</span> obj.user == request.user
+
+<span class="tok-keyword">class</span> <span class="tok-class">IsAdminOrReadOnly</span>(BasePermission):
+    <span class="tok-keyword">def</span> <span class="tok-func">has_permission</span>(self, request, view):
+        <span class="tok-keyword">if</span> request.method <span class="tok-keyword">in</span> SAFE_METHODS:
+            <span class="tok-keyword">return</span> True
+        <span class="tok-keyword">return</span> request.user <span class="tok-keyword">and</span> request.user.is_staff</pre>
+    </div>
+
+    <div class="callout info"><span class="callout-icon">ℹ️</span><span><strong>has_permission</strong> runs for every request to the view. <strong>has_object_permission</strong> only runs when <code>get_object()</code> is called (detail views).</span></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 8: Filtering -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <h2>Filtering, Searching &amp; Ordering</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/filters.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">OrderFilter</span>(django_filters.FilterSet):
+    status         = django_filters.MultipleChoiceFilter(choices=Order.Status.choices)
+    created_after  = django_filters.DateTimeFilter(field_name=<span class="tok-string">"created_at"</span>, lookup_expr=<span class="tok-string">"gte"</span>)
+    created_before = django_filters.DateTimeFilter(field_name=<span class="tok-string">"created_at"</span>, lookup_expr=<span class="tok-string">"lte"</span>)
+    min_amount     = django_filters.NumberFilter(field_name=<span class="tok-string">"total_amount"</span>, lookup_expr=<span class="tok-string">"gte"</span>)
+    max_amount     = django_filters.NumberFilter(field_name=<span class="tok-string">"total_amount"</span>, lookup_expr=<span class="tok-string">"lte"</span>)
+
+    <span class="tok-keyword">class</span> <span class="tok-class">Meta</span>:
+        model = Order
+        fields = [<span class="tok-string">"status"</span>, <span class="tok-string">"user"</span>]</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/views.py — ViewSet config</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">OrderViewSet</span>(viewsets.ModelViewSet):
+    filterset_class  = OrderFilter
+    search_fields    = [<span class="tok-string">"user__email"</span>, <span class="tok-string">"notes"</span>]  <span class="tok-comment"># ?search=</span>
+    ordering_fields  = [<span class="tok-string">"created_at"</span>, <span class="tok-string">"total_amount"</span>]  <span class="tok-comment"># ?ordering=</span>
+    ordering         = [<span class="tok-string">"-created_at"</span>]  <span class="tok-comment"># default</span></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 9: Pagination -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s9">
+    <div class="section-header">
+      <span class="section-number">09</span>
+      <h2>Pagination</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Class</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td>PageNumberPagination</td><td>Admin panels, standard lists, when users need to jump to page N</td></tr>
+          <tr><td>LimitOffsetPagination</td><td>Analytics dashboards, flexible client control</td></tr>
+          <tr><td>CursorPagination</td><td>News feeds, chat, large tables — prevents missing items on rapidly changing data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">common/pagination.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">StandardPagination</span>(PageNumberPagination):
+    page_size            = <span class="tok-number">20</span>
+    page_size_query_param = <span class="tok-string">"page_size"</span>
+    max_page_size        = <span class="tok-number">100</span>
+
+<span class="tok-keyword">class</span> <span class="tok-class">CursorBasedPagination</span>(CursorPagination):
+    <span class="tok-string">"""More efficient on huge tables. Prevents duplicate/skipped items."""</span>
+    page_size = <span class="tok-number">20</span>
+    ordering  = <span class="tok-string">"-created_at"</span></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 10: Caching -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s10">
+    <div class="section-header">
+      <span class="section-number">10</span>
+      <h2>Caching</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Manual caching with Redis</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">def</span> <span class="tok-func">get_active_categories</span>():
+    cache_key = <span class="tok-string">"active_categories"</span>
+    result = cache.get(cache_key)
+    <span class="tok-keyword">if</span> result <span class="tok-keyword">is</span> None:
+        result = list(Category.objects.filter(is_active=True).values(<span class="tok-string">"id"</span>, <span class="tok-string">"name"</span>))
+        cache.set(cache_key, result, timeout=<span class="tok-number">60</span> * <span class="tok-number">15</span>)  <span class="tok-comment"># 15 minutes</span>
+    <span class="tok-keyword">return</span> result</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Cache invalidation via signals</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-decorator">@receiver</span>(post_save, sender=Category)
+<span class="tok-keyword">def</span> <span class="tok-func">invalidate_category_cache</span>(sender, instance, **kwargs):
+    cache.delete(<span class="tok-string">"active_categories"</span>)
+    cache.delete_pattern(<span class="tok-string">"category:*"</span>)  <span class="tok-comment"># django-redis</span></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 11: Celery -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s11">
+    <div class="section-header">
+      <span class="section-number">11</span>
+      <h2>Celery &amp; Async Tasks</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/tasks.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-decorator">@shared_task</span>(
+    bind=True,                <span class="tok-comment"># access self (task instance)</span>
+    max_retries=<span class="tok-number">3</span>,
+    default_retry_delay=<span class="tok-number">60</span>,
+    autoretry_for=(Exception,),
+    retry_backoff=True,       <span class="tok-comment"># exponential backoff</span>
+    retry_jitter=True,        <span class="tok-comment"># avoid thundering herd</span>
+)
+<span class="tok-keyword">def</span> <span class="tok-func">send_order_confirmation</span>(self, order_id):
+    <span class="tok-keyword">from</span> apps.orders.models <span class="tok-keyword">import</span> Order  <span class="tok-comment"># import inside task</span>
+    <span class="tok-keyword">try</span>:
+        order = Order.objects.get(id=order_id)
+        <span class="tok-comment"># ... send email</span>
+    <span class="tok-keyword">except</span> Order.DoesNotExist:
+        <span class="tok-keyword">return</span>  <span class="tok-comment"># don't retry if record is gone</span>
+
+<span class="tok-comment"># Calling tasks</span>
+send_order_confirmation.delay(order.id)  <span class="tok-comment"># fire and forget</span>
+send_order_confirmation.apply_async(
+    args=[order.id], countdown=<span class="tok-number">300</span>, expires=<span class="tok-number">3600</span>
+)</pre>
+    </div>
+
+    <h3>Celery Beat — Scheduled Tasks</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">settings/base.py</span><span class="code-lang">python</span></div>
+      <pre>CELERY_BEAT_SCHEDULE = {
+    <span class="tok-string">"cleanup-expired-sessions"</span>: {
+        <span class="tok-string">"task"</span>:     <span class="tok-string">"apps.users.tasks.cleanup_expired_sessions"</span>,
+        <span class="tok-string">"schedule"</span>: crontab(hour=<span class="tok-number">3</span>, minute=<span class="tok-number">0</span>),  <span class="tok-comment"># Daily 3 AM UTC</span>
+    },
+    <span class="tok-string">"send-daily-digest"</span>: {
+        <span class="tok-string">"task"</span>:     <span class="tok-string">"apps.notifications.tasks.send_daily_digest"</span>,
+        <span class="tok-string">"schedule"</span>: crontab(hour=<span class="tok-number">8</span>, minute=<span class="tok-number">0</span>),
+    },
+}</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 12: File Handling -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s12">
+    <div class="section-header">
+      <span class="section-number">12</span>
+      <h2>File Handling &amp; Storage</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">settings/production.py — S3</span><span class="code-lang">python</span></div>
+      <pre>DEFAULT_FILE_STORAGE = <span class="tok-string">"storages.backends.s3boto3.S3Boto3Storage"</span>
+AWS_STORAGE_BUCKET_NAME = env(<span class="tok-string">"AWS_STORAGE_BUCKET_NAME"</span>)
+AWS_S3_FILE_OVERWRITE   = False   <span class="tok-comment"># ✅ Don't overwrite same-name files</span>
+AWS_DEFAULT_ACL         = None    <span class="tok-comment"># ✅ Use bucket default ACL</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">common/validators.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">def</span> <span class="tok-func">validate_file_size</span>(file, max_mb=<span class="tok-number">10</span>):
+    <span class="tok-keyword">if</span> file.size > max_mb * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>:
+        <span class="tok-keyword">raise</span> ValidationError(<span class="tok-string">f"File size cannot exceed {max_mb}MB."</span>)
+
+<span class="tok-keyword">def</span> <span class="tok-func">validate_image_extension</span>(file):
+    ext = os.path.splitext(file.name)[<span class="tok-number">1</span>].lower()
+    <span class="tok-keyword">if</span> ext <span class="tok-keyword">not in</span> [<span class="tok-string">".jpg"</span>, <span class="tok-string">".jpeg"</span>, <span class="tok-string">".png"</span>, <span class="tok-string">".webp"</span>]:
+        <span class="tok-keyword">raise</span> ValidationError(<span class="tok-string">"Unsupported image format."</span>)</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 13: Testing -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s13">
+    <div class="section-header">
+      <span class="section-number">13</span>
+      <h2>Testing</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/users/tests/factories.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">UserFactory</span>(DjangoModelFactory):
+    <span class="tok-keyword">class</span> <span class="tok-class">Meta</span>:
+        model = User
+
+    email      = factory.LazyFunction(<span class="tok-keyword">lambda</span>: fake.unique.email())
+    username   = factory.LazyAttribute(<span class="tok-keyword">lambda</span> obj: obj.email.split(<span class="tok-string">"@"</span>)[<span class="tok-number">0</span>])
+    first_name = factory.Faker(<span class="tok-string">"first_name"</span>)
+    is_active  = True
+
+    <span class="tok-decorator">@factory.post_generation</span>
+    <span class="tok-keyword">def</span> <span class="tok-func">password</span>(obj, create, extracted, **kwargs):
+        obj.set_password(extracted <span class="tok-keyword">or</span> <span class="tok-string">"testpass123!"</span>)
+        <span class="tok-keyword">if</span> create: obj.save()</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">apps/orders/tests/test_views.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-decorator">@pytest.mark.django_db</span>
+<span class="tok-keyword">class</span> <span class="tok-class">TestOrderAPI</span>:
+    <span class="tok-keyword">def</span> <span class="tok-func">test_user_sees_only_their_orders</span>(self, authenticated_client):
+        client, user = authenticated_client
+        own_order   = OrderFactory(user=user)
+        other_order = OrderFactory(user=UserFactory())
+
+        response = client.get(reverse(<span class="tok-string">"order-list"</span>))
+        order_ids = [o[<span class="tok-string">"id"</span>] <span class="tok-keyword">for</span> o <span class="tok-keyword">in</span> response.data[<span class="tok-string">"results"</span>]]
+
+        assert str(own_order.id) <span class="tok-keyword">in</span> order_ids
+        assert str(other_order.id) <span class="tok-keyword">not in</span> order_ids</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 14: Versioning -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s14">
+    <div class="section-header">
+      <span class="section-number">14</span>
+      <h2>API Versioning</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">config/urls.py — URL versioning (recommended)</span><span class="code-lang">python</span></div>
+      <pre>urlpatterns = [
+    path(<span class="tok-string">"api/v1/"</span>, include(<span class="tok-string">"apps.api_v1.urls"</span>)),
+    path(<span class="tok-string">"api/v2/"</span>, include(<span class="tok-string">"apps.api_v2.urls"</span>)),
+]</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Handling versions in views</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">def</span> <span class="tok-func">get_serializer_class</span>(self):
+    <span class="tok-keyword">if</span> self.request.version == <span class="tok-string">"v2"</span>:
+        <span class="tok-keyword">return</span> OrderSerializerV2
+    <span class="tok-keyword">return</span> OrderSerializer</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 15: Error Handling -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s15">
+    <div class="section-header">
+      <span class="section-number">15</span>
+      <h2>Error Handling</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">common/exceptions.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-keyword">class</span> <span class="tok-class">ServiceError</span>(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+
+<span class="tok-keyword">def</span> <span class="tok-func">custom_exception_handler</span>(exc, context):
+    response = exception_handler(exc, context)
+    <span class="tok-keyword">if</span> response <span class="tok-keyword">is not</span> None:
+        <span class="tok-comment"># Normalize error format across all endpoints</span>
+        response.data = {
+            <span class="tok-string">"error"</span>: {
+                <span class="tok-string">"code"</span>:    response.status_code,
+                <span class="tok-string">"message"</span>: _extract_message(response.data),
+                <span class="tok-string">"details"</span>: response.data,
+            }
+        }
+    <span class="tok-keyword">return</span> response
+
+<span class="tok-comment"># settings/base.py</span>
+REST_FRAMEWORK = {
+    <span class="tok-string">"EXCEPTION_HANDLER"</span>: <span class="tok-string">"common.exceptions.custom_exception_handler"</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 16: Security -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s16">
+    <div class="section-header">
+      <span class="section-number">16</span>
+      <h2>Security</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">settings/production.py</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-comment"># CORS — be specific, never "*" in production</span>
+CORS_ALLOWED_ORIGINS = [<span class="tok-string">"https://app.mysite.com"</span>]
+
+<span class="tok-comment"># Rate limiting</span>
+REST_FRAMEWORK = {
+    <span class="tok-string">"DEFAULT_THROTTLE_CLASSES"</span>: [
+        <span class="tok-string">"rest_framework.throttling.AnonRateThrottle"</span>,
+        <span class="tok-string">"rest_framework.throttling.UserRateThrottle"</span>,
+    ],
+    <span class="tok-string">"DEFAULT_THROTTLE_RATES"</span>: {
+        <span class="tok-string">"anon"</span>: <span class="tok-string">"100/hour"</span>,
+        <span class="tok-string">"user"</span>: <span class="tok-string">"1000/hour"</span>,
+    },
+}</pre>
+    </div>
+
+    <div class="callout danger"><span class="callout-icon">🚫</span><span><strong>Never</strong> use raw SQL with f-strings. Use parameterized queries: <code>User.objects.raw("... WHERE email = %s", [email])</code></span></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 17: Performance -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s17">
+    <div class="section-header">
+      <span class="section-number">17</span>
+      <h2>Performance &amp; Optimization</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Avoid N+1 Queries</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-bad"># ❌ Bad — N+1: 1 query for orders + 1 per order for user</span>
+orders = Order.objects.all()
+<span class="tok-keyword">for</span> order <span class="tok-keyword">in</span> orders:
+    print(order.user.email)  <span class="tok-comment"># new query each iteration</span>
+
+<span class="tok-good"># ✅ select_related for FK/OneToOne (SQL JOIN)</span>
+orders = Order.objects.select_related(<span class="tok-string">"user"</span>).all()
+
+<span class="tok-good"># ✅ prefetch_related for ManyToMany/reverse FK</span>
+orders = Order.objects.prefetch_related(<span class="tok-string">"items"</span>).all()
+
+<span class="tok-good"># ✅ Combine both</span>
+orders = Order.objects.select_related(<span class="tok-string">"user"</span>).prefetch_related(<span class="tok-string">"items"</span>)</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Annotate instead of computing in Python</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-good"># ✅ Let the database do heavy lifting</span>
+stats = Order.objects.aggregate(
+    total_orders  = Count(<span class="tok-string">"id"</span>),
+    total_revenue = Sum(<span class="tok-string">"total_amount"</span>),
+    avg_order_value = Avg(<span class="tok-string">"total_amount"</span>),
+    pending_count = Count(<span class="tok-string">"id"</span>, filter=Q(status=<span class="tok-string">"pending"</span>)),
+)</pre>
+    </div>
+
+    <div class="callout tip"><span class="callout-icon">💡</span><span>Use <strong>Django Debug Toolbar</strong> in development. Check the SQL panel — every N+1 shows up there.</span></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 18: Logging -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s18">
+    <div class="section-header">
+      <span class="section-number">18</span>
+      <h2>Logging &amp; Monitoring</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">In your code — use named loggers</span><span class="code-lang">python</span></div>
+      <pre>logger = logging.getLogger(__name__)
+
+<span class="tok-keyword">def</span> <span class="tok-func">create_order</span>(...):
+    logger.info(<span class="tok-string">"Creating order for user %s"</span>, user.id)
+    <span class="tok-keyword">try</span>:
+        ...
+    <span class="tok-keyword">except</span> Exception <span class="tok-keyword">as</span> e:
+        logger.exception(<span class="tok-string">"Failed to create order for user %s: %s"</span>, user.id, str(e))
+        <span class="tok-keyword">raise</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Sentry setup</span><span class="code-lang">python</span></div>
+      <pre>sentry_sdk.init(
+    dsn=env(<span class="tok-string">"SENTRY_DSN"</span>),
+    integrations=[DjangoIntegration(), CeleryIntegration()],
+    traces_sample_rate=<span class="tok-number">0.1</span>,   <span class="tok-comment"># 10% of transactions</span>
+    send_default_pii=False,   <span class="tok-comment"># don't send user PII</span>
+)</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 19: Docs -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s19">
+    <div class="section-header">
+      <span class="section-number">19</span>
+      <h2>Documentation (drf-spectacular)</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Annotating Views</span><span class="code-lang">python</span></div>
+      <pre><span class="tok-decorator">@extend_schema</span>(
+    summary=<span class="tok-string">"List user's orders"</span>,
+    description=<span class="tok-string">"Returns paginated list of the authenticated user's orders."</span>,
+    parameters=[OpenApiParameter(<span class="tok-string">"status"</span>, str, description=<span class="tok-string">"Filter by status"</span>)],
+    responses={<span class="tok-number">200</span>: OrderSerializer(many=True)},
+    tags=[<span class="tok-string">"Orders"</span>],
+)
+<span class="tok-keyword">def</span> <span class="tok-func">list</span>(self, request, *args, **kwargs):
+    <span class="tok-keyword">return</span> super().list(request, *args, **kwargs)</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 20: Deployment -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s20">
+    <div class="section-header">
+      <span class="section-number">20</span>
+      <h2>Deployment &amp; DevOps</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Dockerfile</span><span class="code-lang">dockerfile</span></div>
+      <pre>FROM python:3.12-slim
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update &amp;&amp; apt-get install -y libpq-dev gcc
+
+COPY requirements/production.txt .
+RUN pip install --no-cache-dir -r production.txt
+
+COPY . .
+RUN python manage.py collectstatic --noinput
+EXPOSE 8000
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Pre-deploy commands</span><span class="code-lang">bash</span></div>
+      <pre><span class="tok-comment"># Run before every deploy</span>
+python manage.py check --deploy   <span class="tok-comment"># Django's built-in security check</span>
+python manage.py migrate
+python manage.py collectstatic</pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 21: Libraries -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s21">
+    <div class="section-header">
+      <span class="section-number">21</span>
+      <h2>Essential Libraries Cheat Sheet</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Library</th><th>Purpose</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><td>djangorestframework</td><td>REST API core</td><td><span class="tag green">Always</span></td></tr>
+          <tr><td>django-environ</td><td>Environment variable config</td><td><span class="tag green">Always</span></td></tr>
+          <tr><td>psycopg2-binary</td><td>PostgreSQL adapter</td><td><span class="tag green">Always</span></td></tr>
+          <tr><td>gunicorn</td><td>WSGI server</td><td><span class="tag orange">Production</span></td></tr>
+          <tr><td>whitenoise</td><td>Serve static files</td><td><span class="tag orange">Production</span></td></tr>
+          <tr><td>djangorestframework-simplejwt</td><td>JWT authentication</td><td><span class="tag blue">When using JWT</span></td></tr>
+          <tr><td>django-cors-headers</td><td>CORS handling</td><td><span class="tag blue">SPA frontend</span></td></tr>
+          <tr><td>django-filter</td><td>Queryset filtering</td><td><span class="tag green">Almost always</span></td></tr>
+          <tr><td>drf-spectacular</td><td>OpenAPI / Swagger docs</td><td><span class="tag green">Almost always</span></td></tr>
+          <tr><td>celery + redis</td><td>Async task queue</td><td><span class="tag blue">When async needed</span></td></tr>
+          <tr><td>django-storages + boto3</td><td>S3 file storage</td><td><span class="tag orange">Production file uploads</span></td></tr>
+          <tr><td>factory-boy</td><td>Test factories</td><td><span class="tag purple">Testing</span></td></tr>
+          <tr><td>pytest-django</td><td>Better test runner</td><td><span class="tag purple">Testing</span></td></tr>
+          <tr><td>sentry-sdk</td><td>Error tracking</td><td><span class="tag orange">Production</span></td></tr>
+          <tr><td>django-debug-toolbar</td><td>SQL query inspector</td><td><span class="tag purple">Development</span></td></tr>
+          <tr><td>django-silk</td><td>Request profiling</td><td><span class="tag purple">Development</span></td></tr>
+          <tr><td>django-celery-beat</td><td>DB-backed celery scheduling</td><td><span class="tag blue">With Celery Beat</span></td></tr>
+          <tr><td>django-redis</td><td>Redis cache backend</td><td><span class="tag blue">With Redis cache</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SECTION 22: Master Checklist -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <section class="section" id="s22">
+    <div class="section-header">
+      <span class="section-number">22</span>
+      <h2>The Master Checklist</h2>
+    </div>
+
+    <p>Click items to mark them as complete. Use this every time you build something new.</p>
+
+    <!-- New Project -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">📦</span>Starting a New Project</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Custom User model created <strong>before</strong> any migrations</div>
+        <div class="check-item"><div class="checkbox"></div>Settings split into base.py, development.py, production.py</div>
+        <div class="check-item"><div class="checkbox"></div>All secrets in .env via django-environ, never hardcoded</div>
+        <div class="check-item"><div class="checkbox"></div>.env.example committed, .env in .gitignore</div>
+        <div class="check-item"><div class="checkbox"></div>PostgreSQL configured (not SQLite beyond local dev)</div>
+        <div class="check-item"><div class="checkbox"></div>Redis configured (for caching and Celery broker)</div>
+        <div class="check-item"><div class="checkbox"></div>Project structure follows apps + config + common layout</div>
+        <div class="check-item"><div class="checkbox"></div>Docker and docker-compose configured</div>
+        <div class="check-item"><div class="checkbox"></div>CI/CD pipeline configured</div>
+      </div>
+    </div>
+
+    <!-- Model -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">🗄️</span>Building a Model</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Inherits from BaseModel (UUID + timestamps)</div>
+        <div class="check-item"><div class="checkbox"></div>TextChoices used for enum-like fields</div>
+        <div class="check-item"><div class="checkbox"></div>DecimalField used for monetary amounts (not FloatField)</div>
+        <div class="check-item"><div class="checkbox"></div>on_delete=models.PROTECT on ForeignKeys (unless CASCADE intentional)</div>
+        <div class="check-item"><div class="checkbox"></div>db_index=True on fields that will be filtered or ordered by</div>
+        <div class="check-item"><div class="checkbox"></div>Composite indexes defined in Meta for common multi-field queries</div>
+        <div class="check-item"><div class="checkbox"></div>__str__ method added</div>
+        <div class="check-item"><div class="checkbox"></div>Default ordering in Meta</div>
+        <div class="check-item"><div class="checkbox"></div>Migration named descriptively (--name add_status_to_order)</div>
+        <div class="check-item"><div class="checkbox"></div>sqlmigrate output reviewed before applying</div>
+        <div class="check-item"><div class="checkbox"></div>No business logic in model methods</div>
+      </div>
+    </div>
+
+    <!-- Serializer -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">🔌</span>Building a Serializer</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Separate serializers for read vs. write operations</div>
+        <div class="check-item"><div class="checkbox"></div>Sensitive fields marked write_only=True</div>
+        <div class="check-item"><div class="checkbox"></div>Computed fields annotated in queryset, not SerializerMethodField with DB calls</div>
+        <div class="check-item"><div class="checkbox"></div>Field-level validation in validate_&lt;field&gt;() methods</div>
+        <div class="check-item"><div class="checkbox"></div>Cross-field validation in validate() method</div>
+        <div class="check-item"><div class="checkbox"></div>read_only_fields declared in Meta</div>
+        <div class="check-item"><div class="checkbox"></div>No database writes inside serializer validate_* methods</div>
+      </div>
+    </div>
+
+    <!-- View -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">👁️</span>Building a View / ViewSet</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Using the right base class for the use case</div>
+        <div class="check-item"><div class="checkbox"></div>get_queryset() scopes data to current user where appropriate</div>
+        <div class="check-item"><div class="checkbox"></div>get_serializer_class() returns different serializers per action</div>
+        <div class="check-item"><div class="checkbox"></div>Permissions are explicit and tested</div>
+        <div class="check-item"><div class="checkbox"></div>perform_create() / perform_update() delegates to a service</div>
+        <div class="check-item"><div class="checkbox"></div>No business logic directly in the view</div>
+        <div class="check-item"><div class="checkbox"></div>Response status codes are correct (201 create, 204 delete)</div>
+        <div class="check-item"><div class="checkbox"></div>View documented with @extend_schema</div>
+      </div>
+    </div>
+
+    <!-- Auth -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">🔐</span>Authentication &amp; Permissions</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Default permission class is IsAuthenticated (secure by default)</div>
+        <div class="check-item"><div class="checkbox"></div>Public endpoints explicitly set permission_classes = [AllowAny]</div>
+        <div class="check-item"><div class="checkbox"></div>Custom permissions implement both has_permission and has_object_permission</div>
+        <div class="check-item"><div class="checkbox"></div>JWT tokens have appropriate lifetimes</div>
+        <div class="check-item"><div class="checkbox"></div>Refresh token rotation and blacklisting enabled</div>
+        <div class="check-item"><div class="checkbox"></div>Throttling configured for auth endpoints</div>
+      </div>
+    </div>
+
+    <!-- Service -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">⚙️</span>Building a Service</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Service is a plain Python function in services.py</div>
+        <div class="check-item"><div class="checkbox"></div>Takes plain Python values (not request object)</div>
+        <div class="check-item"><div class="checkbox"></div>Wrapped in transaction.atomic() for multiple writes</div>
+        <div class="check-item"><div class="checkbox"></div>Raises ServiceError for business logic failures</div>
+        <div class="check-item"><div class="checkbox"></div>Celery tasks called with .delay() or .apply_async()</div>
+        <div class="check-item"><div class="checkbox"></div>No HTTP logic, serializer logic, or queryset building in services</div>
+      </div>
+    </div>
+
+    <!-- Selector -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">📊</span>Building a Selector (Query Layer)</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Lives in selectors.py</div>
+        <div class="check-item"><div class="checkbox"></div>Returns querysets or model instances</div>
+        <div class="check-item"><div class="checkbox"></div>Uses select_related() / prefetch_related() to avoid N+1</div>
+        <div class="check-item"><div class="checkbox"></div>Uses only() or values() when full instances aren't needed</div>
+        <div class="check-item"><div class="checkbox"></div>Uses annotate() for computed fields instead of Python-side computation</div>
+        <div class="check-item"><div class="checkbox"></div>Queryset is lazy (not evaluated until necessary)</div>
+      </div>
+    </div>
+
+    <!-- Celery Task -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">⏱️</span>Building a Celery Task</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Task is idempotent (safe to run multiple times)</div>
+        <div class="check-item"><div class="checkbox"></div>Uses bind=True and handles retries with exponential backoff</div>
+        <div class="check-item"><div class="checkbox"></div>Imports done inside the task function (avoid circular imports)</div>
+        <div class="check-item"><div class="checkbox"></div>Handles case where referenced DB record no longer exists</div>
+        <div class="check-item"><div class="checkbox"></div>Logs success and failure at appropriate levels</div>
+        <div class="check-item"><div class="checkbox"></div>Registered in CELERY_BEAT_SCHEDULE if periodic</div>
+      </div>
+    </div>
+
+    <!-- Testing -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">🧪</span>Writing Tests</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Factories exist for all models involved</div>
+        <div class="check-item"><div class="checkbox"></div>Tests cover the happy path</div>
+        <div class="check-item"><div class="checkbox"></div>Tests cover auth requirements (401 unauthenticated, 403/404 wrong user)</div>
+        <div class="check-item"><div class="checkbox"></div>Tests cover validation errors (invalid input returns 400)</div>
+        <div class="check-item"><div class="checkbox"></div>Tests cover edge cases</div>
+        <div class="check-item"><div class="checkbox"></div>No real HTTP calls in tests (external services mocked)</div>
+        <div class="check-item"><div class="checkbox"></div>Test coverage is above 80%</div>
+      </div>
+    </div>
+
+    <!-- Deploying -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">🚀</span>Deploying a Feature</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>python manage.py check --deploy passes with no issues</div>
+        <div class="check-item"><div class="checkbox"></div>All migrations created and reviewed</div>
+        <div class="check-item"><div class="checkbox"></div>Zero-downtime migration strategy for large tables</div>
+        <div class="check-item"><div class="checkbox"></div>Environment variables updated in production</div>
+        <div class="check-item"><div class="checkbox"></div>Sentry error tracking verified</div>
+        <div class="check-item"><div class="checkbox"></div>Feature tested in staging before production deploy</div>
+        <div class="check-item"><div class="checkbox"></div>Rollback plan exists if migration fails</div>
+      </div>
+    </div>
+
+    <!-- Public API -->
+    <div class="checklist-group">
+      <div class="checklist-group-header"><span class="emoji">🌐</span>Building a REST API Service</div>
+      <div class="checklist-items">
+        <div class="check-item"><div class="checkbox"></div>Versioned from the start (/api/v1/)</div>
+        <div class="check-item"><div class="checkbox"></div>Swagger/OpenAPI documentation available and accurate</div>
+        <div class="check-item"><div class="checkbox"></div>All endpoints secured with appropriate authentication</div>
+        <div class="check-item"><div class="checkbox"></div>Rate limiting configured</div>
+        <div class="check-item"><div class="checkbox"></div>CORS configured to only allow known origins</div>
+        <div class="check-item"><div class="checkbox"></div>Error responses have a consistent format</div>
+        <div class="check-item"><div class="checkbox"></div>Pagination on all list endpoints</div>
+        <div class="check-item"><div class="checkbox"></div>Input size limits enforced (max file size, max list length)</div>
+        <div class="check-item"><div class="checkbox"></div>Sensitive data never returned in responses</div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer>
+    <span>Django &amp; DRF Best Practices — Definitive Reference</span>
+    <span>Last updated: 2026</span>
+  </footer>
+
+</main>
+
+<!-- Scroll to top -->
+<div id="scroll-top" title="Back to top">↑</div>
+
+<script>
+  // ── Active sidebar nav on scroll ──
+  const sections = document.querySelectorAll('.section');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === `#${id}`);
+        });
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ── Scroll to top button ──
+  const scrollBtn = document.getElementById('scroll-top');
+  window.addEventListener('scroll', () => {
+    scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+  scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ── Interactive checklist ──
+  document.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('checked');
+    });
+  });
+</script>
+</body>
+</html>

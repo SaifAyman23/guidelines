@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -520,23 +521,63 @@
   .file-tree {
     font-family: var(--font-code);
     font-size: 12.5px;
-    line-height: 1.8;
+    line-height: 1.9;
     color: #b8c4d8;
     background: #0a0c11;
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px 24px;
     margin: 16px 0;
+    overflow-x: auto;
   }
 
-  .ft-dir { color: var(--blue); }
-  .ft-file { color: var(--text-muted); }
-  .ft-comment { color: var(--accent); }
+  .ft-list, .ft-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-  .ft-table { border-collapse: collapse; width: 100%; }
-  .ft-table td { padding: 0; border: none; background: none; vertical-align: top; white-space: nowrap; }
-  .ft-table td:first-child { padding-right: 32px; }
-  .ft-table tr:hover td { background: none; }
+  .ft-list li {
+    position: relative;
+    padding-left: 20px;
+  }
+
+  /* vertical line down the left of each group */
+  .ft-list ul > li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border-light);
+  }
+
+  /* horizontal tick to each item */
+  .ft-list ul > li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.95em;
+    width: 12px;
+    height: 1px;
+    background: var(--border-light);
+  }
+
+  /* remove the vertical line extension past the last child */
+  .ft-list ul > li:last-child::before {
+    bottom: auto;
+    height: 0.95em;
+  }
+
+  /* root item has no indent lines */
+  .ft-list > li { padding-left: 0; }
+  .ft-list > li::before,
+  .ft-list > li::after { display: none; }
+
+  .ft-dir  { color: var(--blue); }
+  .ft-file { color: var(--text-muted); }
+  .ft-comment { color: var(--accent); margin-left: 12px; }
 
   /* ── INLINE TAG ──────────────────────────────────── */
   .tag {
@@ -678,42 +719,63 @@
 
     <h3>Recommended Layout</h3>
     <div class="file-tree">
-<table class="ft-table"><tbody>
-<tr><td><span class="ft-dir">my_project/</span></td><td></td></tr>
-<tr><td>├── <span class="ft-dir">config/</span></td><td><span class="ft-comment"># All configuration lives here</span></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-dir">settings/</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">base.py</span></td><td><span class="ft-comment"># Shared settings</span></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">development.py</span></td><td><span class="ft-comment"># Dev overrides</span></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">production.py</span></td><td><span class="ft-comment"># Prod overrides</span></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="ft-file">testing.py</span></td><td><span class="ft-comment"># Test-specific settings</span></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">urls.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">wsgi.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; └── <span class="ft-file">asgi.py</span></td><td></td></tr>
-<tr><td>├── <span class="ft-dir">apps/</span></td><td><span class="ft-comment"># All Django apps live here</span></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-dir">users/</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">models.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">views.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">serializers.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">services.py</span></td><td><span class="ft-comment"># Business logic</span></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">selectors.py</span></td><td><span class="ft-comment"># Read queries</span></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">permissions.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">filters.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">tasks.py</span></td><td><span class="ft-comment"># Celery tasks</span></td></tr>
-<tr><td>│&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="ft-dir">tests/</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; └── <span class="ft-dir">orders/</span></td><td></td></tr>
-<tr><td>├── <span class="ft-dir">common/</span></td><td><span class="ft-comment"># Shared utilities</span></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">models.py</span></td><td><span class="ft-comment"># Abstract base models</span></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">serializers.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">permissions.py</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; └── <span class="ft-file">exceptions.py</span></td><td></td></tr>
-<tr><td>├── <span class="ft-dir">requirements/</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">base.txt</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; ├── <span class="ft-file">development.txt</span></td><td></td></tr>
-<tr><td>│&nbsp;&nbsp; └── <span class="ft-file">production.txt</span></td><td></td></tr>
-<tr><td>├── <span class="ft-file">.env.example</span></td><td><span class="ft-comment"># Commit this</span></td></tr>
-<tr><td>├── <span class="ft-file">.env</span></td><td><span class="ft-comment"># Never commit this</span></td></tr>
-<tr><td>└── <span class="ft-file">docker-compose.yml</span></td><td></td></tr>
-</tbody></table>
+      <ul class="ft-list">
+        <li><span class="ft-dir">my_project/</span>
+          <ul>
+            <li><span class="ft-dir">config/</span> <span class="ft-comment"># All configuration lives here</span>
+              <ul>
+                <li><span class="ft-dir">settings/</span>
+                  <ul>
+                    <li><span class="ft-file">base.py</span> <span class="ft-comment"># Shared settings</span></li>
+                    <li><span class="ft-file">development.py</span> <span class="ft-comment"># Dev overrides</span></li>
+                    <li><span class="ft-file">production.py</span> <span class="ft-comment"># Prod overrides</span></li>
+                    <li><span class="ft-file">testing.py</span> <span class="ft-comment"># Test-specific settings</span></li>
+                  </ul>
+                </li>
+                <li><span class="ft-file">urls.py</span></li>
+                <li><span class="ft-file">wsgi.py</span></li>
+                <li><span class="ft-file">asgi.py</span></li>
+              </ul>
+            </li>
+            <li><span class="ft-dir">apps/</span> <span class="ft-comment"># All Django apps live here</span>
+              <ul>
+                <li><span class="ft-dir">users/</span>
+                  <ul>
+                    <li><span class="ft-file">models.py</span></li>
+                    <li><span class="ft-file">views.py</span></li>
+                    <li><span class="ft-file">serializers.py</span></li>
+                    <li><span class="ft-file">services.py</span> <span class="ft-comment"># Business logic</span></li>
+                    <li><span class="ft-file">selectors.py</span> <span class="ft-comment"># Read queries</span></li>
+                    <li><span class="ft-file">permissions.py</span></li>
+                    <li><span class="ft-file">filters.py</span></li>
+                    <li><span class="ft-file">tasks.py</span> <span class="ft-comment"># Celery tasks</span></li>
+                    <li><span class="ft-dir">tests/</span></li>
+                  </ul>
+                </li>
+                <li><span class="ft-dir">orders/</span></li>
+              </ul>
+            </li>
+            <li><span class="ft-dir">common/</span> <span class="ft-comment"># Shared utilities</span>
+              <ul>
+                <li><span class="ft-file">models.py</span> <span class="ft-comment"># Abstract base models</span></li>
+                <li><span class="ft-file">serializers.py</span></li>
+                <li><span class="ft-file">permissions.py</span></li>
+                <li><span class="ft-file">exceptions.py</span></li>
+              </ul>
+            </li>
+            <li><span class="ft-dir">requirements/</span>
+              <ul>
+                <li><span class="ft-file">base.txt</span></li>
+                <li><span class="ft-file">development.txt</span></li>
+                <li><span class="ft-file">production.txt</span></li>
+              </ul>
+            </li>
+            <li><span class="ft-file">.env.example</span> <span class="ft-comment"># Commit this</span></li>
+            <li><span class="ft-file">.env</span> <span class="ft-comment"># Never commit this</span></li>
+            <li><span class="ft-file">docker-compose.yml</span></li>
+          </ul>
+        </li>
+      </ul>
     </div>
 
     <h3>Architecture Pattern: Services + Selectors</h3>

@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Channels — Definitive Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #8B9A8E;
+            --sage-light: #B5C4B8;
+            --sage-dark: #5F6D63;
+            --cream: #F5F3EE;
+            --cream-dark: #E8E4DC;
+            --charcoal: #2C2C2C;
+            --charcoal-light: #4A4A4A;
+            --gold: #C9A86A;
+            --gold-light: #DCC592;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --shadow-strong: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::selection {
+            background-color: var(--sage-light);
+            color: var(--charcoal);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            font-family: 'Crimson Pro', Georgia, serif;
+            background: linear-gradient(135deg, #F5F3EE 0%, #E8E4DC 100%);
+            color: var(--charcoal);
+            line-height: 1.8;
+            font-size: 18px;
+            overflow-x: hidden;
+        }
+
+        /* Decorative background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(139, 154, 142, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(201, 168, 106, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Floating decorative elements */
+        .floating-shape {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.06;
+            z-index: 0;
+        }
+
+        .floating-shape.circle-1 {
+            top: 10%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--sage), transparent);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .floating-shape.circle-2 {
+            bottom: 15%;
+            left: 5%;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--gold), transparent);
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        .floating-shape.square {
+            top: 50%;
+            left: 8%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--sage-light);
+            border-radius: 20px;
+            transform: rotate(45deg);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-30px) translateX(20px); }
+            50% { transform: translateY(-60px) translateX(0px); }
+            75% { transform: translateY(-30px) translateX(-20px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(45deg); }
+            to { transform: rotate(405deg); }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        header::before {
+            content: '◇';
+            display: block;
+            font-size: 24px;
+            color: var(--sage);
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 64px;
+            font-weight: 600;
+            color: var(--charcoal);
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 22px;
+            color: var(--sage-dark);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            font-weight: 300;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.6s forwards;
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--sage), transparent);
+            margin: 60px auto;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 80px;
+            box-shadow: 0 10px 40px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.9s forwards;
+        }
+
+        nav h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--charcoal);
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .toc {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            list-style: none;
+        }
+
+        .toc li {
+            position: relative;
+        }
+
+        .toc a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--charcoal);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            font-size: 16px;
+        }
+
+        .toc a::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--sage-light);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toc a:hover {
+            background: white;
+            border-color: var(--sage-light);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .toc a:hover::before {
+            background: var(--gold);
+            transform: scale(1.3);
+        }
+
+        /* Content sections */
+        section {
+            margin-bottom: 100px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: calc(var(--index) * 0.1s);
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: var(--charcoal);
+            margin-bottom: 30px;
+            margin-top: 60px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--sage), var(--gold-light));
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--charcoal);
+            margin: 40px 0 20px;
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 22px;
+            color: var(--charcoal-light);
+            margin: 30px 0 15px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 20px;
+            line-height: 1.9;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+
+        em {
+            color: var(--sage-dark);
+            font-style: italic;
+        }
+
+        /* Code blocks */
+        pre {
+            background: linear-gradient(135deg, rgba(44, 44, 44, 0.97) 0%, rgba(44, 44, 44, 0.95) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        pre::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.3;
+        }
+
+        pre::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5f56;
+            box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #E8E4DC;
+        }
+
+        pre code {
+            display: block;
+            padding-top: 20px;
+        }
+
+        p code,
+        li code {
+            background: rgba(139, 154, 142, 0.1);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 16px;
+            color: var(--sage-dark);
+            border: 1px solid rgba(139, 154, 142, 0.2);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 30px 0;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+        }
+
+        thead th {
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--cream-dark);
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(139, 154, 142, 0.05);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 18px 20px;
+            font-size: 16px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+
+        ul li::marker {
+            color: var(--sage);
+        }
+
+        /* Blockquotes */
+        blockquote {
+            background: rgba(255, 255, 255, 0.6);
+            border-left: 4px solid var(--gold);
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            color: var(--charcoal-light);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        /* Special boxes */
+        .note {
+            background: linear-gradient(135deg, rgba(139, 154, 142, 0.1) 0%, rgba(139, 154, 142, 0.05) 100%);
+            border-left: 4px solid var(--sage);
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, rgba(201, 168, 106, 0.1) 0%, rgba(201, 168, 106, 0.05) 100%);
+            border-left: 4px solid var(--gold);
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 20px var(--shadow-strong);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px var(--shadow-strong);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 80px 0 60px;
+            color: var(--sage-dark);
+            font-size: 16px;
+        }
+
+        footer::before {
+            content: '◇';
+            display: block;
+            font-size: 20px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--sage), var(--gold));
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.1s ease-out;
+            z-index: 9999;
+        }
+
+        /* Section icons */
+        .section-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(139, 154, 142, 0.1), rgba(201, 168, 106, 0.1));
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(139, 154, 142, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-icon:hover {
+            transform: translateY(-4px) rotate(5deg);
+            box-shadow: 0 8px 24px rgba(139, 154, 142, 0.2);
+        }
+
+        .section-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: none;
+            stroke: var(--sage-dark);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Hero illustration */
+        .hero-illustration {
+            max-width: 600px;
+            margin: 60px auto;
+            opacity: 0;
+            animation: fadeIn 1.2s ease-out 1.2s forwards;
+        }
+
+        .hero-illustration svg {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Architecture diagram enhancement */
+        .architecture-visual {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(139, 154, 142, 0.2);
+        }
+
+        /* Component cards with icons */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .component-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border-radius: 16px;
+            padding: 30px;
+            border: 2px solid rgba(139, 154, 142, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .component-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--sage), var(--gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .component-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            border-color: var(--sage-light);
+        }
+
+        .component-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .component-card h4 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .component-card p {
+            font-size: 16px;
+            color: var(--charcoal-light);
+            line-height: 1.6;
+        }
+
+        .component-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--sage-light), var(--sage));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .component-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Visual separator */
+        .visual-separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 80px 0;
+            gap: 20px;
+        }
+
+        .visual-separator::before,
+        .visual-separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--sage-light), transparent);
+        }
+
+        .visual-separator svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--sage);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Decorative corner elements */
+        .section-corner {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .section-corner.top-left {
+            top: 0;
+            left: 0;
+        }
+
+        .section-corner.bottom-right {
+            bottom: 0;
+            right: 0;
+            transform: rotate(180deg);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 24px;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            .subtitle {
+                font-size: 18px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            nav {
+                padding: 30px 24px;
+            }
+
+            .toc {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            pre {
+                padding: 20px;
+            }
+
+            code {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorative shapes -->
+    <div class="floating-shape circle-1"></div>
+    <div class="floating-shape circle-2"></div>
+    <div class="floating-shape square"></div>
+    
+    <div class="progress-bar"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Django Channels</h1>
+            <p class="subtitle">A comprehensive guide to WebSockets, async protocols, and real-time Django applications. Every setup detail, configuration option, pattern, and gotcha — nothing left to guessing.</p>
+            
+            <!-- Hero Illustration -->
+            <div class="hero-illustration">
+                <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Server/Backend -->
+                    <g opacity="0.9">
+                        <rect x="30" y="120" width="120" height="80" rx="12" fill="#8B9A8E" opacity="0.2"/>
+                        <rect x="35" y="125" width="110" height="70" rx="10" fill="none" stroke="#8B9A8E" stroke-width="2"/>
+                        <circle cx="90" cy="160" r="20" fill="#8B9A8E" opacity="0.3"/>
+                        <path d="M 80 160 L 90 150 L 100 160 L 90 170 Z" fill="#5F6D63"/>
+                        <text x="90" y="190" text-anchor="middle" font-size="12" fill="#2C2C2C" font-family="Crimson Pro">ASGI</text>
+                    </g>
+                    
+                    <!-- WebSocket Connection (animated waves) -->
+                    <g>
+                        <path d="M 150 160 Q 225 140, 300 160" stroke="#C9A86A" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.6">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M 150 160 Q 225 180, 300 160" stroke="#8B9A8E" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.4">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1.5s" repeatCount="indefinite"/>
+                        </path>
+                        <circle cx="225" cy="160" r="4" fill="#C9A86A" opacity="0.8">
+                            <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+                    
+                    <!-- Client/Browser -->
+                    <g opacity="0.9">
+                        <rect x="450" y="120" width="120" height="80" rx="12" fill="#C9A86A" opacity="0.2"/>
+                        <rect x="455" y="125" width="110" height="70" rx="10" fill="none" stroke="#C9A86A" stroke-width="2"/>
+                        <rect x="470" y="140" width="80" height="40" rx="4" fill="white" opacity="0.6"/>
+                        <line x1="475" y1="145" x2="545" y2="145" stroke="#8B9A8E" stroke-width="1"/>
+                        <line x1="475" y1="152" x2="530" y2="152" stroke="#8B9A8E" stroke-width="1" opacity="0.5"/>
+                        <line x1="475" y1="159" x2="540" y2="159" stroke="#8B9A8E" stroke-width="1" opacity="0.5"/>
+                        <text x="510" y="190" text-anchor="middle" font-size="12" fill="#2C2C2C" font-family="Crimson Pro">Client</text>
+                    </g>
+                    
+                    <!-- Channel Layer (Redis) -->
+                    <g opacity="0.9">
+                        <rect x="240" y="40" width="120" height="60" rx="12" fill="#B5C4B8" opacity="0.2"/>
+                        <rect x="245" y="45" width="110" height="50" rx="10" fill="none" stroke="#8B9A8E" stroke-width="2" stroke-dasharray="3,3"/>
+                        <circle cx="300" cy="70" r="15" fill="none" stroke="#5F6D63" stroke-width="2"/>
+                        <circle cx="300" cy="70" r="10" fill="none" stroke="#5F6D63" stroke-width="1.5"/>
+                        <circle cx="300" cy="70" r="5" fill="#5F6D63"/>
+                        <text x="300" y="110" text-anchor="middle" font-size="11" fill="#2C2C2C" font-family="Crimson Pro">Channel Layer</text>
+                    </g>
+                    
+                    <!-- Connection lines to Channel Layer -->
+                    <line x1="90" y1="120" x2="270" y2="95" stroke="#8B9A8E" stroke-width="1.5" opacity="0.3" stroke-dasharray="2,2"/>
+                    <line x1="510" y1="120" x2="330" y2="95" stroke="#C9A86A" stroke-width="1.5" opacity="0.3" stroke-dasharray="2,2"/>
+                    
+                    <!-- Database -->
+                    <g opacity="0.8">
+                        <ellipse cx="300" cy="240" rx="50" ry="15" fill="#8B9A8E" opacity="0.2"/>
+                        <ellipse cx="300" cy="240" rx="50" ry="15" fill="none" stroke="#5F6D63" stroke-width="2"/>
+                        <line x1="250" y1="240" x2="250" y2="260" stroke="#5F6D63" stroke-width="2"/>
+                        <line x1="350" y1="240" x2="350" y2="260" stroke="#5F6D63" stroke-width="2"/>
+                        <ellipse cx="300" cy="260" rx="50" ry="15" fill="none" stroke="#5F6D63" stroke-width="2"/>
+                        <text x="300" y="285" text-anchor="middle" font-size="11" fill="#2C2C2C" font-family="Crimson Pro">Django DB</text>
+                    </g>
+                    
+                    <!-- Data flow arrows -->
+                    <path d="M 90 200 L 280 235" stroke="#8B9A8E" stroke-width="1" opacity="0.3" marker-end="url(#arrowhead)"/>
+                    <path d="M 510 200 L 320 235" stroke="#C9A86A" stroke-width="1" opacity="0.3" marker-end="url(#arrowhead2)"/>
+                    
+                    <!-- Arrow markers -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#8B9A8E" opacity="0.3"/>
+                        </marker>
+                        <marker id="arrowhead2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#C9A86A" opacity="0.3"/>
+                        </marker>
+                    </defs>
+                    
+                    <!-- Decorative elements -->
+                    <circle cx="100" cy="50" r="3" fill="#C9A86A" opacity="0.3">
+                        <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="500" cy="50" r="3" fill="#8B9A8E" opacity="0.3">
+                        <animate attributeName="opacity" values="0.3;0.6;0.3" dur="4s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+            </div>
+            
+            <div class="divider"></div>
+        </header>
+
+        <nav>
+            <h2>Table of Contents</h2>
+            <ol class="toc">
+                <li><a href="#architecture">Architecture — How It Works</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#structure">Project Structure</a></li>
+                <li><a href="#setup">Core Setup Files</a></li>
+                <li><a href="#settings">Settings Reference</a></li>
+                <li><a href="#asgi">ASGI Configuration</a></li>
+                <li><a href="#routing">Routing — URLs for WebSockets</a></li>
+                <li><a href="#consumers">Writing Consumers</a></li>
+                <li><a href="#authentication">Authentication & Middleware</a></li>
+                <li><a href="#channel-layers">Channel Layers</a></li>
+                <li><a href="#groups">Groups — Broadcasting</a></li>
+                <li><a href="#database">Database Access</a></li>
+                <li><a href="#testing">Testing WebSockets</a></li>
+                <li><a href="#deployment">Deployment — Daphne & Nginx</a></li>
+                <li><a href="#performance">Performance & Scaling</a></li>
+                <li><a href="#security">Security Checklist</a></li>
+                <li><a href="#patterns">Common Patterns</a></li>
+                <li><a href="#debugging">Debugging & Monitoring</a></li>
+                <li><a href="#errors">Common Errors & Fixes</a></li>
+                <li><a href="#reference">Quick Reference</a></li>
+            </ol>
+        </nav>
+
+        <section id="architecture" style="--index: 1">
+            <div class="section-icon">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <line x1="10" y1="6.5" x2="14" y2="6.5"/>
+                    <line x1="10" y1="17.5" x2="14" y2="17.5"/>
+                    <line x1="6.5" y1="10" x2="6.5" y2="14"/>
+                    <line x1="17.5" y1="10" x2="17.5" y2="14"/>
+                </svg>
+            </div>
+            
+            <h2>1. Architecture — How It Works</h2>
+            <p>Understanding the architecture is essential before writing a single line of code.</p>
+            
+            <div class="architecture-visual">
+                <pre><code>Client Browser
+      │
+      │  WebSocket connection: ws://example.com/ws/chat/
+      ▼
+  ASGI Server (Daphne/Uvicorn)
+  - Handles async protocols (WebSocket, HTTP/2)
+  - One process per server instance
+      │
+      │  Routes to appropriate Consumer
+      ▼
+  WebSocket Consumer
+  - Async Python class handling connection lifecycle
+  - connect() → accept/reject
+  - receive() → handle incoming messages
+  - disconnect() → cleanup
+      │
+      │  Cross-consumer messaging via Channel Layer
+      ▼
+  Channel Layer (Redis)
+  - Message broker for server-to-server communication
+  - Enables broadcasting to groups
+  - NOT for client messages (those go directly to consumer)
+      │
+      │  Consumers can query Django ORM
+      ▼
+  Django Database
+  - Accessed via database_sync_to_async() wrapper
+  - Same models, same ORM as traditional Django</code></pre>
+            </div>
+
+            <h3>Components and their roles</h3>
+            
+            <div class="component-grid">
+                <div class="component-card">
+                    <div class="component-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                            <path d="M2 17L12 22L22 17"/>
+                            <path d="M2 12L12 17L22 12"/>
+                        </svg>
+                    </div>
+                    <h4>ASGI Server</h4>
+                    <p>Async-capable web server that handles WebSocket protocol. Our choice: <strong>Daphne</strong></p>
+                </div>
+                
+                <div class="component-card">
+                    <div class="component-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
+                    <h4>Consumer</h4>
+                    <p>Python class handling WebSocket lifecycle: connect, receive, disconnect</p>
+                </div>
+                
+                <div class="component-card">
+                    <div class="component-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <h4>Routing</h4>
+                    <p>Maps WebSocket URLs to Consumers via <code>websocket_urlpatterns</code></p>
+                </div>
+                
+                <div class="component-card">
+                    <div class="component-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="6"/>
+                            <circle cx="12" cy="12" r="2"/>
+                        </svg>
+                    </div>
+                    <h4>Channel Layer</h4>
+                    <p>Message broker for cross-consumer communication. Redis via <code>channels_redis</code></p>
+                </div>
+                
+                <div class="component-card">
+                    <div class="component-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/>
+                            <path d="M12 6V12L16 14"/>
+                        </svg>
+                    </div>
+                    <h4>Middleware</h4>
+                    <p>Auth, session handling, custom logic. <code>AuthMiddlewareStack</code> and custom</p>
+                </div>
+            </div>
+
+            <div class="note">
+                <p><strong>Critical principles:</strong></p>
+                <ol>
+                    <li><strong>ASGI vs WSGI:</strong> Django's traditional WSGI server (Gunicorn, uWSGI) cannot handle WebSockets. You <strong>must</strong> use an ASGI server (Daphne, Uvicorn) for Channels.</li>
+                    <li><strong>Async by default:</strong> Channels consumers run in async mode. Blocking calls (ORM queries, file I/O, HTTP requests) must be wrapped in <code>sync_to_async()</code> or <code>database_sync_to_async()</code>.</li>
+                    <li><strong>Channel Layer is optional:</strong> You can build simple WebSocket apps without a channel layer. You need it only when broadcasting to multiple clients, sending messages from Django views, or running multiple ASGI server instances.</li>
+                    <li><strong>Separate processes:</strong> The ASGI server handling WebSockets is a separate OS process from your traditional WSGI server handling HTTP requests. They communicate via the database or channel layer — never shared memory.</li>
+                </ol>
+            </div>
+            
+            <div class="visual-separator">
+                <svg viewBox="0 0 24 24">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </div>
+        </section>
+
+        <section id="installation" style="--index: 2">
+            <div class="section-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 16V8C20.9996 7.64927 20.9071 7.30481 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.27L13 2.27C12.696 2.09446 12.3511 2.00205 12 2.00205C11.6489 2.00205 11.304 2.09446 11 2.27L4 6.27C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.30481 3.00036 7.64927 3 8V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z"/>
+                    <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+                    <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+                    <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+            </div>
+            
+            <h2>2. Installation</h2>
+            <pre><code>pip install channels daphne channels-redis</code></pre>
+
+            <h3>What each package does and why you need it</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Min Version</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>channels</code></td>
+                        <td>4.0+</td>
+                        <td>Core WebSocket/async protocol framework for Django</td>
+                    </tr>
+                    <tr>
+                        <td><code>daphne</code></td>
+                        <td>4.0+</td>
+                        <td>Official ASGI server — runs your WebSocket application</td>
+                    </tr>
+                    <tr>
+                        <td><code>channels-redis</code></td>
+                        <td>4.1+</td>
+                        <td>Redis-backed channel layer for broadcasting and cross-server messaging</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Optional but recommended:</p>
+            <pre><code>pip install msgpack  # Faster serialization for channel layer messages</code></pre>
+
+            <p>Add all to <code>requirements.txt</code>. Pin minor versions in production to prevent breaking changes.</p>
+            
+            <div class="visual-separator">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+        </section>
+
+        <section id="structure" style="--index: 3">
+            <h2>3. Project Structure</h2>
+            <pre><code>myproject/
+├── manage.py
+├── myproject/
+│   ├── __init__.py
+│   ├── asgi.py              ← ASGI application definition (replaces wsgi.py for Channels)
+│   ├── wsgi.py              ← Keep this for traditional HTTP traffic via Gunicorn
+│   ├── routing.py           ← WebSocket URL routing (like urls.py but for WS)
+│   └── settings/
+│       ├── base.py          ← INSTALLED_APPS includes 'channels'
+│       ├── development.py
+│       └── production.py
+├── apps/
+│   ├── chat/
+│   │   ├── models.py        ← ChatRoom, Message models
+│   │   ├── consumers.py     ← WebSocket consumers (like views.py for WS)
+│   │   ├── routing.py       ← App-specific WebSocket routes
+│   │   └── tests.py
+│   ├── notifications/
+│   │   ├── consumers.py
+│   │   ├── routing.py
+│   │   └── signals.py       ← Can trigger WebSocket messages from Django signals
+│   └── live_updates/
+│       ├── consumers.py
+│       └── routing.py
+└── requirements.txt</code></pre>
+
+            <p><strong>Rule:</strong> Every Django app that handles WebSockets gets its own <code>consumers.py</code> and <code>routing.py</code>. The project-level <code>routing.py</code> imports and combines them all.</p>
+        </section>
+
+        <section id="setup" style="--index: 4">
+            <h2>4. Core Setup Files</h2>
+
+            <h3>File 1: Add Channels to INSTALLED_APPS</h3>
+            <pre><code># settings/base.py
+
+INSTALLED_APPS = [
+    # Channels MUST come before django.contrib.staticfiles
+    # to override the staticfiles handler for development server
+    "daphne",  # Add this at the very top
+    
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    
+    # Your apps
+    "apps.chat",
+    "apps.notifications",
+    
+    # Channels framework
+    "channels",
+]
+
+# Tell Django to use Channels' ASGI application
+ASGI_APPLICATION = "myproject.asgi.application"</code></pre>
+
+            <div class="warning">
+                <p><strong>Critical:</strong> <code>daphne</code> must be at the <strong>top</strong> of <code>INSTALLED_APPS</code>. This ensures Channels takes over from Django's default <code>runserver</code> command.</p>
+            </div>
+
+            <h3>File 2: myproject/asgi.py</h3>
+            <p>This is the ASGI equivalent of <code>wsgi.py</code>. Create it manually if it doesn't exist.</p>
+            <pre><code>import os
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+# Set Django settings module before importing anything Django-related
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings.base")
+
+# Initialize Django ASGI application early to ensure AppRegistry is populated
+# before importing routing which may import models
+django_asgi_app = get_asgi_application()
+
+# Import routing AFTER get_asgi_application() to avoid AppRegistryNotReady
+from myproject.routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter({
+    # Django's ASGI application handles traditional HTTP requests
+    "http": django_asgi_app,
+    
+    # WebSocket connections routed through our custom URL patterns
+    # AuthMiddlewareStack populates scope with user from session
+    "websocket": AuthMiddlewareStack(
+        URLRouter(websocket_urlpatterns)
+    ),
+})</code></pre>
+
+            <div class="warning">
+                <p><strong>Order matters:</strong> Call <code>get_asgi_application()</code> <strong>before</strong> importing any code that touches Django models. Otherwise you'll get <code>AppRegistryNotReady</code> errors.</p>
+            </div>
+
+            <h3>File 3: myproject/routing.py</h3>
+            <p>Project-level WebSocket routing. Like <code>urls.py</code> but for WebSocket paths.</p>
+            <pre><code>from django.urls import path
+from channels.routing import URLRouter
+
+# Import app-specific WebSocket routes
+from apps.chat.routing import websocket_urlpatterns as chat_ws_urls
+from apps.notifications.routing import websocket_urlpatterns as notification_ws_urls
+
+# Combine all WebSocket URL patterns
+websocket_urlpatterns = [
+    # URLRouter allows us to organize routes by app
+    path("ws/chat/", URLRouter(chat_ws_urls)),
+    path("ws/notifications/", URLRouter(notification_ws_urls)),
+]</code></pre>
+
+            <h3>File 4: App-Level Routing — apps/chat/routing.py</h3>
+            <pre><code>from django.urls import path
+from . import consumers
+
+websocket_urlpatterns = [
+    # ws://example.com/ws/chat/room/42/
+    path("room/&lt;int:room_id&gt;/", consumers.ChatConsumer.as_asgi()),
+    
+    # ws://example.com/ws/chat/private/&lt;str:username&gt;/
+    path("private/&lt;str:username&gt;/", consumers.PrivateChatConsumer.as_asgi()),
+]</code></pre>
+
+            <p><strong>URL parameters:</strong> Just like Django's HTTP <code>path()</code>, you can capture parameters (<code>&lt;int:room_id&gt;</code>) which are passed to the consumer in <code>self.scope["url_route"]["kwargs"]</code>.</p>
+        </section>
+
+        <section id="settings" style="--index: 5">
+            <h2>5. Settings Reference</h2>
+            <p>All Channels-specific settings live in <code>settings.py</code>.</p>
+
+            <pre><code># ─────────────────────────────────────────────────────────────────
+# CORE CHANNELS SETTINGS
+# ─────────────────────────────────────────────────────────────────
+
+# Tell Django which ASGI application to use
+ASGI_APPLICATION = "myproject.asgi.application"
+
+# ─────────────────────────────────────────────────────────────────
+# CHANNEL LAYER — for broadcasting and cross-server messaging
+# ─────────────────────────────────────────────────────────────────
+
+# Production: Redis-backed channel layer
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+            
+            # Or with password:
+            # "hosts": [("redis://:<password>@<host>:6379/1")],
+            
+            # Use a different Redis DB than Celery broker (avoid conflicts)
+            # Redis DB 1 for channel layer, DB 0 for Celery broker
+            
+            # Connection pool settings
+            "capacity": 1500,  # max messages per channel before dropping old ones
+            "expiry": 10,      # message expiry in seconds (prevents stale messages)
+            
+            # Symmetric encryption key for message security (optional but recommended)
+            "symmetric_encryption_keys": [
+                os.environ.get("CHANNEL_LAYER_ENCRYPTION_KEY", "")
+            ],
+        },
+    },
+}
+
+# ─────────────────────────────────────────────────────────────────
+# WEBSOCKET SETTINGS
+# ─────────────────────────────────────────────────────────────────
+
+# Maximum time (seconds) to wait for a WebSocket handshake to complete
+WEBSOCKET_CONNECT_TIMEOUT = 5
+
+# Maximum size (bytes) of a WebSocket message frame
+# 1MB = 1048576 bytes
+WEBSOCKET_MESSAGE_SIZE_LIMIT = 1048576
+
+# ─────────────────────────────────────────────────────────────────
+# ALLOWED_HOSTS — required for WebSocket connections
+# ─────────────────────────────────────────────────────────────────
+
+# WebSocket connections check Host header just like HTTP
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "example.com",
+    "www.example.com",
+]</code></pre>
+
+            <h3>Channel Layer Backends Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Backend</th>
+                        <th>Use Case</th>
+                        <th>Pros</th>
+                        <th>Cons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>channels_redis.core.RedisChannelLayer</code></td>
+                        <td>Production (multi-server)</td>
+                        <td>Fast, persistent across restarts, supports multiple servers</td>
+                        <td>Requires Redis</td>
+                    </tr>
+                    <tr>
+                        <td><code>channels.layers.InMemoryChannelLayer</code></td>
+                        <td>Development (single-server)</td>
+                        <td>No external dependencies, fast</td>
+                        <td>Lost on restart, single-server only</td>
+                    </tr>
+                    <tr>
+                        <td>No channel layer (<code>{}</code>)</td>
+                        <td>Testing, simple apps</td>
+                        <td>Fastest, no setup</td>
+                        <td>No broadcasting, no cross-server messaging</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="consumers" style="--index: 8">
+            <div class="section-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="16 18 22 12 16 6"/>
+                    <polyline points="8 6 2 12 8 18"/>
+                </svg>
+            </div>
+            
+            <h2>8. Writing Consumers</h2>
+            <p>Consumers are the WebSocket equivalent of Django views. They handle the connection lifecycle.</p>
+
+            <h3>Consumer Types</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>When to Use</th>
+                        <th>Sync/Async</th>
+                        <th>Database Access</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>AsyncWebsocketConsumer</code></td>
+                        <td><strong>Default choice</strong> — fastest, handles async naturally</td>
+                        <td>Async</td>
+                        <td>Wrap ORM in <code>database_sync_to_async()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>WebsocketConsumer</code></td>
+                        <td>Legacy code, heavy sync operations</td>
+                        <td>Sync</td>
+                        <td>Direct ORM access (blocking)</td>
+                    </tr>
+                    <tr>
+                        <td><code>AsyncJsonWebsocketConsumer</code></td>
+                        <td>Auto JSON encode/decode</td>
+                        <td>Async</td>
+                        <td>Wrap ORM in <code>database_sync_to_async()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>JsonWebsocketConsumer</code></td>
+                        <td>Auto JSON encode/decode</td>
+                        <td>Sync</td>
+                        <td>Direct ORM access (blocking)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Always prefer <code>AsyncWebsocketConsumer</code></strong> unless you have a specific reason not to.</p>
+
+            <h3>Minimal Consumer</h3>
+            <pre><code># apps/chat/consumers.py
+from channels.generic.websocket import AsyncWebsocketConsumer
+import json
+
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        """
+        Called when WebSocket handshake is complete.
+        Accept or reject the connection here.
+        """
+        # Accept the connection
+        await self.accept()
+        
+        # Or reject:
+        # await self.close()
+    
+    async def disconnect(self, close_code):
+        """
+        Called when WebSocket connection is closed.
+        Cleanup happens here.
+        """
+        pass
+    
+    async def receive(self, text_data):
+        """
+        Called when we receive a message from the WebSocket.
+        text_data is a string (for text frames).
+        For binary frames, use receive(self, bytes_data).
+        """
+        # Parse JSON
+        data = json.loads(text_data)
+        message = data.get("message", "")
+        
+        # Echo it back
+        await self.send(text_data=json.dumps({
+            "message": message
+        }))</code></pre>
+        </section>
+
+        <section id="database" style="--index: 12">
+            <div class="section-icon">
+                <svg viewBox="0 0 24 24">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                    <path d="M21 12C21 13.66 16.97 15 12 15C7.03 15 3 13.66 3 12"/>
+                    <path d="M3 5V19C3 20.66 7.03 22 12 22C16.97 22 21 20.66 21 19V5"/>
+                </svg>
+            </div>
+            
+            <h2>12. Database Access in Async Consumers</h2>
+            <p>Django's ORM is <strong>synchronous</strong> — it blocks. In async consumers, blocking the event loop kills performance.</p>
+
+            <h3>The Problem</h3>
+            <pre><code># ❌ WRONG — blocks the event loop
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # This blocks ALL other WebSocket connections handled by this worker
+        user = User.objects.get(id=1)  # BLOCKING CALL
+        await self.accept()</code></pre>
+
+            <h3>The Solution: database_sync_to_async</h3>
+            <pre><code>from channels.db import database_sync_to_async
+
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # Run blocking ORM call in a thread pool
+        user = await self.get_user(user_id=1)
+        await self.accept()
+    
+    @database_sync_to_async
+    def get_user(self, user_id):
+        """
+        Decorated function runs in a thread pool.
+        Returns the result to the async caller.
+        """
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        return User.objects.get(id=user_id)</code></pre>
+
+            <div class="warning">
+                <p><strong>Critical rule:</strong> Always <strong>return a list</strong> from QuerySet operations. QuerySets are lazy and not thread-safe across async boundaries. Use <code>list(queryset)</code> to force evaluation inside the sync context.</p>
+            </div>
+        </section>
+
+        <section id="security" style="--index: 16">
+            <div class="section-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z"/>
+                    <path d="M9 12L11 14L15 10"/>
+                </svg>
+            </div>
+            
+            <h2>16. Security Checklist</h2>
+            
+            <h3>✅ Essential Security Measures</h3>
+            <ul>
+                <li>☑ <strong>HTTPS only in production</strong> — Use <code>wss://</code> not <code>ws://</code></li>
+                <li>☑ <strong>Origin validation</strong> — Use <code>AllowedHostsOriginValidator</code> in ASGI config</li>
+                <li>☑ <strong>ALLOWED_HOSTS</strong> — Set correctly for WebSocket handshake validation</li>
+                <li>☑ <strong>Authentication required</strong> — Reject unauthenticated connections unless truly public</li>
+                <li>☑ <strong>Rate limiting</strong> — Prevent spam/DoS on message reception</li>
+                <li>☑ <strong>Input validation</strong> — Never trust client data, validate all incoming messages</li>
+                <li>☑ <strong>Message size limits</strong> — Set <code>WEBSOCKET_MESSAGE_SIZE_LIMIT</code> to prevent memory exhaustion</li>
+                <li>☑ <strong>Token security</strong> — Use <code>Sec-WebSocket-Protocol</code> header for JWT, not query string</li>
+                <li>☑ <strong>Channel layer encryption</strong> — Enable <code>symmetric_encryption_keys</code> in production</li>
+                <li>☑ <strong>CSRF protection</strong> — <code>AllowedHostsOriginValidator</code> provides basic protection</li>
+                <li>☑ <strong>Connection timeout</strong> — Set reasonable <code>WEBSOCKET_CONNECT_TIMEOUT</code></li>
+                <li>☑ <strong>Permission checks</strong> — Validate user permissions in <code>connect()</code> before accepting</li>
+                <li>☑ <strong>SQL injection</strong> — Use ORM parameterized queries, never raw SQL with user input</li>
+                <li>☑ <strong>XSS protection</strong> — Sanitize HTML in messages if rendering in browser</li>
+                <li>☑ <strong>Logging</strong> — Log all connection attempts, failures, and suspicious activity</li>
+            </ul>
+        </section>
+
+        <section id="errors" style="--index: 19">
+            <h2>19. Common Errors & Fixes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Error</th>
+                        <th>Root Cause</th>
+                        <th>Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>AppRegistryNotReady</code> on Daphne start</td>
+                        <td>Importing models before Django initialized</td>
+                        <td>Call <code>get_asgi_application()</code> before importing routing</td>
+                    </tr>
+                    <tr>
+                        <td><code>AttributeError: 'NoneType' object has no attribute 'group_add'</code></td>
+                        <td>Channel layer not configured</td>
+                        <td>Add <code>CHANNEL_LAYERS</code> to settings; check Redis connection</td>
+                    </tr>
+                    <tr>
+                        <td><code>WebSocket connection failed</code> in browser</td>
+                        <td>Wrong URL or Daphne not running</td>
+                        <td>Verify Daphne is running; check URL starts with <code>ws://</code> or <code>wss://</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>Origin header does not match allowed origins</code></td>
+                        <td>CORS/origin validation failure</td>
+                        <td>Add domain to <code>ALLOWED_HOSTS</code>; use <code>AllowedHostsOriginValidator</code></td>
+                    </tr>
+                    <tr>
+                        <td>Consumer never receives messages</td>
+                        <td>Not in group or wrong group name</td>
+                        <td>Verify <code>group_add()</code> called; check group name matches <code>group_send()</code></td>
+                    </tr>
+                    <tr>
+                        <td>Database query blocks all connections</td>
+                        <td>Using sync ORM in async consumer</td>
+                        <td>Wrap queries in <code>database_sync_to_async()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>RuntimeError: This event loop is already running</code></td>
+                        <td>Mixing sync/async incorrectly</td>
+                        <td>Use <code>async_to_sync()</code> when calling async from sync</td>
+                    </tr>
+                    <tr>
+                        <td>High memory usage over time</td>
+                        <td>Connections not cleaned up</td>
+                        <td>Implement proper <code>disconnect()</code> cleanup</td>
+                    </tr>
+                    <tr>
+                        <td>Connection drops after 60 seconds</td>
+                        <td>Nginx/proxy timeout</td>
+                        <td>Increase <code>proxy_read_timeout</code> in Nginx config</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="reference" style="--index: 20">
+            <h2>20. Quick Reference</h2>
+            
+            <h3>Development Commands</h3>
+            <pre><code># Start Daphne development server
+python manage.py runserver  # Channels takes over if daphne is in INSTALLED_APPS
+
+# Or run Daphne directly
+daphne -b 0.0.0.0 -p 8000 myproject.asgi:application
+
+# Check configuration
+python manage.py check
+
+# Run migrations
+python manage.py migrate</code></pre>
+
+            <h3>Consumer Quick Reference</h3>
+            <pre><code>from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+import json
+
+class MyConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        # Accept or reject connection
+        await self.accept()
+    
+    async def disconnect(self, close_code):
+        # Cleanup
+        pass
+    
+    async def receive(self, text_data):
+        # Handle incoming message
+        data = json.loads(text_data)
+        await self.send(text_data=json.dumps({"response": "ok"}))
+    
+    # Group operations
+    async def join_group(self, group_name):
+        await self.channel_layer.group_add(group_name, self.channel_name)
+    
+    async def broadcast_to_group(self, group_name, message):
+        await self.channel_layer.group_send(
+            group_name,
+            {"type": "group_message", "text": message}
+        )
+    
+    # Database access
+    @database_sync_to_async
+    def get_data(self):
+        from apps.myapp.models import MyModel
+        return list(MyModel.objects.all())</code></pre>
+
+            <h3>Client-Side JavaScript</h3>
+            <pre><code>// Connect to WebSocket
+const ws = new WebSocket('ws://localhost:8000/ws/chat/1/');
+
+// Connection opened
+ws.onopen = (event) => {
+    console.log('WebSocket connected');
+    ws.send(JSON.stringify({
+        type: 'chat_message',
+        message: 'Hello, server!'
+    }));
+};
+
+// Receive message
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    console.log('Message from server:', data);
+};
+
+// Connection closed
+ws.onclose = (event) => {
+    console.log('WebSocket closed:', event.code);
+};
+
+// Send message
+function sendMessage(message) {
+    ws.send(JSON.stringify({
+        type: 'chat_message',
+        message: message
+    }));
+}</code></pre>
+        </section>
+
+        <footer>
+            <!-- Footer illustration -->
+            <svg width="200" height="100" viewBox="0 0 200 100" style="margin: 0 auto 40px; display: block; opacity: 0.3;">
+                <path d="M 20 80 Q 50 20, 100 50 T 180 80" stroke="#8B9A8E" stroke-width="2" fill="none"/>
+                <circle cx="50" cy="35" r="4" fill="#C9A86A"/>
+                <circle cx="100" cy="50" r="4" fill="#8B9A8E"/>
+                <circle cx="150" cy="35" r="4" fill="#C9A86A"/>
+                <path d="M 30 90 L 35 85 L 40 90" stroke="#8B9A8E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M 160 90 L 165 85 L 170 90" stroke="#C9A86A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
+            
+            <p>That's everything. You now have every detail needed to build production-grade WebSocket applications with Django Channels.</p>
+            <p style="margin-top: 20px; opacity: 0.7;">No guessing. No missing pieces. Just the complete picture.</p>
+        </footer>
+    </div>
+
+    <button class="back-to-top" aria-label="Back to top">↑</button>
+
+    <script>
+        // Progress bar
+        const progressBar = document.querySelector('.progress-bar');
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = scrollTop / docHeight;
+            progressBar.style.transform = `scaleX(${scrollPercent})`;
+        });
+
+        // Back to top button
+        const backToTopButton = document.querySelector('.back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate sections on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

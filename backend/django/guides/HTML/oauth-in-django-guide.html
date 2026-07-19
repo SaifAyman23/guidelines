@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OAuth in Django — Definitive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  :root{
+    --bg:#0B0F1C;
+    --panel:#121A2C;
+    --panel-2:#1A2338;
+    --border:#28324C;
+    --border-soft:#1E2740;
+    --text:#E8ECF6;
+    --text-dim:#8C97B8;
+    --text-faint:#5C6786;
+    --track-a:#4FE3C1;
+    --track-a-soft:rgba(79,227,193,.12);
+    --track-b:#F5B942;
+    --track-b-soft:rgba(245,185,66,.12);
+    --warn:#FB7280;
+    --warn-soft:rgba(251,114,128,.12);
+    --code-bg:#0E1422;
+    --radius:10px;
+    --topbar-h:64px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'IBM Plex Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .bg-grid{
+    position:fixed; inset:0; z-index:-1;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(140,151,184,0.10) 1px, transparent 0);
+    background-size:28px 28px;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  a{color:inherit;}
+  code{font-family:var(--font-mono); font-size:.88em; background:var(--panel-2); padding:.12em .42em; border-radius:5px; color:var(--track-a); border:1px solid var(--border-soft);}
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; letter-spacing:-0.01em; margin:0 0 .5em;}
+  p{margin:0 0 1em; color:var(--text);}
+  ul,ol{margin:0 0 1em; padding-left:1.3em;}
+  li{margin-bottom:.35em;}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40; height:var(--topbar-h);
+    background:rgba(11,15,28,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+    display:flex; align-items:center;
+  }
+  .topbar-inner{
+    width:100%; max-width:1180px; margin:0 auto; padding:0 20px;
+    display:flex; align-items:center; gap:20px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:600; font-size:15px; white-space:nowrap; }
+  .brand-mark{
+    width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, var(--track-a), var(--track-b)); color:#0B0F1C; font-size:14px; font-weight:700;
+  }
+  .segmented{
+    display:flex; gap:2px; background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:3px; margin-left:auto;
+  }
+  .segmented button{
+    font-family:var(--font-mono); font-size:12.5px; letter-spacing:.02em; background:none; border:none; color:var(--text-dim);
+    padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s;
+  }
+  .segmented button:hover{ color:var(--text); }
+  .segmented button.seg-active{ background:var(--panel-2); color:var(--text); box-shadow:inset 0 0 0 1px var(--border); }
+  .mode-badge{
+    font-family:var(--font-mono); font-size:11.5px; padding:6px 11px; border-radius:20px; border:1px solid var(--border);
+    color:var(--text-dim); white-space:nowrap; display:flex; align-items:center; gap:6px; transition:all .2s;
+  }
+  .mode-badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--text-faint); transition:all .2s; }
+  .mode-badge.mode-a{ color:var(--track-a); border-color:rgba(79,227,193,.35); background:var(--track-a-soft); }
+  .mode-badge.mode-a .dot{ background:var(--track-a); box-shadow:0 0 8px var(--track-a); }
+  .mode-badge.mode-b{ color:var(--track-b); border-color:rgba(245,185,66,.35); background:var(--track-b-soft); }
+  .mode-badge.mode-b .dot{ background:var(--track-b); box-shadow:0 0 8px var(--track-b); }
+  .rail-toggle{ display:none; background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; width:34px; height:34px; font-size:16px; cursor:pointer; }
+
+  /* ---------- layout ---------- */
+  .layout{ display:flex; max-width:1180px; align-items:flex-start; }
+  .rail{
+    position:sticky; top:var(--topbar-h); height:calc(100vh - var(--topbar-h));
+    width:500px; flex-shrink:0; overflow-y:auto; overflow-x:visible;
+    padding:28px 0; display:flex; flex-direction:column; align-items:center;
+    scrollbar-width:none;
+  }
+  .rail::-webkit-scrollbar{ display:none; }
+  .rail-track{ position:relative; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .rail-track::before{
+    content:''; position:absolute; top:6px; bottom:6px; left:50%; width:1px; transform:translateX(-50%);
+    background:linear-gradient(180deg, var(--border), var(--border) 40%, var(--border));
+    z-index:0;
+  }
+  .rail-node{
+    position:relative; z-index:1; background:none; border:none; cursor:pointer;
+    width:100%; height:26px; display:flex; align-items:center; justify-content:center;
+  }
+  .rail-dot{ width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .2s; }
+  .rail-node[data-track="a"] .rail-dot{ background:#3A4A5C; }
+  .rail-node[data-track="b"] .rail-dot{ background:#4A4230; }
+  .rail-node[data-track="a"].active .rail-dot{ background:var(--track-a); box-shadow:0 0 0 5px var(--track-a-soft); transform:scale(1.35); }
+  .rail-node[data-track="b"].active .rail-dot{ background:var(--track-b); box-shadow:0 0 0 5px var(--track-b-soft); transform:scale(1.35); }
+  .rail-node[data-track="n"].active .rail-dot{ background:var(--text); box-shadow:0 0 0 5px rgba(232,236,246,.10); transform:scale(1.35); }
+  .rail-label{
+    position:absolute; left:100%; margin-left:12px; top:50%; transform:translateY(-50%) translateX(-6px);
+    white-space:nowrap; font-family:var(--font-mono); font-size:11.5px; color:var(--text-dim);
+    background:var(--panel-2); border:1px solid var(--border); padding:4px 10px; border-radius:6px;
+    opacity:0; pointer-events:none; transition:all .15s;
+  }
+  .rail-node:hover .rail-label, .rail-node.active .rail-label{ opacity:1; transform:translateY(-50%) translateX(0); }
+  .rail-node.active .rail-label{ color:var(--text); }
+
+  main.content{ flex:1; min-width:0; padding:0 28px 120px; }
+
+  /* ---------- hero ---------- */
+  .hero{ padding:76px 0 48px; max-width:760px; }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim);
+    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .eyebrow::before{ content:''; width:22px; height:1px; background:var(--border); }
+  .hero h1{ font-size:44px; line-height:1.08; margin-bottom:20px; }
+  .hero p.lede{ font-size:17px; color:var(--text-dim); max-width:640px; }
+  .legend{ display:flex; gap:22px; margin-top:32px; flex-wrap:wrap; }
+  .legend-item{ display:flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); }
+  .legend-chip{ width:11px; height:11px; border-radius:3px; }
+
+  section.block{ padding:52px 0; border-top:1px solid var(--border-soft); scroll-margin-top:calc(var(--topbar-h) + 16px); }
+  section.block:first-of-type{ border-top:none; }
+  .block h2{ font-size:26px; margin-bottom:.65em; }
+  .block h3{ font-size:18px; margin-top:1.6em; }
+  .block-num{ font-family:var(--font-mono); font-size:12px; color:var(--text-faint); margin-bottom:8px; display:block; }
+
+  /* part banners */
+  .part-banner{
+    padding:30px 26px; border-radius:14px; margin-bottom:44px; border:1px solid var(--border);
+    position:relative; overflow:hidden;
+  }
+  .part-banner.pb-a{ background:linear-gradient(135deg, var(--track-a-soft), transparent 70%); border-color:rgba(79,227,193,.28); }
+  .part-banner.pb-b{ background:linear-gradient(135deg, var(--track-b-soft), transparent 70%); border-color:rgba(245,185,66,.28); }
+  .part-tag{
+    display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:11.5px; letter-spacing:.06em;
+    text-transform:uppercase; padding:5px 11px; border-radius:20px; margin-bottom:14px;
+  }
+  .pb-a .part-tag{ color:var(--track-a); background:rgba(79,227,193,.14); }
+  .pb-b .part-tag{ color:var(--track-b); background:rgba(245,185,66,.14); }
+  .part-banner h1{ font-family:var(--font-display); font-size:28px; margin:0 0 8px; }
+  .part-banner p{ color:var(--text-dim); margin:0; max-width:600px; }
+
+  .track-a-wrap .sub-block{ border-left:2px solid rgba(79,227,193,.35); padding-left:20px; margin-bottom:44px; }
+  .track-b-wrap .sub-block{ border-left:2px solid rgba(245,185,66,.35); padding-left:20px; margin-bottom:44px; }
+
+  /* ---------- code blocks ---------- */
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 20px; overflow-x:auto; margin:0 0 1.2em;
+  }
+  pre code{
+    background:none; border:none; padding:0; color:var(--text); font-size:13px; line-height:1.65;
+  }
+  .code-label{
+    font-family:var(--font-mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em;
+    margin:-6px 0 8px; display:block;
+  }
+  .hljs-comment{ color:var(--text-faint); font-style:italic; }
+  .hljs-string{ color:var(--track-b); }
+  .hljs-keyword, .hljs-built_in{ color:var(--track-a); }
+  .hljs-title, .hljs-title.function_, .hljs-title.class_{ color:#9FB8FF; }
+  .hljs-number{ color:#F5B942; }
+  .hljs-attr, .hljs-property{ color:#9FB8FF; }
+  .hljs-tag{ color:var(--text-dim); }
+  .hljs-name{ color:var(--track-a); }
+  .hljs-params{ color:var(--text); }
+  .hljs-literal{ color:var(--warn); }
+
+  /* ---------- tables ---------- */
+  .table-wrap{ overflow-x:auto; margin-bottom:1.3em; border:1px solid var(--border); border-radius:var(--radius); }
+  table{ border-collapse:collapse; width:100%; font-size:14px; }
+  th{
+    font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; text-align:left;
+    background:var(--panel-2); color:var(--text-dim); padding:11px 16px; border-bottom:1px solid var(--border);
+  }
+  td{ padding:11px 16px; border-bottom:1px solid var(--border-soft); color:var(--text); vertical-align:top; }
+  tr:last-child td{ border-bottom:none; }
+  td:first-child{ font-family:var(--font-mono); font-size:13px; color:var(--track-a); white-space:nowrap; }
+
+  /* ---------- checklist ---------- */
+  .checklist{ list-style:none; padding:0; margin:0 0 1em; }
+  .checklist li{
+    display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border-soft); align-items:flex-start;
+  }
+  .checklist li:last-child{ border-bottom:none; }
+  .checklist li::before{
+    content:'✓'; flex-shrink:0; width:20px; height:20px; border-radius:5px; background:var(--track-a-soft); color:var(--track-a);
+    display:flex; align-items:center; justify-content:center; font-size:12px; margin-top:1px;
+  }
+
+  /* ---------- flow diagram ---------- */
+  .flow-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:28px 0 8px; }
+  @media (max-width:760px){ .flow-wrap{ grid-template-columns:1fr; } }
+  .flow-card{ background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px 20px 8px; }
+  .flow-card h4{ font-size:13px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em; margin-bottom:16px; }
+  .flow-card.fa h4{ color:var(--track-a); }
+  .flow-card.fb h4{ color:var(--track-b); }
+  .flow-step{ display:flex; gap:12px; padding-bottom:16px; position:relative; }
+  .flow-step:not(:last-child)::before{
+    content:''; position:absolute; left:11px; top:24px; bottom:-4px; width:1px; background:var(--border);
+  }
+  .flow-step .num{
+    flex-shrink:0; width:23px; height:23px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:11px; background:var(--panel-2); border:1px solid var(--border); color:var(--text-dim); z-index:1;
+  }
+  .flow-step p{ margin:0; font-size:13.5px; color:var(--text-dim); padding-top:2px; }
+  .flow-step strong{ color:var(--text); font-weight:500; }
+
+  /* callouts */
+  .callout{ border-radius:10px; border:1px solid var(--border); padding:16px 18px; margin-bottom:1.2em; font-size:14.5px; }
+  .callout-title{ font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; display:block; }
+  .callout.warn{ border-color:rgba(251,114,128,.35); background:var(--warn-soft); }
+  .callout.warn .callout-title{ color:var(--warn); }
+  .callout.info{ border-color:var(--border); background:var(--panel); }
+  .callout.info .callout-title{ color:var(--text-dim); }
+
+  .direction-map{ display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; color:var(--text-faint); margin:6px 0 22px;}
+  .pill{ padding:3px 10px; border-radius:20px; border:1px solid var(--border); }
+  .pill.a{ color:var(--track-a); border-color:rgba(79,227,193,.3);}
+  .pill.b{ color:var(--track-b); border-color:rgba(245,185,66,.3);}
+
+  footer{ padding:60px 0 20px; color:var(--text-faint); font-size:13px; font-family:var(--font-mono); border-top:1px solid var(--border-soft); }
+
+  @media (max-width:900px){
+    .rail{ display:none; }
+    .rail.rail-open{
+      display:flex; position:fixed; left:0; top:var(--topbar-h); bottom:0; background:var(--panel); border-right:1px solid var(--border); z-index:39;
+    }
+    .rail-toggle{ display:flex; align-items:center; justify-content:center; }
+    .segmented{ display:none; }
+    .hero h1{ font-size:32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-mark">⇄</span> OAuth in Django</div>
+    <div class="segmented" role="tablist">
+      <button data-scroll="part-a" class="seg-btn">Client</button>
+      <button data-scroll="part-b" class="seg-btn">Provider</button>
+      <button data-scroll="reference" class="seg-btn">Reference</button>
+    </div>
+    <div class="mode-badge" id="modeBadge"><span class="dot"></span><span id="modeBadgeText">Overview</span></div>
+    <button class="rail-toggle" id="railToggle" aria-label="Toggle navigation">≡</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="rail" id="rail">
+    <div class="rail-track" id="railTrack"></div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="top">
+      <div class="eyebrow">Reference guide · updated mid-2026</div>
+      <h1>OAuth in Django,<br>both directions.</h1>
+      <p class="lede">OAuth shows up in Django projects two ways. <strong style="color:var(--track-a)">Django as client</strong> — your app lets users sign in with Google, GitHub, or Microsoft, via <code>django-allauth</code>. <strong style="color:var(--track-b)">Django as provider</strong> — your app issues its own OAuth2 tokens so other apps can call your API on a user's behalf, via <code>django-oauth-toolkit</code>. This guide covers both, end to end, with current package versions.</p>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-chip" style="background:var(--track-a)"></span> Client direction — django-allauth</div>
+        <div class="legend-item"><span class="legend-chip" style="background:var(--track-b)"></span> Provider direction — django-oauth-toolkit</div>
+        <div class="legend-item"><span class="legend-chip" style="background:var(--text-faint)"></span> Shared / infrastructure</div>
+      </div>
+    </section>
+
+    <!-- ============ CONCEPTS ============ -->
+    <section class="block" id="concepts" data-track="n" data-label="Concepts">
+      <h2>OAuth2 Concepts — How It Actually Works</h2>
+      <p>Before writing code, it helps to see both flows side by side — they share vocabulary but run in opposite directions.</p>
+
+      <div class="flow-wrap">
+        <div class="flow-card fa">
+          <h4>Social login — Django is the client</h4>
+          <div class="flow-step"><div class="num">1</div><p>User clicks <strong>"Log in with Google"</strong> in your app.</p></div>
+          <div class="flow-step"><div class="num">2</div><p>Your app redirects to Google's authorize URL with <strong>client_id</strong>, <strong>redirect_uri</strong>, <strong>state</strong>, and a PKCE challenge.</p></div>
+          <div class="flow-step"><div class="num">3</div><p>User logs in and consents <strong>on Google's site</strong>, not yours.</p></div>
+          <div class="flow-step"><div class="num">4</div><p>Google redirects back to your <strong>redirect_uri</strong> with a one-time <strong>code</strong>.</p></div>
+          <div class="flow-step"><div class="num">5</div><p>Your server exchanges the code for an <strong>access_token</strong>, server-to-server, using your <strong>client_secret</strong>.</p></div>
+          <div class="flow-step"><div class="num">6</div><p>Your server fetches the user's profile, then <strong>logs them into your session</strong>.</p></div>
+        </div>
+        <div class="flow-card fb">
+          <h4>API provider — Django is the server</h4>
+          <div class="flow-step"><div class="num">1</div><p>A third-party app redirects the user to <strong>your</strong> <code>/o/authorize/</code>.</p></div>
+          <div class="flow-step"><div class="num">2</div><p>User logs in <strong>on your site</strong> and approves the requested scopes.</p></div>
+          <div class="flow-step"><div class="num">3</div><p>You redirect back to <strong>their</strong> redirect_uri with a one-time <strong>code</strong>.</p></div>
+          <div class="flow-step"><div class="num">4</div><p>They call <code>POST /o/token/</code> with the code, their client_id and client_secret.</p></div>
+          <div class="flow-step"><div class="num">5</div><p>You return an <strong>access_token</strong> and <strong>refresh_token</strong>.</p></div>
+          <div class="flow-step"><div class="num">6</div><p>They call your API with <code>Authorization: Bearer &lt;token&gt;</code>.</p></div>
+        </div>
+      </div>
+
+      <h3>Key vocabulary</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Term</th><th>Meaning</th></tr>
+          <tr><td>Resource Owner</td><td>The end user who owns the data.</td></tr>
+          <tr><td>Client</td><td>The app requesting access — your Django app in the client direction; the third-party app in the provider direction.</td></tr>
+          <tr><td>Authorization Server</td><td>Issues tokens after the user consents — Google/GitHub in the client direction; your Django app in the provider direction.</td></tr>
+          <tr><td>Resource Server</td><td>Hosts the protected data behind the access token — Google's API in the client direction; your Django API in the provider direction.</td></tr>
+          <tr><td>Authorization Code</td><td>Short-lived, single-use code exchanged for a token — never usable on its own.</td></tr>
+          <tr><td>Access Token</td><td>Credential used to call the API. Short-lived (minutes to hours).</td></tr>
+          <tr><td>Refresh Token</td><td>Long-lived credential used to get a new access token without re-prompting the user.</td></tr>
+          <tr><td>Scope</td><td>A permission string limiting what the token can do (<code>read:profile</code>, <code>email</code>, etc).</td></tr>
+          <tr><td>State</td><td>A random value your app generates, sends to the authorization server, and checks on return — prevents CSRF.</td></tr>
+          <tr><td>PKCE</td><td>Proof Key for Code Exchange — a one-time challenge/verifier pair that stops a stolen authorization code from being redeemed by anyone but the app that started the flow. Mandatory for public clients (mobile, SPA), recommended for all.</td></tr>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-title">Critical principle</span>
+        The <code>client_secret</code> must never reach the browser or a mobile binary. Any flow where the secret would be embedded client-side (mobile apps, SPAs) uses PKCE instead of, or in addition to, a secret.
+      </div>
+    </section>
+
+    <!-- ============ DIRECTION ============ -->
+    <section class="block" id="direction" data-track="n" data-label="Direction">
+      <h2>Which Direction Do You Need?</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>You want to...</th><th>Use</th><th>Package</th></tr>
+          <tr><td style="color:var(--text)">Let users log in with Google/GitHub/Microsoft/Apple</td><td>Django as <strong>client</strong></td><td><code>django-allauth</code></td></tr>
+          <tr><td style="color:var(--text)">Let users log in with username/email + password too, alongside social</td><td>Django as <strong>client</strong></td><td><code>django-allauth</code></td></tr>
+          <tr><td style="color:var(--text)">Let a mobile app or SPA you also control call your Django API</td><td>Session auth (allauth headless) or DRF token auth — full OAuth provider is usually overkill</td><td><code>django-allauth</code> (headless)</td></tr>
+          <tr><td style="color:var(--text)">Let <strong>third-party developers</strong> integrate with your API</td><td>Django as <strong>provider</strong></td><td><code>django-oauth-toolkit</code></td></tr>
+          <tr><td style="color:var(--text)">Both — log users in via Google AND expose your own OAuth API to partners</td><td>Both, simultaneously — they don't conflict</td><td>Both</td></tr>
+        </table>
+      </div>
+      <p>Most Django projects only need Part A. Part B is for when your product itself becomes an OAuth provider for others.</p>
+    </section>
+
+    <!-- ============ PART A ============ -->
+    <section class="track-a-wrap" id="part-a" data-label="Part A">
+      <div class="part-banner pb-a">
+        <span class="part-tag">● Client direction</span>
+        <h1>Django as OAuth Client — Social Login</h1>
+        <p><code>django-allauth</code> (current stable: <strong>65.18.0</strong>, May 2026) is the de facto standard. It handles local accounts, social accounts, email verification, MFA, and a headless JSON API in one integrated package, so login state doesn't fork into two separate systems depending on how the user signed up.</p>
+      </div>
+
+      <div class="sub-block" id="a1" data-track="a" data-label="A1 · Install">
+        <span class="block-num">A1</span>
+        <h2>Installation</h2>
+        <pre><code class="language-bash">pip install django-allauth</code></pre>
+        <p>Requires Python 3.10+ (3.8/3.9 support was dropped) and supports Django 4.2 through 6.0.</p>
+        <span class="code-label">settings.py</span>
+        <pre><code class="language-python">INSTALLED_APPS = [
+    # ...
+    "django.contrib.auth",
+    "django.contrib.sites",   # required by allauth
+
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+
+    # one line per provider you want:
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.microsoft",
+]
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",          # local username/password login
+    "allauth.account.auth_backends.AuthenticationBackend", # allauth login
+]
+
+MIDDLEWARE = [
+    # ...
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",  # required since allauth 0.62+
+]
+
+TEMPLATES = [
+    {
+        # ...
+        "OPTIONS": {
+            "context_processors": [
+                # ...
+                "django.template.context_processors.request",  # required by allauth
+            ],
+        },
+    },
+]</code></pre>
+        <pre><code class="language-bash">python manage.py migrate</code></pre>
+      </div>
+
+      <div class="sub-block" id="a2" data-track="a" data-label="A2 · Settings">
+        <span class="block-num">A2</span>
+        <h2>Settings Reference</h2>
+        <pre><code class="language-python"># ─────────────────────────────────────────────────────────────────
+# LOGIN METHOD — how local (non-social) users log in
+# ─────────────────────────────────────────────────────────────────
+
+# Replaces the old ACCOUNT_AUTHENTICATION_METHOD (deprecated).
+# A set: {"username"}, {"email"}, or {"username", "email"}
+ACCOUNT_LOGIN_METHODS = {"email"}
+
+# Replaces the old ACCOUNT_EMAIL_REQUIRED / ACCOUNT_USERNAME_REQUIRED /
+# ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE settings (all deprecated as of 65.5+).
+# '*' marks a field required. Order controls the field order on the form.
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+
+# "mandatory" | "optional" | "none"
+# mandatory: user cannot log in until they click the emailed confirmation link
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+# Send a 6-8 char numeric/dashed code instead of a link — better for mobile deep-linking issues
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+
+# Prevent user enumeration: password reset / signup responses look identical
+# whether or not the email exists, so attackers can't probe for valid accounts
+ACCOUNT_PREVENT_ENUMERATION = True
+
+# Where to send users after login/logout
+LOGIN_REDIRECT_URL = "/dashboard/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+# Rate limiting on login attempts, password resets, etc.
+# Format: "attempts/period" e.g. "5/5m" = 5 attempts per 5 minutes
+ACCOUNT_RATE_LIMITS = {
+    "login_failed": "5/5m",
+}
+
+# ─────────────────────────────────────────────────────────────────
+# SOCIAL ACCOUNT BEHAVIOR
+# ─────────────────────────────────────────────────────────────────
+
+# Auto-create a local account on first social login without a separate
+# "complete your signup" step, PROVIDED the provider gives a verified email.
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# If a user signs up locally with an email, and later logs in via Google
+# using that same (verified) email, connect the accounts instead of erroring.
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# Only trust an email address from the provider if the provider marked it verified.
+SOCIALACCOUNT_STORE_TOKENS = True   # keep provider access/refresh tokens for later API calls
+
+# ─────────────────────────────────────────────────────────────────
+# SECURITY — session & cookies
+# ─────────────────────────────────────────────────────────────────
+
+SESSION_COOKIE_SECURE = True     # HTTPS only, production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+
+# ─────────────────────────────────────────────────────────────────
+# MFA (optional, built into allauth)
+# ─────────────────────────────────────────────────────────────────
+
+INSTALLED_APPS += ["allauth.mfa"]
+MFA_SUPPORTED_TYPES = ["totp", "webauthn", "recovery_codes"]</code></pre>
+      </div>
+
+      <div class="sub-block" id="a3" data-track="a" data-label="A3 · Providers">
+        <span class="block-num">A3</span>
+        <h2>Provider Configuration (Google, GitHub, Microsoft)</h2>
+        <p>Each provider needs a "social app" registered — either in <code>settings.py</code> (simpler, static) or via Django Admin at <code>/admin/socialaccount/socialapp/</code> (dynamic, no redeploy to rotate secrets).</p>
+        <span class="code-label">settings.py</span>
+        <pre><code class="language-python">SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},  # "offline" if you need a refresh token from Google
+        "OAUTH_PKCE_ENABLED": True,
+        "APP": {
+            "client_id": env("GOOGLE_OAUTH_CLIENT_ID"),
+            "secret": env("GOOGLE_OAUTH_CLIENT_SECRET"),
+        },
+    },
+    "github": {
+        "SCOPE": ["user:email"],
+        "APP": {
+            "client_id": env("GITHUB_OAUTH_CLIENT_ID"),
+            "secret": env("GITHUB_OAUTH_CLIENT_SECRET"),
+        },
+    },
+    "microsoft": {
+        "APP": {
+            "client_id": env("MICROSOFT_OAUTH_CLIENT_ID"),
+            "secret": env("MICROSOFT_OAUTH_CLIENT_SECRET"),
+        },
+        # Restrict to a specific Azure AD tenant, or "common" for any Microsoft account
+        "TENANT": env("MICROSOFT_TENANT_ID", default="common"),
+    },
+}</code></pre>
+        <h3>Where to get client IDs/secrets</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Provider</th><th>Console</th><th>Redirect URI to register</th></tr>
+            <tr><td>Google</td><td>console.cloud.google.com → APIs & Services → Credentials</td><td><code>https://yourdomain.com/accounts/google/login/callback/</code></td></tr>
+            <tr><td>GitHub</td><td>github.com/settings/developers → OAuth Apps</td><td><code>https://yourdomain.com/accounts/github/login/callback/</code></td></tr>
+            <tr><td>Microsoft</td><td>portal.azure.com → App registrations</td><td><code>https://yourdomain.com/accounts/microsoft/login/callback/</code></td></tr>
+          </table>
+        </div>
+        <div class="callout warn">
+          <span class="callout-title">Never commit client secrets</span>
+          Load them from environment variables (<code>django-environ</code>, <code>python-decouple</code>) or a secrets manager — never hardcode them in <code>settings.py</code>.
+        </div>
+      </div>
+
+      <div class="sub-block" id="a4" data-track="a" data-label="A4 · URLs">
+        <span class="block-num">A4</span>
+        <h2>URLs & Templates</h2>
+        <span class="code-label">urls.py</span>
+        <pre><code class="language-python">urlpatterns = [
+    # ...
+    path("accounts/", include("allauth.urls")),
+]</code></pre>
+        <p>That single include wires up <code>/accounts/login/</code>, <code>/accounts/signup/</code>, <code>/accounts/logout/</code>, <code>/accounts/google/login/</code>, <code>/accounts/github/login/</code>, password reset, email verification, MFA setup — the full set.</p>
+        <p>Minimal login template with a social button:</p>
+        <pre><code class="language-html">{% load allauth %}
+&lt;form method="post" action="{% url 'account_login' %}"&gt;
+  {% csrf_token %}
+  {{ form.as_p }}
+  &lt;button type="submit"&gt;Log in&lt;/button&gt;
+&lt;/form&gt;
+
+{% get_providers as socialaccount_providers %}
+{% for provider in socialaccount_providers %}
+  &lt;a href="{% provider_login_url provider.id %}"&gt;
+    Continue with {{ provider.name }}
+  &lt;/a&gt;
+{% endfor %}</code></pre>
+      </div>
+
+      <div class="sub-block" id="a5" data-track="a" data-label="A5 · Adapters">
+        <span class="block-num">A5</span>
+        <h2>Custom Adapters</h2>
+        <p>Adapters are the primary extension point — override methods instead of monkey-patching views.</p>
+        <span class="code-label">accounts/adapters.py</span>
+        <pre><code class="language-python">from allauth.account.adapter import DefaultAccountAdapter
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+
+class AccountAdapter(DefaultAccountAdapter):
+    def is_open_for_signup(self, request):
+        # e.g. invite-only during a private beta
+        return True
+
+    def get_login_redirect_url(self, request):
+        return f"/u/{request.user.username}/"
+
+
+class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def populate_user(self, request, sociallogin, data):
+        user = super().populate_user(request, sociallogin, data)
+        # Pull extra provider-specific fields into your user model
+        if sociallogin.account.provider == "google":
+            user.avatar_url = data.get("picture", "")
+        return user
+
+    def pre_social_login(self, request, sociallogin):
+        # Called after the user authenticates with the provider but before
+        # the local User is created/logged in. Good place for custom
+        # account-linking logic beyond the built-in email auto-connect.
+        pass</code></pre>
+        <span class="code-label">settings.py</span>
+        <pre><code class="language-python">ACCOUNT_ADAPTER = "accounts.adapters.AccountAdapter"
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.SocialAccountAdapter"</code></pre>
+      </div>
+
+      <div class="sub-block" id="a6" data-track="a" data-label="A6 · Headless">
+        <span class="block-num">A6</span>
+        <h2>Headless / API Mode (SPA, mobile)</h2>
+        <p>If your frontend is React/Vue/a mobile app rather than server-rendered Django templates, use allauth's <strong>headless</strong> mode: the same auth logic, exposed as a JSON API instead of HTML forms.</p>
+        <pre><code class="language-python">INSTALLED_APPS += ["allauth.headless"]
+
+HEADLESS_ONLY = False   # True if you have NO server-rendered templates at all
+HEADLESS_FRONTEND_URLS = {
+    "account_confirm_email": "https://app.example.com/verify-email/{key}",
+    "account_reset_password": "https://app.example.com/reset-password",
+    "socialaccount_login_error": "https://app.example.com/login/error",
+}</code></pre>
+        <span class="code-label">urls.py</span>
+        <pre><code class="language-python">urlpatterns = [
+    path("_allauth/", include("allauth.headless.urls")),
+]</code></pre>
+        <p>This exposes endpoints like <code>POST /_allauth/browser/v1/auth/login</code>, <code>POST /_allauth/browser/v1/auth/provider/redirect</code>, and <code>GET /_allauth/browser/v1/auth/session</code>, documented via an auto-generated OpenAPI spec at <code>/_allauth/openapi.html</code> when <code>HEADLESS_SERVE_SPECIFICATION = True</code>. Token-based (JWT) auth for native mobile apps is supported via <code>HEADLESS_TOKEN_STRATEGY</code>.</p>
+      </div>
+
+      <div class="sub-block" id="a7" data-track="a" data-label="A7 · Signals">
+        <span class="block-num">A7</span>
+        <h2>Getting Data Out — Signals & Models</h2>
+        <pre><code class="language-python">from allauth.socialaccount.models import SocialAccount
+from allauth.account.models import EmailAddress
+
+# All social accounts linked to a user
+SocialAccount.objects.filter(user=user)
+
+# The raw profile data the provider returned at login time
+social_account = SocialAccount.objects.get(user=user, provider="google")
+social_account.extra_data["picture"]
+
+# Provider access/refresh tokens (only present if SOCIALACCOUNT_STORE_TOKENS = True)
+# Use these to call the provider's API later (e.g. list the user's Google Calendar events)
+token = social_account.socialtoken_set.first()
+token.token           # access token
+token.token_secret     # refresh token, for providers that issue one
+
+# Verified email addresses
+EmailAddress.objects.filter(user=user, verified=True)</code></pre>
+        <pre><code class="language-python">from allauth.account.signals import user_signed_up
+from allauth.socialaccount.signals import social_account_added
+from django.dispatch import receiver
+
+
+@receiver(user_signed_up)
+def on_signup(request, user, **kwargs):
+    # e.g. enqueue a Celery welcome-email task, exactly as in the Celery guide:
+    # transaction.on_commit(lambda: send_welcome_email.delay(user_id=user.id))
+    pass</code></pre>
+      </div>
+    </section>
+
+    <!-- ============ PART B ============ -->
+    <section class="track-b-wrap" id="part-b" data-label="Part B">
+      <div class="part-banner pb-b">
+        <span class="part-tag">● Provider direction</span>
+        <h1>Django as OAuth Provider — Issuing Tokens</h1>
+        <p><code>django-oauth-toolkit</code> (current stable: <strong>3.3.0</strong>, May 2026) turns your Django app into a spec-compliant OAuth2 authorization server, built on <code>oauthlib</code>.</p>
+      </div>
+
+      <div class="sub-block" id="b1" data-track="b" data-label="B1 · Install">
+        <span class="block-num">B1</span>
+        <h2>Installation</h2>
+        <pre><code class="language-bash">pip install django-oauth-toolkit</code></pre>
+        <span class="code-label">settings.py</span>
+        <pre><code class="language-python">INSTALLED_APPS = [
+    # ...
+    "oauth2_provider",
+]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "oauth2_provider.backends.OAuth2Backend",
+]
+
+MIDDLEWARE = [
+    # ...
+    "oauth2_provider.middleware.OAuth2TokenMiddleware",  # populates request.user from a bearer token
+]</code></pre>
+        <span class="code-label">urls.py</span>
+        <pre><code class="language-python">from django.urls import include, path
+
+urlpatterns = [
+    path("o/", include("oauth2_provider.urls", namespace="oauth2_provider")),
+]</code></pre>
+        <pre><code class="language-bash">python manage.py migrate oauth2_provider</code></pre>
+      </div>
+
+      <div class="sub-block" id="b2" data-track="b" data-label="B2 · Settings">
+        <span class="block-num">B2</span>
+        <h2>Settings Reference</h2>
+        <pre><code class="language-python">OAUTH2_PROVIDER = {
+    # Access tokens expire after this many seconds. Keep this short —
+    # clients use the refresh token to get a new one silently.
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 3600,   # 1 hour
+
+    # Refresh tokens expire after this many seconds. Long-lived by design.
+    "REFRESH_TOKEN_EXPIRE_SECONDS": 30 * 24 * 3600,   # 30 days
+
+    # Rotate the refresh token every time it's used — a stolen refresh
+    # token that gets reused (by both attacker and legitimate client)
+    # can then be detected and the whole token family revoked.
+    "ROTATE_REFRESH_TOKEN": True,
+
+    # All scopes your API exposes, with human-readable descriptions
+    # shown to the user on the consent screen.
+    "SCOPES": {
+        "read": "Read access to your data",
+        "write": "Write access to your data",
+        "profile": "Access to your basic profile info",
+    },
+
+    # Default scopes granted if a client doesn't request specific ones
+    "DEFAULT_SCOPES": ["read"],
+
+    # PKCE is required for "public" clients (mobile, SPA — anything that
+    # can't keep a client_secret confidential). Recommended for all clients.
+    "PKCE_REQUIRED": True,
+
+    # Only allow HTTPS redirect URIs in production (allow http://localhost for dev)
+    "ALLOWED_REDIRECT_URI_SCHEMES": ["https"],
+
+    # How long an authorization code is valid before it must be exchanged
+    "AUTHORIZATION_CODE_EXPIRE_SECONDS": 600,   # 10 minutes
+
+    # Custom model if you need extra fields on Application/AccessToken
+    # "APPLICATION_MODEL": "myapp.Application",
+}
+
+LOGIN_URL = "/accounts/login/"   # where /o/authorize/ redirects unauthenticated users</code></pre>
+      </div>
+
+      <div class="sub-block" id="b3" data-track="b" data-label="B3 · Applications">
+        <span class="block-num">B3</span>
+        <h2>Registering an Application</h2>
+        <p>A "client" (the third-party app that wants to integrate) registers via <code>/o/applications/</code> or Django Admin.</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Field</th><th>Meaning</th></tr>
+            <tr><td>name</td><td>Human-readable name shown on the consent screen.</td></tr>
+            <tr><td>client_type</td><td><code>confidential</code> (has a server that can keep the secret) or <code>public</code> (mobile app, SPA — no secret storage).</td></tr>
+            <tr><td>authorization_grant_type</td><td><code>authorization-code</code> (standard, most secure), <code>client-credentials</code> (machine-to-machine), <code>password</code> (legacy, avoid), <code>openid-hybrid-code</code>.</td></tr>
+            <tr><td>redirect_uris</td><td>Exact allow-listed callback URL(s) — the authorization server refuses to redirect anywhere else.</td></tr>
+            <tr><td>client_id / secret</td><td>Generated automatically. <code>client_secret</code> is only shown once and hashed at rest from DOT 2.x onward.</td></tr>
+          </table>
+        </div>
+        <pre><code class="language-python">from oauth2_provider.models import Application
+
+app = Application.objects.create(
+    name="Partner Mobile App",
+    client_type=Application.CLIENT_PUBLIC,
+    authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
+    redirect_uris="com.partner.app://callback",
+    user=None,          # None = not tied to a specific Django user (typical for real apps)
+)</code></pre>
+      </div>
+
+      <div class="sub-block" id="b4" data-track="b" data-label="B4 · Protect views">
+        <span class="block-num">B4</span>
+        <h2>Protecting Views/APIs</h2>
+        <h3>Plain Django views</h3>
+        <pre><code class="language-python">from oauth2_provider.decorators import protected_resource
+
+@protected_resource(scopes=["read"])
+def api_profile(request):
+    return JsonResponse({"username": request.user.username})</code></pre>
+        <h3>Django REST Framework</h3>
+        <pre><code class="language-bash">pip install djangorestframework</code></pre>
+        <span class="code-label">settings.py</span>
+        <pre><code class="language-python">REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}</code></pre>
+        <pre><code class="language-python">from rest_framework.views import APIView
+from rest_framework.response import Response
+from oauth2_provider.contrib.rest_framework import TokenHasScope
+
+
+class ProfileView(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ["profile"]
+
+    def get(self, request):
+        return Response({"username": request.user.username})</code></pre>
+      </div>
+
+      <div class="sub-block" id="b5" data-track="b" data-label="B5 · Scopes">
+        <span class="block-num">B5</span>
+        <h2>Scopes — Endpoint-Level and Per-Object</h2>
+        <p>Scope enforcement happens at <strong>three layers</strong>. Most guides only show the first — the other two are what you actually need for a real multi-tenant or per-resource API.</p>
+
+        <h3>Layer 1 — Declare the scopes that exist</h3>
+        <pre><code class="language-python">OAUTH2_PROVIDER = {
+    "SCOPES": {
+        "read": "Read access to your data",
+        "write": "Write access to your data",
+        "jobs:read": "Read job postings",
+        "jobs:write": "Create and edit job postings",
+        "applications:read": "Read applications submitted to your jobs",
+    },
+    "DEFAULT_SCOPES": ["read"],
+}</code></pre>
+        <p>Use a <code>resource:action</code> naming convention (<code>jobs:read</code>, <code>jobs:write</code>) once you have more than a handful of scopes — a flat <code>read</code>/<code>write</code> pair doesn't scale past a toy API.</p>
+
+        <h3>Layer 2 — Restrict a whole endpoint to a scope</h3>
+        <p>This is what most tutorials stop at. It answers "can this token touch the <code>/jobs/</code> endpoint at all," not "can this token touch <em>this specific</em> job."</p>
+        <pre><code class="language-python">from rest_framework.views import APIView
+from oauth2_provider.contrib.rest_framework import TokenHasScope
+
+class JobListView(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ["jobs:read"]</code></pre>
+        <p><code>TokenHasReadWriteScope</code> is a built-in variant that auto-picks <code>read</code>/<code>write</code> based on HTTP method (<code>GET</code>/<code>HEAD</code>/<code>OPTIONS</code> need <code>read</code>, everything else needs <code>write</code>) — useful if your scope names match that pattern.</p>
+
+        <h3>Layer 3 — Restrict access to a specific object</h3>
+        <p>Scope alone can never express "this token may only read Job #42, not all jobs." That's an authorization decision that has to happen inside the view, using <strong>who the token belongs to</strong> (<code>request.user</code>) plus, if you need finer granularity, <strong>which application/client issued the token</strong> (<code>request.auth.application</code>).</p>
+        <pre><code class="language-python">from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import RetrieveAPIView
+from oauth2_provider.contrib.rest_framework import TokenHasScope
+
+class JobDetailView(RetrieveAPIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ["jobs:read"]
+    queryset = Job.objects.all()
+
+    def get_object(self):
+        job = super().get_object()
+        # Scope said "this token can read jobs" — this check says
+        # "...but only jobs belonging to the token's own user."
+        if job.employer_id != self.request.user.id:
+            raise PermissionDenied("This token cannot access this job.")
+        return job</code></pre>
+        <p>For consent-driven, resource-specific delegation (e.g. a partner app should only ever see the <em>one</em> job listing the user picked during the OAuth consent screen, not all of them), store that grant explicitly rather than trying to encode it in scope names:</p>
+        <span class="code-label">models.py</span>
+        <pre><code class="language-python">class DelegatedResourceGrant(models.Model):
+    access_token = models.ForeignKey(
+        "oauth2_provider.AccessToken", on_delete=models.CASCADE
+    )
+    job = models.ForeignKey("jobs.Job", on_delete=models.CASCADE)</code></pre>
+        <span class="code-label">view</span>
+        <pre><code class="language-python">def get_object(self):
+    job = super().get_object()
+    token = self.request.auth
+    if not DelegatedResourceGrant.objects.filter(access_token=token, job=job).exists():
+        raise PermissionDenied("Token was not granted access to this job.")
+    return job</code></pre>
+
+        <h3>Dynamic scopes (computed, not static)</h3>
+        <p>If the <em>set of available scopes itself</em> needs to depend on runtime data (e.g. a per-plan feature flag), implement a custom scopes backend instead of hardcoding everything in settings:</p>
+        <pre><code class="language-python">OAUTH2_PROVIDER = {
+    "SCOPES_BACKEND_CLASS": "myapp.oauth.CustomScopesBackend",
+}</code></pre>
+        <span class="code-label">myapp/oauth.py</span>
+        <pre><code class="language-python">from oauth2_provider.scopes import BaseScopes
+
+class CustomScopesBackend(BaseScopes):
+    def get_all_scopes(self):
+        return {"read": "Read access", "write": "Write access", "billing:write": "Manage billing"}
+
+    def get_available_scopes(self, application=None, request=None, *args, **kwargs):
+        scopes = ["read", "write"]
+        if application and application.organization.plan == "enterprise":
+            scopes.append("billing:write")
+        return scopes
+
+    def get_default_scopes(self, application=None, request=None, *args, **kwargs):
+        return ["read"]</code></pre>
+      </div>
+
+      <div class="sub-block" id="b6" data-track="b" data-label="B6 · Grant flows">
+        <span class="block-num">B6</span>
+        <h2>The Grant Flows</h2>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Flow</th><th>When to use</th><th>Needs a client_secret?</th></tr>
+            <tr><td>Auth Code + PKCE</td><td>Standard for anything with a user — web apps, mobile apps, SPAs. Always prefer this.</td><td>Confidential: yes. Public: no — PKCE replaces it.</td></tr>
+            <tr><td>Client Credentials</td><td>Machine-to-machine — no human user in the loop.</td><td>Yes</td></tr>
+            <tr><td>Refresh Token</td><td>Not standalone — gets a new access token once the first expires, without re-prompting.</td><td>Depends on client type</td></tr>
+            <tr><td>Password (ROPC)</td><td>Legacy only — client collects the password directly. Deprecated by spec; avoid.</td><td>Yes</td></tr>
+          </table>
+        </div>
+        <span class="code-label">Authorization Code flow — step 1: redirect user here</span>
+        <pre><code class="language-http">GET /o/authorize/?response_type=code&amp;client_id=&lt;id&gt;&amp;redirect_uri=&lt;uri&gt;&amp;scope=read+profile&amp;state=&lt;random&gt;&amp;code_challenge=&lt;challenge&gt;&amp;code_challenge_method=S256</code></pre>
+        <span class="code-label">Step 2: exchange the code for a token (server-to-server)</span>
+        <pre><code class="language-bash">curl -X POST https://yourdomain.com/o/token/ \
+  -d "grant_type=authorization_code" \
+  -d "code=&lt;code&gt;" \
+  -d "redirect_uri=&lt;uri&gt;" \
+  -d "client_id=&lt;id&gt;" \
+  -d "code_verifier=&lt;verifier&gt;"</code></pre>
+        <span class="code-label">Refresh</span>
+        <pre><code class="language-bash">curl -X POST https://yourdomain.com/o/token/ \
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=&lt;token&gt;" \
+  -d "client_id=&lt;id&gt;" \
+  -d "client_secret=&lt;secret&gt;"</code></pre>
+        <span class="code-label">Client Credentials (no user)</span>
+        <pre><code class="language-bash">curl -X POST https://yourdomain.com/o/token/ \
+  -d "grant_type=client_credentials" \
+  -d "client_id=&lt;id&gt;" \
+  -d "client_secret=&lt;secret&gt;" \
+  -d "scope=read"</code></pre>
+        <span class="code-label">Revoke a token</span>
+        <pre><code class="language-bash">curl -X POST https://yourdomain.com/o/revoke_token/ \
+  -d "token=&lt;token&gt;" \
+  -d "client_id=&lt;id&gt;" \
+  -d "client_secret=&lt;secret&gt;"</code></pre>
+      </div>
+
+      <div class="sub-block" id="b7" data-track="b" data-label="B7 · JWT / OIDC">
+        <span class="block-num">B7</span>
+        <h2>Stateless Tokens with OIDC/JWT (for scaling)</h2>
+        <p>By default, every access token DOT issues is an opaque string — validating it means a database (or cache) lookup on <strong>every single API request</strong>. That's fine at moderate traffic, but it becomes a bottleneck once you're running many app servers or splitting your product into microservices that all need to verify the same tokens independently.</p>
+        <p>The fix is to make tokens self-verifying JWTs signed with an RSA key (RS256), via DOT's built-in OpenID Connect support. Any service holding the public key can verify a token's signature and expiry <strong>without calling back to your auth server or database at all</strong>.</p>
+        <pre><code class="language-bash"># Generate a 4096-bit RSA key pair for signing (do this once, keep the private key secret)
+openssl genrsa -out oidc.key 4096</code></pre>
+        <span class="code-label">settings.py</span>
+        <pre><code class="language-python">OAUTH2_PROVIDER = {
+    "OIDC_ENABLED": True,
+    # Load from a secrets manager / env var — never commit this file or its contents.
+    "OIDC_RSA_PRIVATE_KEY": env("OIDC_RSA_PRIVATE_KEY"),
+    # Old keys, kept here (unused for signing) so already-issued tokens still verify
+    # during a rotation window. Remove only after ID_TOKEN_EXPIRE_SECONDS has elapsed.
+    "OIDC_RSA_PRIVATE_KEYS_INACTIVE": [
+        env("OIDC_RSA_PRIVATE_KEY_PREVIOUS", default=None),
+    ],
+    "SCOPES": {
+        "openid": "OpenID Connect scope",
+        "read": "Read access to your data",
+        "write": "Write access to your data",
+    },
+}</code></pre>
+        <p>Create the <code>Application</code> with grant type <strong>Authorization Code</strong> and signing algorithm <strong>RS256</strong> (RS256 is strongly preferred over HS256 — HS256 signs with the <code>client_secret</code> itself, which means any service that needs to <em>verify</em> a token also needs the secret, defeating the point of a public/private key split; it's also required for public clients since they can't hold a secret at all). Requesting the <code>openid</code> scope on the authorization request returns an ID token JWT alongside the access token.</p>
+        <p>Other services then verify tokens locally:</p>
+        <pre><code class="language-python">import jwt
+import requests
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
+def get_jwks():
+    # Fetch once, cache — this endpoint is designed to be cached aggressively
+    # (see OIDC_JWKS_MAX_AGE_SECONDS in settings)
+    return requests.get("https://yourdomain.com/o/.well-known/jwks.json").json()
+
+def verify_token(token: str) -> dict:
+    jwks = get_jwks()
+    signing_key = jwt.PyJWKClient("https://yourdomain.com/o/.well-known/jwks.json").get_signing_key_from_jwt(token)
+    return jwt.decode(token, signing_key.key, algorithms=["RS256"], audience="your-client-id")</code></pre>
+        <div class="callout info">
+          <span class="callout-title">Why this matters</span>
+          This is the single biggest lever for scaling an OAuth-protected API horizontally: it turns "every request round-trips to the auth DB" into "every request does a local signature check," and it's the same mechanism identity providers like Auth0/Okta use under the hood.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SCALING ============ -->
+    <section class="block" id="scaling" data-track="n" data-label="Scaling">
+      <h2>Scaling to Production</h2>
+      <p>The code from Parts A and B is correct at any scale, but a handful of infrastructure decisions determine whether it stays fast and reliable as traffic grows.</p>
+
+      <h3>Sessions and the client direction (allauth)</h3>
+      <p><code>django-allauth</code> logs users in via Django's normal session framework, so <strong>all</strong> of Django's usual session-scaling rules apply:</p>
+      <ul>
+        <li>Use a shared, fast session backend across all app servers — <code>django-redis</code> or <code>django.contrib.sessions.backends.cache</code> backed by Redis/Memcached, not the default database-backed sessions, once you have more than one app server.</li>
+        <li>Sticky sessions at the load balancer are <em>not</em> required if your session backend is shared — prefer a shared backend over sticky sessions, since sticky sessions turn a server restart or deploy into a wave of logged-out users.</li>
+        <li>Put <code>SocialToken</code>/<code>SocialAccount</code> reads behind <code>select_related</code>/<code>prefetch_related</code> if you're checking linked accounts on every request — this is an easy N+1 to introduce.</li>
+      </ul>
+
+      <h3>Tokens and the provider direction (DOT)</h3>
+      <ul>
+        <li><strong>Prefer JWT/OIDC (B7)</strong> once you have more than one app server or any microservice that needs to check tokens — it removes the DB round-trip from the hot path entirely.</li>
+        <li>If you stick with opaque tokens, put <code>AccessToken</code> lookups behind your normal DB read-replica routing — token validation is a read on every request, and it's one of the highest-QPS queries in the system.</li>
+        <li>Run <code>python manage.py cleartokens</code> on a schedule (a Celery Beat periodic task is the natural place for this) — expired tokens otherwise accumulate forever and bloat the token table, slowing down the very lookups you're trying to keep fast.</li>
+        <li>Set <code>REFRESH_TOKEN_EXPIRE_SECONDS</code> and <code>ROTATE_REFRESH_TOKEN</code> deliberately rather than leaving defaults — token churn has a direct storage and query-load cost at scale.</li>
+      </ul>
+
+      <h3>General</h3>
+      <ul>
+        <li>Terminate TLS at the load balancer, but make sure <code>SECURE_PROXY_SSL_HEADER</code> is set so Django knows the original request was HTTPS — OAuth redirect URIs and cookie <code>Secure</code> flags depend on it.</li>
+        <li>Put your provider's <code>/.well-known/openid-configuration</code> and <code>/.well-known/jwks.json</code> responses behind a CDN or long cache — they're public, static-ish, and hit by every client that verifies a token.</li>
+        <li>Rate limit the <code>/o/token/</code> and <code>/accounts/login/</code> endpoints at the edge (in addition to <code>ACCOUNT_RATE_LIMITS</code>) — these are the endpoints credential-stuffing and token-grinding attacks target first.</li>
+      </ul>
+    </section>
+
+    <!-- ============ SECURITY ============ -->
+    <section class="block" id="security" data-track="n" data-label="Security">
+      <h2>Security Checklist (Both Directions)</h2>
+      <ul class="checklist">
+        <li><code>client_secret</code> values are only ever in environment variables or a secrets manager — never in version control.</li>
+        <li>Redirect/callback URIs are exact-match allow-listed, no wildcards, no open redirects.</li>
+        <li>All OAuth traffic is HTTPS in production — <code>ALLOWED_REDIRECT_URI_SCHEMES = ["https"]</code>.</li>
+        <li><code>state</code> parameter is validated on every callback (allauth and DOT both do this by default — don't disable it).</li>
+        <li>PKCE is enabled for any public client — <code>OAUTH_PKCE_ENABLED</code> / <code>PKCE_REQUIRED</code>.</li>
+        <li>Access tokens are short-lived; refresh tokens rotate on use (<code>ROTATE_REFRESH_TOKEN = True</code>).</li>
+        <li>Provider emails are only trusted when the provider marks them verified — don't auto-link accounts on an unverified email.</li>
+        <li>Rate limiting is on for login, signup, and token endpoints.</li>
+        <li><code>SESSION_COOKIE_SECURE</code>, <code>CSRF_COOKIE_SECURE</code>, and <code>SESSION_COOKIE_HTTPONLY</code> are all <code>True</code> in production.</li>
+        <li>Stored provider tokens (<code>SocialToken</code>) are treated as sensitive — encrypted at rest if your compliance requirements call for it.</li>
+        <li>Dependencies are kept current — both packages have shipped real CVE fixes; pin versions and update on a schedule rather than never touching them.</li>
+      </ul>
+    </section>
+
+    <!-- ============ TESTING ============ -->
+    <section class="block" id="testing" data-track="n" data-label="Testing">
+      <h2>Testing</h2>
+      <h3>Mocking social login (allauth)</h3>
+      <pre><code class="language-python">from django.test import TestCase
+from allauth.socialaccount.models import SocialAccount, SocialApp
+from django.contrib.sites.models import Site
+
+
+class SocialLoginTest(TestCase):
+    def setUp(self):
+        self.site = Site.objects.get_current()
+        self.app = SocialApp.objects.create(
+            provider="google", name="Google", client_id="test", secret="test"
+        )
+        self.app.sites.add(self.site)
+
+    def test_social_account_created(self):
+        # Prefer allauth's test helpers (allauth.socialaccount.test) which
+        # simulate the full provider callback rather than hand-building
+        # SocialAccount rows, so adapter hooks actually run.
+        pass</code></pre>
+      <h3>Testing protected API endpoints (django-oauth-toolkit)</h3>
+      <pre><code class="language-python">from django.test import TestCase
+from oauth2_provider.models import Application, AccessToken
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta
+
+
+class ProtectedAPITest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username="alice", password="pass")
+        self.application = Application.objects.create(
+            name="Test App",
+            client_type=Application.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Application.GRANT_CLIENT_CREDENTIALS,
+        )
+        self.token = AccessToken.objects.create(
+            user=self.user,
+            application=self.application,
+            token="test-token-123",
+            expires=timezone.now() + timedelta(hours=1),
+            scope="read profile",
+        )
+
+    def test_authenticated_request(self):
+        response = self.client.get(
+            "/api/profile/",
+            HTTP_AUTHORIZATION=f"Bearer {self.token.token}",
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_missing_token_rejected(self):
+        response = self.client.get("/api/profile/")
+        self.assertEqual(response.status_code, 401)</code></pre>
+    </section>
+
+    <!-- ============ ERRORS ============ -->
+    <section class="block" id="errors" data-track="n" data-label="Errors">
+      <h2>Common Errors & Fixes</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Error</th><th>Root Cause</th><th>Fix</th></tr>
+          <tr><td>redirect_uri_mismatch</td><td>The URI you send doesn't byte-for-byte match what's registered in the provider console.</td><td>Copy exactly, including trailing slash and scheme; check http vs https.</td></tr>
+          <tr><td>SocialApp does not exist</td><td>No <code>SocialApp</code> created for that provider on the current <code>Site</code>.</td><td>Add it in Admin or via settings; confirm <code>SITE_ID</code> matches.</td></tr>
+          <tr><td>Duplicate user created</td><td>Provider email wasn't verified, so allauth couldn't safely auto-connect.</td><td>Enable <code>SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT</code>; only auto-link on verified emails.</td></tr>
+          <tr><td>invalid_grant</td><td>Authorization code expired, already used, or redirect_uri mismatch on token request.</td><td>Codes are single-use and short-lived — restart the flow; double-check redirect_uri consistency.</td></tr>
+          <tr><td>invalid_client</td><td>Wrong client_id/secret, or a public client incorrectly sending a secret.</td><td>Public clients should use PKCE instead of a secret.</td></tr>
+          <tr><td>401 despite fresh token</td><td><code>OAuth2TokenMiddleware</code> missing, or DRF authentication class not set.</td><td>Add the middleware; set DRF's authentication class.</td></tr>
+          <tr><td>Wrong consent scopes shown</td><td><code>OAUTH2_PROVIDER["SCOPES"]</code> not updated after a new API capability.</td><td>Add the scope to settings and to the view's <code>required_scopes</code>.</td></tr>
+          <tr><td>CSRF errors mixing headless + templates</td><td><code>HEADLESS_ONLY</code> misconfigured, or request context processor missing.</td><td>Set <code>HEADLESS_ONLY</code> correctly; ensure the request context processor is present.</td></tr>
+          <tr><td>AccountMiddleware missing</td><td>Required since allauth 0.62+, easy to miss on upgrades.</td><td>Add <code>allauth.account.middleware.AccountMiddleware</code> to <code>MIDDLEWARE</code>.</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ REFERENCE ============ -->
+    <section class="block" id="reference" data-track="n" data-label="Reference">
+      <h2>Quick Reference</h2>
+      <pre><code class="language-bash"># Install both directions
+pip install django-allauth django-oauth-toolkit
+
+# Migrate
+python manage.py migrate</code></pre>
+      <span class="code-label">urls.py — both directions can coexist</span>
+      <pre><code class="language-python">urlpatterns = [
+    path("accounts/", include("allauth.urls")),          # social login (client)
+    path("o/", include("oauth2_provider.urls", namespace="oauth2_provider")),  # your API (provider)
+]</code></pre>
+      <pre><code class="language-python"># Client direction — check a user's linked social accounts
+from allauth.socialaccount.models import SocialAccount
+SocialAccount.objects.filter(user=user)
+
+# Provider direction — protect a DRF view
+from oauth2_provider.contrib.rest_framework import TokenHasScope
+class MyView(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ["read"]</code></pre>
+      <pre><code class="language-python"># Core settings to always set explicitly, not leave at defaults
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+OAUTH2_PROVIDER = {"PKCE_REQUIRED": True, "ROTATE_REFRESH_TOKEN": True}</code></pre>
+    </section>
+
+    <footer>OAuth in Django — Definitive Guide · django-allauth 65.18.0 · django-oauth-toolkit 3.3.0</footer>
+  </main>
+</div>
+
+<script>
+  // ---- build rail nodes from every section with a data-label ----
+  const sections = Array.from(document.querySelectorAll('[id][data-label]'));
+  const railTrack = document.getElementById('railTrack');
+  const modeBadge = document.getElementById('modeBadge');
+  const modeBadgeText = document.getElementById('modeBadgeText');
+
+  const nodeMap = {};
+  sections.forEach(sec => {
+    const track = sec.getAttribute('data-track') || 'n';
+    const label = sec.getAttribute('data-label');
+    const btn = document.createElement('button');
+    btn.className = 'rail-node';
+    btn.setAttribute('data-track', track);
+    btn.innerHTML = '<span class="rail-dot"></span><span class="rail-label">' + label + '</span>';
+    btn.addEventListener('click', () => {
+      sec.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+    railTrack.appendChild(btn);
+    nodeMap[sec.id] = btn;
+  });
+
+  function setMode(track, label){
+    modeBadge.classList.remove('mode-a','mode-b');
+    if(track === 'a') modeBadge.classList.add('mode-a');
+    if(track === 'b') modeBadge.classList.add('mode-b');
+    modeBadgeText.textContent = label;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const node = nodeMap[id];
+      if(!node) return;
+      if(entry.isIntersecting){
+        Object.values(nodeMap).forEach(n => n.classList.remove('active'));
+        node.classList.add('active');
+        const track = entry.target.getAttribute('data-track') || 'n';
+        const label = entry.target.getAttribute('data-label');
+        setMode(track, label);
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(sec => observer.observe(sec));
+
+  // ---- top segmented nav ----
+  document.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.getAttribute('data-scroll'));
+      if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+
+  // ---- mobile rail toggle ----
+  const rail = document.getElementById('rail');
+  const railToggle = document.getElementById('railToggle');
+  railToggle.addEventListener('click', () => rail.classList.toggle('rail-open'));
+
+  // ---- syntax highlighting ----
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+
+</body>
+</html>
